@@ -1,0 +1,17 @@
+#ignore all generated artifacts
+*/target/
+*/build/
+*/bin/
+build/
+target/
+CMakeFiles/
+bin/
+obj/
+out/
+
+# ignore custom folders
+Wip/
+wip/
+Legacy/
+local-scripts/
+local-data/
