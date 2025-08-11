@@ -1,0 +1,57 @@
+@startuml base_de_datos
+
+' !include style/midnight-cyber.puml/
+
+title 📊 Base de Datos Autismo
+
+
+' Definimos zonas conceptuales
+package "📁 Configuración" {
+    
+    entity Usuario {
+        +_id : ObjectId
+        +nombre_usuario : string
+        +nombre : string
+        +email : string
+        +password_hash : string
+        +rol : string
+        +fecha_registro : datetime
+    }
+
+
+
+    ' Relaciones entre entidades internas
+
+}
+
+' Zona de datos dinámicos / históricos
+package "📈 Situaciones" {
+
+    entity Situación {
+        +_id : ObjectId
+        --
+        +Situacion socieconomica: int
+        +Nivel autismo: int
+    }
+
+    entity Charlas {
+        +_id : ObjectId
+        --
+        +fecha : datetime
+        +resultados: int
+    }
+
+    entity Estadisticas {
+        +_id : ObjectId
+        --
+        +resultados: string
+    }
+
+    ' Relaciones dinámicas internas
+    Situación "1" -- "0..*" Charlas
+    Situación "1" -- "1" Estadisticas
+
+}
+
+
+@enduml
