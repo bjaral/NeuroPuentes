@@ -1,4 +1,4 @@
-# ░▒▓ -CPHDEA- ▓▒░
+# ░▒▓ - NeuroPuentes - ▓▒░
 
 Aplicación web multiplataforma que se enfoca en crear situaciones problema para que estudiantes de psicología, enfermería y otras ramas de la salud puedan pulir sus habilidades comunicativas a la hora de entrevistar y conocer a padres de niños que se encuentran dentro del espectro autista.  
 
