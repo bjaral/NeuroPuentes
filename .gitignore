@@ -15,3 +15,8 @@ wip/
 Legacy/
 local-scripts/
 local-data/
+
+
+# dotnet-specific files
+obj/
+bin/
