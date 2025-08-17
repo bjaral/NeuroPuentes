@@ -1,1 +1,67 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+
+    Hola Benja!
+  <!-- Contadores -->
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-title>Entrevistas Realizadas</mat-card-title>
+      <mat-card-content>
+        <h2>{{ entrevistasRealizadas }}</h2>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-title>Puntaje Promedio</mat-card-title>
+      <mat-card-content>
+        <h2>{{ puntajePromedio }}</h2>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-title>Ultimo Feedback</mat-card-title>
+      <mat-card-content>
+        <h2>{{ ultimoFeedback }}</h2>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Acciones -->
+  <div class="actions">
+    <button mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      Nueva Entrevista
+    </button>
+
+    <button mat-raised-button color="accent">
+      <mat-icon>play_circle</mat-icon>
+      Simular Entrevista
+    </button>
+  </div>
+
+  <!-- Últimas entrevistas -->
+  <mat-card class="latest-interviews">
+    <mat-card-title>Últimas Entrevistas</mat-card-title>
+    <mat-card-content>
+      <div class="interviews-list">
+        <div *ngFor="let entrevista of entrevistas" class="interview-item">
+          <div class="interview-date">{{ entrevista.fecha }}</div>
+          <div class="interview-score">Puntaje: {{ entrevista.puntaje }}</div>
+          <div class="interview-status" [ngClass]="entrevista.estado.toLowerCase()">
+            {{ entrevista.estado }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tips -->
+  <mat-card class="tips-card">
+    <mat-card-title>💡 Tips de Entrevista</mat-card-title>
+    <mat-card-content>
+      <ul>
+        <li *ngFor="let tip of tips">{{ tip }}</li>
+      </ul>
+    </mat-card-content>
+  </mat-card>
+
+</div>
