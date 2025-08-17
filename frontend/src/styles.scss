@@ -1,1 +1,75 @@
-/* You can add global styles to this file, and also import other style files */
+// styles.scss
+@use '@angular/material' as mat;
+@use './app/shared/styles/_theme-colors' as my-theme;
+
+// Variables específicas del tema neuro
+$primary-color: #1565C0;
+$primary-light: #64B5F6;
+$primary-dark: #0D47A1;
+$accent-color: #FFD54F;
+$success-color: #81C784;
+$warn-color: #E57373;
+$background-light: #F5F5F5;
+$text-secondary: #9E9E9E;
+
+// Importar fuente Poppins desde Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+$font-family-main: 'Poppins', Roboto, "Helvetica Neue", sans-serif;
+
+// Configuración del tema Material
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: my-theme.$primary-palette,
+      tertiary: my-theme.$tertiary-palette,
+    ),
+    typography: (
+      plain-family: $font-family-main,
+      brand-family: $font-family-main,
+      bold-weight: 700,
+      medium-weight: 600,
+      regular-weight: 400,
+    ),
+    density: 0,
+  ));
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: $background-light;
+  font-family: $font-family-main;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+// Clases utilitarias para los colores específicos
+.bg-primary {
+  background-color: $primary-color;
+}
+
+.bg-primary-light {
+  background-color: $primary-light;
+}
+
+.bg-primary-dark {
+  background-color: $primary-dark;
+}
+
+.bg-accent {
+  background-color: $accent-color;
+}
+
+.bg-success {
+  background-color: $success-color;
+}
+
+.bg-warn {
+  background-color: $warn-color;
+}
+
+.text-secondary {
+  color: $text-secondary;
+}
