@@ -1,0 +1,294 @@
+@startuml CieloNebuloso
+' ===== TEMA: Cielo Nebuloso =====
+' Estilo minimalista y tecnológico en tonos de azul oscuro, cian eléctrico y verde lima
+
+' ===== PALETA DE COLORES =====
+' Color primario (azul oscuro base)
+!$primary = "#0D1B2A"
+!$primary_light = "#1B263B"
+!$primary_lighter = "#415A77"
+!$primary_lightest = "#778DA9"
+!$primary_dark = "#0D1B2A"
+!$primary_darker = "#0B1521"
+!$primary_darkest = "#09101A"
+
+' Tonos de contraste y acento
+!$accent_cyan = "#00FFFF"
+!$accent_lime = "#32CD32"
+
+' Escala de grises
+!$bg_dark = "#0D1B2A"
+!$bg_medium = "#1B263B"
+!$bg_light = "#415A77"
+
+' Texto optimizado
+!$text_primary = "#E0E1DD"
+!$text_secondary = "#B0B0B0"
+!$text_highlight = "#FFFFFF"
+
+' Enums y elementos intermedios
+!$intermediate_bg = "#32CD32"
+!$intermediate_line = "#E0E1DD"
+!$intermediate_font = "#0D1B2A"
+
+!$enum_bg = "#00FFFF"
+!$enum_line = "#0D1B2A"
+!$enum_font = "#0D1B2A"
+
+' Estados del sistema
+!$accent_success = "#32CD32"
+!$accent_warning = "#FFC107"
+!$accent_error = "#FF4500"
+
+' ===== TIPOGRAFÍA =====
+!$font_main = "'Roboto Mono', 'Consolas', monospace"
+!$font_title_size = 28
+!$font_large = 18
+!$font_medium = 15
+!$font_small = 12
+
+' ===== GEOMETRÍA =====
+!$border_radius = 6
+!$border_thickness = 1.5
+!$arrow_thickness = 2
+!$arrow_head_size = 7
+!$shadow_intensity = 15
+
+skinparam Shadowing false
+skinparam Handwritten false
+skinparam actorStyle awesome
+skinparam monochrome false
+
+<style>
+
+' ================================================
+' ================ GLOBAL CONFIG ================
+' ================================================
+root {
+BackgroundColor $bg_dark
+LineColor $primary_lightest
+FontName $font_main
+FontSize $font_medium
+FontColor $text_primary
+}
+
+' ================================================
+' ============== SHARED ELEMENTS ================
+' ================================================
+rectangle, activity, object, component, node, cloud, package, file, usecase {
+BackgroundColor $bg_medium
+LineColor $primary_lighter
+FontColor $text_primary
+RoundCorner $border_radius
+BorderThickness $border_thickness
+FontStyle normal
+}
+
+actor {
+Style awesome
+BackgroundColor $bg_light
+LineColor $accent_cyan
+FontColor $text_highlight
+RoundCorner 25
+FontStyle bold
+}
+
+database {
+BackgroundColor $bg_medium
+LineColor $primary_lighter
+FontColor $text_primary
+RoundCorner $border_radius
+}
+
+participant {
+BackgroundColor $bg_light
+LineColor $accent_cyan
+FontColor $text_highlight
+RoundCorner 15
+FontStyle bold
+}
+
+diamond, activityDiamond {
+BackgroundColor $primary_light
+LineColor $primary_lighter
+FontColor $text_highlight
+RoundCorner $border_radius
+FontStyle bold
+}
+
+partition, swimlane {
+BackgroundColor $bg_light
+LineColor $primary_lighter
+FontColor $text_highlight
+LineThickness $border_thickness + 1
+RoundCorner $border_radius
+}
+
+arrow {
+LineColor $accent_cyan
+LineThickness $arrow_thickness
+FontColor $text_secondary
+FontStyle normal
+}
+
+note {
+BackgroundColor $bg_medium
+LineColor $primary_lighter
+FontColor $text_highlight
+RoundCorner $border_radius
+}
+
+' ================================================
+' ============= DIAGRAMAS ENTIDAD-RELACIÓN ======
+' ================================================
+entity {
+BackgroundColor $bg_medium
+LineColor $primary_lighter
+FontColor $text_primary
+RoundCorner $border_radius
+}
+
+entity_header {
+BackgroundColor $bg_light
+FontColor $text_highlight
+FontStyle bold
+}
+
+entity_attribute {
+BackgroundColor $bg_medium
+FontColor $text_secondary
+FontSize $font_small
+RoundCorner $border_radius - 2
+}
+
+primary_key {
+BackgroundColor $primary_light
+FontColor $text_highlight
+FontStyle bold
+}
+
+foreign_key {
+BackgroundColor $bg_light
+FontColor $accent_cyan
+FontStyle italic
+LineStyle dashed
+}
+
+relationship {
+LineColor $primary_lightest
+LineThickness $arrow_thickness
+FontColor $text_secondary
+FontStyle italic
+}
+
+inheritance {
+LineColor $primary_lightest
+LineThickness $arrow_thickness + 1
+TriangleSize $arrow_head_size + 2
+}
+
+cardinality {
+FontColor $primary_lightest
+FontSize $font_small
+FontStyle italic
+}
+
+' Estilo para tablas intermedias (asociación)
+.intermedias {
+BackgroundColor $intermediate_bg
+LineColor $intermediate_line
+FontColor $intermediate_font
+RoundCorner $border_radius
+FontStyle bold
+LineStyle dotted
+}
+
+' Estilo para tablas enumEntity (enumeraciones)
+.enumEntity {
+BackgroundColor $enum_bg
+LineColor $enum_line
+FontColor $enum_font
+RoundCorner 5
+FontStyle italic
+}
+
+' ================================================
+' ============= USE CASE DIAGRAM STYLES ==========
+' ================================================
+usecase {
+BackgroundColor $bg_light
+LineColor $primary_lighter
+FontColor $text_highlight
+RoundCorner 15
+}
+
+.arrowInclude {
+LineColor $accent_cyan
+LineThickness $arrow_thickness
+LineStyle dashed
+}
+
+.arrowExtend {
+LineColor $primary_lightest
+LineThickness $arrow_thickness
+LineStyle dotted
+}
+
+' ================================================
+' =========== ACTIVITY DIAGRAM STYLES ============
+' ================================================
+activityStart, activityEnd {
+BackgroundColor $accent_cyan
+LineColor $primary_lighter
+FontColor $primary_darkest
+FontStyle bold
+RoundCorner 50
+}
+
+activityDecision {
+BackgroundColor $bg_light
+LineColor $primary_lighter
+FontColor $text_highlight
+RoundCorner $border_radius
+}
+
+' ================================================
+' ============== TÍTULOS Y LEYENDAS =============
+' ================================================
+title {
+LineColor $accent_cyan
+FontColor $accent_cyan
+FontSize $font_title_size
+FontStyle bold
+Margin 20
+Padding 10
+BackgroundColor $bg_light
+RoundCorner $border_radius
+}
+
+legend {
+BackgroundColor $bg_medium
+LineColor $primary_lighter
+RoundCorner $border_radius
+FontColor $text_secondary
+}
+
+legendTitle {
+FontColor $accent_cyan
+FontSize $font_large
+FontStyle bold
+}
+
+legendText {
+FontColor $text_secondary
+FontSize $font_small
+}
+</style>
+
+skinparam stereotype<<E>> {
+BackgroundColor $bg_light
+FontColor $text_highlight
+FontSize $font_small
+RoundCorner 5
+}
+@enduml
