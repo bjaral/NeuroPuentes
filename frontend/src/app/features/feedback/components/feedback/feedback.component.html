@@ -1,1 +1,72 @@
-<p>feedback works!</p>
+<main class="resultados-container" aria-label="Resultados de la evaluación">
+
+  <h1 class="page-title">Resultados de la Evaluación</h1>
+
+  <!-- Fila 1: Nota final + evaluación por categorías -->
+  <section class="fila fila-superior">
+    <div class="nota-final">
+      <span class="numero">86%</span>
+      <span class="label">Promedio general</span>
+    </div>
+
+    <div class="evaluacion-section">
+      <h2 class="section-title">Evaluación por categoría</h2>
+      <div class="bar-chart">
+        <div class="bar" data-value="85">
+          <span>Inicio</span>
+          <div class="bar-fill"></div>
+          <span class="percentage">85%</span>
+        </div>
+        <div class="bar" data-value="78">
+          <span>Preguntas</span>
+          <div class="bar-fill"></div>
+          <span class="percentage">78%</span>
+        </div>
+        <div class="bar" data-value="92">
+          <span>Empatía</span>
+          <div class="bar-fill"></div>
+          <span class="percentage">92%</span>
+        </div>
+        <div class="bar" data-value="88">
+          <span>Cierre</span>
+          <div class="bar-fill"></div>
+          <span class="percentage">88%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fila 2: Feedback y comparativa -->
+  <section class="fila fila-media">
+    <div class="feedback-section">
+      <h2 class="section-title">Feedback</h2>
+      <ul class="list">
+        <li class="item success">
+          <mat-icon>check_circle</mat-icon> Buen manejo de preguntas abiertas.
+        </li>
+        <li class="item warn">
+          <mat-icon>cancel</mat-icon> Mejorar la validación emocional del padre.
+        </li>
+        <li class="item success">
+          <mat-icon>check_circle</mat-icon> Cierre claro y respetuoso.
+        </li>
+      </ul>
+    </div>
+
+    <div class="comparativa-section">
+      <h2 class="section-title">Comparativa con entrevistas anteriores</h2>
+      <div class="timeline">
+        <div class="tl">01/08: <strong>80%</strong></div>
+        <div class="tl">05/08: <strong>90%</strong></div>
+        <div class="tl">10/08: <strong>82%</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fila 3: Botones -->
+  <section class="fila fila-inferior">
+    <button mat-raised-button color="primary">Repetir entrevista</button>
+    <button mat-stroked-button color="primary">Volver al menú principal</button>
+  </section>
+
+</main>
