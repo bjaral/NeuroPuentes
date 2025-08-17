@@ -1,1 +1,81 @@
-<p>simulation works!</p>
+<div class="interview-container">
+  <!-- Barra superior con estado -->
+  <div class="status-bar">
+    <div class="status-indicator" [ngClass]="'status-' + interviewStatus()">
+      <mat-icon>{{ getStatusIcon() }}</mat-icon>
+      <span>{{ getStatusText() }}</span>
+    </div>
+  </div>
+
+  <!-- Contenedor principal -->
+  <div class="main-content">
+    <!-- Área de llamada con avatar y controles -->
+    <div class="call-area">
+      <div class="avatar-container">
+        <div class="avatar" [ngClass]="{ 'speaking': aiSpeaking() }">
+          <mat-icon class="avatar-icon">account_circle</mat-icon>
+          <div class="pulse-ring" *ngIf="interviewStatus() === 'recording'"></div>
+        </div>
+        <h2 class="ai-name">María - Madre Preocupada</h2>
+        <p class="ai-description">Busca orientación profesional sobre su hijo Diego (6 años)</p>
+      </div>
+
+      <!-- Botones de control -->
+      <div class="control-buttons">
+        <button mat-fab extended class="control-btn start-btn" [disabled]="interviewStatus() === 'recording'"
+          (click)="startInterview()">
+          <mat-icon>play_arrow</mat-icon>
+          Iniciar
+        </button>
+
+        <button mat-fab extended class="control-btn pause-btn" [disabled]="interviewStatus() !== 'recording'"
+          (click)="pauseInterview()">
+          <mat-icon>pause</mat-icon>
+          Pausar
+        </button>
+
+        <button mat-fab extended class="control-btn stop-btn" [disabled]="interviewStatus() === 'stopped'"
+          (click)="stopInterview()">
+          <mat-icon>stop</mat-icon>
+          Terminar
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel de transcripción -->
+    <div class="transcription-panel">
+      <div class="panel-header">
+        <mat-icon>chat</mat-icon>
+        <h3>Transcripción de Entrevista</h3>
+      </div>
+
+      <div class="messages-container" #messagesContainer>
+        <div class="message-bubble" *ngFor="let message of messages(); trackBy: trackByMessageId"
+          [ngClass]="'message-' + message.sender">
+          <div class="message-content">
+            <p>{{ message.text }}</p>
+          </div>
+        </div>
+
+        <!-- Indicador de escritura -->
+        <div class="typing-indicator" *ngIf="aiSpeaking()">
+          <div class="message-bubble message-ai">
+            <div class="message-content">
+              <div class="typing-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado vacío -->
+      <div class="empty-state" *ngIf="messages().length === 0">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <p>La transcripción de la entrevista clínica aparecerá aquí en tiempo real</p>
+      </div>
+    </div>
+  </div>
+</div>
