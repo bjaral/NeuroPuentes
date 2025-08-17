@@ -10,10 +10,10 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.17" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
-
+<!-- 
   <ItemGroup>
     <ProjectReference Include="..\NeuroPuentes.Core\NeuroPuentes.Core.csproj" />
     <ProjectReference Include="..\NeuroPuentes.Infrastructure\NeuroPuentes.Infrastructure.csproj" />
-  </ItemGroup>
+  </ItemGroup> -->
 
 </Project>
