@@ -1,8 +1,9 @@
-@startuml base_de_datos
+@startuml NeuroPuentes
 
-' !include style/midnight-cyber.puml/
+!include style/cielo-nebuloso.puml/
+skinparam backgroundColor transparent
 
-title 📊 Base de Datos Autismo
+title NeuroPuentes
 
 
 ' Definimos zonas conceptuales

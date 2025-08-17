@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
-import { FeedbackComponent } from './features/feedback/components/feedback/feedback.component';
+import { ScenarioConfigComponent } from './features/scenarios/components/scenarios/scenario-config/scenario-config.component';
 
 export const routes: Routes = [
-
-    { 'path': 'feedback', 'component': FeedbackComponent }
-    
+  {
+    path: 'scenarios',
+    component: ScenarioConfigComponent
+  },
 ];

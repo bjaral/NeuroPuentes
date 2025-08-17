@@ -15,4 +15,4 @@ Aplicación web multiplataforma que se enfoca en crear situaciones problema para
 Instrucciones de instalacíón
 
 ### ❖ Base de datos
-<img src="docs/export/base_de_datos.png"/>
+<img src="docs/export/NeuroPuentes.svg"/>
