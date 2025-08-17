@@ -1,0 +1,227 @@
+@use '../../../../../styles.scss' as *;
+
+.resultados-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background-color: $background-light;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  font-family: $font-family-main;
+  color: rgba(0, 0, 0, 0.87);
+
+  .page-title {
+    font-weight: 700;
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+    color: $primary-dark;
+  }
+
+  .fila {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+
+    &-superior {
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    &-media {
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    &-inferior {
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+  }
+
+  .nota-final {
+    flex: 1 1 250px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba($primary-color, 0.15);
+
+    .numero {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: $primary-color;
+      display: block;
+      line-height: 1;
+    }
+
+    .label {
+      margin-top: 0.25rem;
+      font-weight: 600;
+      color: $primary-dark;
+      opacity: 0.8;
+      font-size: 1rem;
+    }
+  }
+
+  .evaluacion-section {
+    flex: 2 1 600px;
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: $primary-dark;
+    }
+
+    .bar-chart {
+      display: flex;
+      gap: 1rem;
+
+      .bar {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: rgba(0,0,0,0.7);
+
+        span {
+          margin-bottom: 0.3rem;
+        }
+
+        .bar-fill {
+          width: 100%;
+          height: 16px;
+          border-radius: 10px;
+          background-color: $primary-light;
+          position: relative;
+          overflow: hidden;
+          margin-bottom: 0.3rem;
+
+          &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(to right, $primary-dark, $primary-light);
+            width: 100%;
+            transition: width 0.7s ease;
+          }
+        }
+
+        .percentage {
+          font-size: 0.85rem;
+          color: $text-secondary;
+        }
+      }
+    }
+  }
+
+  .feedback-section, .comparativa-section {
+    flex: 1 1 45%;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: $primary-dark;
+    }
+  }
+
+  .feedback-section {
+    .list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      .item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+        color: rgba(0,0,0,0.8);
+
+        &.success {
+          color: $success-color;
+        }
+
+        &.warn {
+          color: $warn-color;
+        }
+
+        mat-icon {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+
+  .comparativa-section {
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .tl {
+        font-size: 0.95rem;
+        color: rgba(0,0,0,0.7);
+
+        strong {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+
+  .fila-inferior {
+    button {
+      min-width: 160px;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 6px;
+      box-shadow: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      padding: 0.5rem 1.5rem;
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba($primary-color, 0.4);
+      }
+    }
+
+    button[mat-raised-button] {
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      box-shadow: 0 3px 6px rgba($primary-color, 0.4);
+
+      &:hover {
+        background-color: $primary-dark;
+        box-shadow: 0 5px 12px rgba($primary-dark, 0.6);
+      }
+    }
+
+    button[mat-stroked-button] {
+      background-color: white;
+      color: $primary-color;
+      border: none;
+      box-shadow: 0 1px 4px rgba($primary-color, 0.2);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        background-color: rgba($primary-color, 0.1);
+        box-shadow: 0 4px 10px rgba($primary-color, 0.4);
+      }
+    }
+  }
+}
