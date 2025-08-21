@@ -1,1 +1,26 @@
-<p>login works!</p>
+<!-- HTML Template -->
+<section class="login-container">
+    <!-- Login Panel -->
+    <section class="login-panel">
+        <form [formGroup]="loginForm">
+            <h2>Iniciar Sesión</h2>
+            <mat-form-field appearance="outline">
+                <mat-label>Correo</mat-label>
+                <input formControlName="email" matInput required>
+                <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Contraseña</mat-label>
+                <input formControlName="password" matInput [type]="hidePassword ? 'password' : 'text'" required>
+                <mat-icon matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Ocultar contraseña'"
+                    [attr.aria-checked]="!hidePassword">
+                    {{hidePassword ? 'visibility_off' : 'visibility'}}
+                </mat-icon>
+            </mat-form-field>
+            <a routerLink="/forgot-password">Recuperar Contraseña</a>
+            <button mat-raised-button color="primary" (click)="onSubmit()" class="login-button">Iniciar Sesión</button>
+            <div class="separator"></div>
+            <button mat-button routerLink="/registro" class="register-button">¡Únete ahora!</button>
+        </form>
+    </section>
+</section>
