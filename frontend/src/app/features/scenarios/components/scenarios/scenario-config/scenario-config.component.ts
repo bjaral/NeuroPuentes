@@ -8,12 +8,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRippleModule } from '@angular/material/core';
 import { ScenariosService } from '../../../services/scenarios.service';
 import type { Scenario } from '../../../services/scenarios.service';
+import { MATERIAL_IMPORTS } from '../../../../../shared/material/material';
 
 @Component({
   selector: 'app-scenario-config',
   standalone: true,
   imports: [
     CommonModule,
+    MATERIAL_IMPORTS,
     MatCardModule,
     MatButtonModule,
     MatDividerModule,
