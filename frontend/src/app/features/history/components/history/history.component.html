@@ -1,1 +1,19 @@
-<p>history works!</p>
+<main class="history-container" aria-label="Historial de entrevistas">
+  <h1 class="page-title">Historial de Entrevistas</h1>
+  <!-- Lista de entrevistas -->
+  <section class="list">
+    <mat-card
+      *ngFor="let interview of interviews"
+      class="interview-card"
+    >
+      <div class="info">
+        <p class="date">{{ interview.date }}</p>
+        <p class="details">
+          Duración: {{ interview.duration }} | Puntaje:
+          <strong>{{ interview.score }}</strong>
+        </p>
+      </div>
+      <button mat-raised-button color="primary">Ver Detalle</button>
+    </mat-card>
+  </section>
+</main>

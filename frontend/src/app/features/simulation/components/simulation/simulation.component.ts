@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../../../shared/material/material';
+import { RouterModule } from '@angular/router';
 
 interface Message {
   id: string;
@@ -12,7 +13,7 @@ type InterviewStatus = 'stopped' | 'recording' | 'paused' | 'finished';
 
 @Component({
   selector: 'app-simulation',
-  imports: [...MATERIAL_IMPORTS, CommonModule],
+  imports: [...MATERIAL_IMPORTS, CommonModule, RouterModule],
   templateUrl: './simulation.component.html',
   styleUrl: './simulation.component.scss'
 })

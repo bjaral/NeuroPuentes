@@ -9,6 +9,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { ScenariosService } from '../../../services/scenarios.service';
 import type { Scenario } from '../../../services/scenarios.service';
 import { MATERIAL_IMPORTS } from '../../../../../shared/material/material';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-scenario-config',
@@ -21,8 +22,9 @@ import { MATERIAL_IMPORTS } from '../../../../../shared/material/material';
     MatDividerModule,
     MatIconModule,
     MatTooltipModule,
-    MatRippleModule
-  ],
+    MatRippleModule,
+    RouterModule
+],
   templateUrl: './scenario-config.component.html',
   styleUrls: ['./scenario-config.component.scss']
 })

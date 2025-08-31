@@ -35,7 +35,7 @@
         </button>
 
         <button mat-fab extended class="control-btn stop-btn" [disabled]="interviewStatus() === 'stopped'"
-          (click)="stopInterview()">
+          (click)="stopInterview()" routerLink="/feedback">
           <mat-icon>stop</mat-icon>
           Terminar
         </button>
