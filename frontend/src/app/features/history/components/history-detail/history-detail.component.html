@@ -1,1 +1,58 @@
-<p>history-detail works!</p>
+<main class="detail-container">
+    <!-- Contexto -->
+    <mat-card class="context-card">
+        <h1 class="title">{{ interviewTitle }}</h1>
+        <p class="description">{{ interviewDescription }}</p>
+        <mat-chip-listbox aria-label="Etiquetas">
+            <mat-chip *ngFor="let tag of tags" color="primary" selected>{{
+                tag
+                }}</mat-chip>
+        </mat-chip-listbox>
+    </mat-card>
+
+    <!-- Transcripción -->
+    <mat-card class="transcript-card">
+        <h2 class="section-title">Transcripción</h2>
+        <div class="transcript">
+            <div *ngFor="let line of transcript" [ngClass]="line.sender === 'user' ? 'msg-user' : 'msg-ai'">
+                <mat-icon *ngIf="line.sender === 'user'" class="icon user-icon">person</mat-icon>
+                <mat-icon *ngIf="line.sender === 'ai'" class="icon ai-icon">psychology</mat-icon>
+                <span>{{ line.text }}</span>
+            </div>
+        </div>
+    </mat-card>
+
+    <!-- Evaluación -->
+    <mat-card class="evaluation-card">
+        <h2 class="section-title">Evaluación</h2>
+        <div class="final-score">
+            <span class="number">{{ finalScore }}%</span>
+            <span class="label">Promedio general</span>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="categories">
+            <div class="cat" *ngFor="let e of evaluation">
+                <span>{{ e.category }}</span>
+                <strong>{{ e.score }}%</strong>
+            </div>
+        </div>
+    </mat-card>
+
+    <!-- Tips -->
+    <mat-card class="tips-card">
+        <h2 class="section-title">Tips para mejorar</h2>
+        <ul class="tips-list">
+            <li *ngFor="let tip of tips">
+                <mat-icon>lightbulb</mat-icon> {{ tip }}
+            </li>
+        </ul>
+    </mat-card>
+
+    <!-- Botones -->
+    <section class="actions">
+        <button mat-raised-button color="primary">Repetir entrevista</button>
+        <button mat-stroked-button color="primary">Descargar reporte</button>
+    </section>
+</main>

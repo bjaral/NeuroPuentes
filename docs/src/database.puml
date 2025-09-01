@@ -3,268 +3,185 @@
 !include style/cielo-nebuloso.puml/
 skinparam backgroundColor transparent
 
-title NeuroPuentes
+' ========================
+' FEEDBACK
+' ========================
+package "Feedback" {
+  
+  entity Feedback_Entrevista {
+    +_id : INT PK
+    +entrevista_id : INT FK -> Entrevistas._id
+    --
+    +tipo : ENUM('fortaleza','debilidad','sugerencia','general')
+    +mensaje : text
+    +categoria : varchar(40)
+    +fecha : datetime
+  }
 
-
+  entity Feedback_Usuario {
+    +_id : INT PK
+    +usuario_id : INT FK -> Usuarios._id
+    --
+    +tipo : ENUM('fortaleza','debilidad','sugerencia','general')
+    +mensaje : text
+    +categoria : varchar(40)
+    +fecha : datetime
+  }
+}
 
 ' ========================
-' ZONA PERSONAL
+' PERSONAL
 ' ========================
 package "Personal" {
-    
-    entity ENUM_TIPO_USUARIO <<enumEntity>>{
-        Estudiante
-        Supervisor
-        Admin
-    }
 
-    entity Usuarios {
-        +_id : INT NOT NULL
-        +nombre_usuario : string
-        +nombre : string
-        +email : string
-        +password_hash : string
-        +rol : ENUM
-        +estado_cuenta : bool
-        +fecha_registro : datetime
-    }
+  entity ENUM_TIPO_USUARIO <<enumEntity>>{
+    Estudiante
+    Supervisor
+    Admin
+  }
 
-    entity Mis_Situaciones {
-        +_id : INT NOT NULL
-        +id_usuario : INT NOT NULL
-        +id_Mis_Contextos : INT NOT NULL
-        --
-        +estado : bool
-        +numero_charlas : int
-        +fecha_ultima_charla : datetime
-        +progreso : float
-    }
+  entity Usuarios {
+    +_id : INT PK
+    +nombre_usuario : varchar(50) UNIQUE
+    +nombre : varchar(100)
+    +email : varchar(120) UNIQUE
+    +password_hash : string
+    +rol : ENUM_TIPO_USUARIO
+    +estado_cuenta : bool
+    +fecha_registro : datetime
+  }
 
-    entity Mis_Contextos{
-        +_id : INT NOT NULL
-        --
-        +nombre : VARCHAR (31)
-        +descripcion : VARCHAR (255)
-    }
+  entity Entrevistas {
+    +_id : INT PK
+    +usuario_id : INT FK -> Usuarios._id
+    +contexto_id : INT FK -> Contextos._id
+    --
+    +titulo : varchar(120)
+    +descripcion : varchar(255)
+    +duracion_min : float
+    +numero_turnos : int
+    +fecha_creacion : datetime
+    +fecha_cierre : datetime
+    --
+    +contexto_snapshot : text
+  }
 
-    entity Mis_Personajes {
-        +_id : INT NOT NULL
-        --
-        +nombre : varchar(31)
-        +descripcion : varchar(255)
-        +rol_custom : string
-    }
-
-    entity Mis_Caracteristicas_Relaciones <<intermedias>>{
-        +id_Caracteristica : INT NOT NULL
-        +tipo_objetivo : ENUM
-        +id_objetivo : INT NOT NULL
-    }
-
-    entity Mis_Charlas{
-        +_id : INT NOT NULL
-        +id_Mis_Situaciones : INT NOT NULL
-        --
-        +estado : bool
-        +duracion : float
-        +numero_turnos : int
-    }
-
-    entity Mis_Dialogos {
-        +_id : INT NOT NULL
-        +id_Mis_Charlas : INT NOT NULL
-        +id_Personaje : INT NOT NULL
-        --
-        +texto : text
-        +texto_procesado : text
-        +timestamp : datetime
-        +es_usuario : bool
-        +audio_id : string
-    }
-
-    ' === Relaciones de ENUMS ===
-    Usuarios }o--|| ENUM_TIPO_USUARIO : "usa"
-
-    ' Relaciones internas
-    Mis_Contextos ||--|| Mis_Caracteristicas_Relaciones
-    Mis_Personajes ||--|| Mis_Caracteristicas_Relaciones
-    Mis_Charlas ||--|| Mis_Caracteristicas_Relaciones
-    Mis_Dialogos ||--|| Mis_Caracteristicas_Relaciones
-
-    Mis_Charlas }--|| Mis_Situaciones
-    Mis_Dialogos }--|| Mis_Charlas
-    Mis_Situaciones ||--|| Mis_Contextos
-    Mis_Situaciones }--|| Usuarios
-    Mis_Personajes }--|| Mis_Contextos
+  entity Dialogos {
+    +_id : INT PK
+    +entrevista_id : INT FK -> Entrevistas._id
+    --
+    +turno : int
+    +sender : ENUM('user','ai')
+    +texto : text
+    +texto_procesado : text
+    +timestamp : datetime
+    +audio_url : varchar(255)
+  }
 }
 
-
-
 ' ========================
-' METRICAS Y EVALUACION
+' ESTADÍSTICAS Y EVALUACIÓN
 ' ========================
-package estadisticas{
+package "Estadisticas" {
 
-    entity Estadisticas_Usuario {
-        _id : int
-        usuario_id : int
-        --
-        fecha : datetime
-        situaciones_completadas : int
-        tiempo_total : float
-        score_global : float
-    }
+  entity Stats_Usuario {
+    +_id : INT PK
+    +usuario_id : INT FK -> Usuarios._id
+    --
+    +fecha_corte : datetime
+    +total_entrevistas : int
+    +tiempo_total_min : float
+    +score_promedio : float       ' 0..100
+  }
 
-    entity Estadisticas_Situacion {
-        _id : int
-        --
-        situacion_id : int
-        usuario_id : int
-        --
-        fecha : datetime
-        progreso : float
-        charlas_completadas : int
-        tiempo_total : float
-    }
+  entity Eval_Entrevista {
+    +_id : INT PK
+    +entrevista_id : INT FK -> Entrevistas._id
+    --
+    +score_final : float          ' 0..100
+  }
 
-    entity Estadisticas_Charla {
-        _id : int
-        id_charla : int
-        id_usuario : int
-        --
-        fecha : datetime
-        numero_turnos : int
-        tiempo_promedio_respuesta : float
-        eficiencia : float
-    }
+  entity Eval_Categoria {
+    +_id : INT PK
+    +eval_entrevista_id : INT FK -> Eval_Entrevista._id
+    --
+    +categoria : varchar(40)
+    +score : float                ' 0..100
+  }
 
-    entity Estadisticas_Dialogo {
-        _id : int
-        id_dialogo : int
-        id_usuario : int
-        --
-        fecha : datetime
-        longitud_texto : int
-        claridad : float
-        empatia : float
-    }
-
-    entity Tip {
-        _id : int
-        id_usuario : int
-        --
-        titulo : string
-        contenido : text
-        fecha : datetime
-        usado : bool
-    }
+  entity Tips {
+    +_id : INT PK
+    +usuario_id : INT FK -> Usuarios._id
+    +entrevista_id : INT FK -> Entrevistas._id
+    --
+    +titulo : varchar(80) NULL
+    +contenido : text
+    +categoria : varchar(40)
+    +fecha : datetime
+    +usado : bool
+  }
 }
 
-
-
 ' ========================
-' ZONA GLOBAL (Seeds)
+' CONTEXTOS & CARACTERÍSTICAS
 ' ========================
-package "Global" {
+package "Contextos & Características" {
 
-    entity ENUM_GRUPO_CARACTERISTICA <<enumEntity>>{
-        --
-        Contexto
-        --
-        Dificultad
-        Situacion_Personaje
-        Situacion_Contexto
-        Situacion_Charla
-        --
-        Desempeno
-        --
-        Epico
-        Positivo
-        Neutral
-        Negativo
-    }
+  entity ENUM_SCOPE_CONTEXTO <<enumEntity>>{
+    global
+    usuario
+  }
 
-    entity ENUM_OBJETIVO_CARACTERISTICA <<enumEntity>>{
-        Contexto
-        Personaje
-        Charla
-        Dialogo
-        --
-        Estadisticas_Usuario
-        Estadisticas_Situacion
-        Estadisticas_Charla
-        Estadisticas_Dialogo
-    }
+  entity Contextos {
+    +_id : INT PK
+    --
+    +nombre : varchar(80)
+    +descripcion : varchar(255)
+    +scope : ENUM_SCOPE_CONTEXTO
+    +creado_por : INT NULL FK -> Usuarios._id
+    +origen : ENUM('preset','ia','manual')
+    +prompt_seed : text NULL
+    +vigente : bool
+    +fecha_creacion : datetime
+  }
 
-    entity Contextos{
-        +_id : INT NOT NULL
-        --
-        +nombre : VARCHAR (31)
-        +descripcion : VARCHAR (255)
-    }
+  entity Caracteristicas {
+    +_id : INT PK
+    --
+    +nombre : varchar(40)
+    +descripcion : varchar(255)
+    +grupo : ENUM('Contexto','Dificultad','Desempeno','Epico','Positivo','Neutral','Negativo')
+    +vigencia : bool
+  }
 
-    entity Personajes {
-        +_id : INT NOT NULL
-        --
-        +nombre : varchar(31)
-        +descripcion : varchar(255)
-        +rol_custom : string
-    }
-
-    entity Caracteristicas_Relaciones <<intermedias>>{
-        +id_caracteristica : INT NOT NULL
-        +tipo_objetivo : ENUM
-        +id_objetivo : INT NOT NULL
-    }
-
-    entity Caracteristicas{
-        +_id : INT NOT NULL
-        --
-        +nombre : varchar(31)
-        +descripcion : varchar(255)
-        +grupo_caracteristica : ENUM
-        +vigencia : boolean
-    }
-
-    ' Relaciones dinámicas internas
-    Contextos ||--|| Caracteristicas_Relaciones
-    Caracteristicas ||--|| Caracteristicas_Relaciones
-    Personajes ||--|| Caracteristicas_Relaciones
-    Personajes }--|| Contextos
-
-    ' === Relaciones de ENUMS ===
-    Caracteristicas }o--|| ENUM_GRUPO_CARACTERISTICA : "usa"
-    Caracteristicas_Relaciones }o--|| ENUM_OBJETIVO_CARACTERISTICA : "usa"
+  entity Caracts_Rel {
+    +caracteristica_id : INT FK -> Caracteristicas._id
+    +contexto_id : INT FK -> Contextos._id
+    --
+    * PK (caracteristica_id, contexto_id)
+  }
 }
 
-
-
 ' ========================
-' SUPERVISION
+' RELACIONES
 ' ========================
-' package supervision {
-'     entity Observacion {
-'         *id : int
-'         supervisor_id : int
-'         usuario_id : int
-'         situacion_id : int
-'         fecha : datetime
-'         comentario : text
-'         puntuacion : float
-'     }
-' }
+Usuarios ||--o{ Entrevistas
+Entrevistas ||--o{ Dialogos
 
+Entrevistas ||--|| Eval_Entrevista
+Eval_Entrevista ||--o{ Eval_Categoria
 
+Entrevistas ||--o{ Feedback_Entrevista
+Usuarios ||--o{ Feedback_Usuario
 
-' ========================
-' Relaciones Globales
-' ========================
-Caracteristicas ||--|| Mis_Caracteristicas_Relaciones
-' Usuarios ||--o{ Observacion
-' Mis_Situaciones ||--o{ Estadisticas_Situacion
-' Mis_Charlas ||--o{ Estadisticas_Charla
-' Mis_Dialogos ||--o{ Estadisticas_Dialogo
-Usuarios ||--o{ Estadisticas_Usuario
-' Usuarios ||--o{ Tip
+Usuarios ||--o{ Stats_Usuario
+
+Usuarios ||--o{ Tips
+Entrevistas ||--o{ Tips
+
+Contextos ||--o{ Entrevistas
+
+Contextos ||--o{ Caracts_Rel
+Caracteristicas ||--o{ Caracts_Rel
 
 @enduml
