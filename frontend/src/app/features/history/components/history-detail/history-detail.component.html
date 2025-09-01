@@ -3,11 +3,9 @@
     <mat-card class="context-card">
         <h1 class="title">{{ interviewTitle }}</h1>
         <p class="description">{{ interviewDescription }}</p>
-        <mat-chip-listbox aria-label="Etiquetas">
-            <mat-chip *ngFor="let tag of tags" color="primary" selected>{{
-                tag
-                }}</mat-chip>
-        </mat-chip-listbox>
+        <div aria-label="Etiquetas" class="tags-container">
+            <span *ngFor="let tag of tags" class="tag">{{ tag }}</span>
+        </div>
     </mat-card>
 
     <!-- Transcripción -->
@@ -42,12 +40,14 @@
 
     <!-- Tips -->
     <mat-card class="tips-card">
-        <h2 class="section-title">Tips para mejorar</h2>
-        <ul class="tips-list">
-            <li *ngFor="let tip of tips">
-                <mat-icon>lightbulb</mat-icon> {{ tip }}
-            </li>
-        </ul>
+        <mat-card-title>
+            <mat-icon>lightbulb</mat-icon>Tips de Entrevista
+        </mat-card-title>
+        <mat-card-content>
+            <ul>
+                <li *ngFor="let tip of tips">{{ tip }}</li>
+            </ul>
+        </mat-card-content>
     </mat-card>
 
     <!-- Botones -->

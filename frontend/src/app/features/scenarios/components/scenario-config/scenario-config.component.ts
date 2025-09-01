@@ -6,9 +6,9 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRippleModule } from '@angular/material/core';
-import { ScenariosService } from '../../../services/scenarios.service';
-import type { Scenario } from '../../../services/scenarios.service';
-import { MATERIAL_IMPORTS } from '../../../../../shared/material/material';
+import { ScenariosService } from '../../services/scenarios.service';
+import type { Scenario } from '../../services/scenarios.service';
+import { MATERIAL_IMPORTS } from '../../../../shared/material/material';
 import { RouterModule } from '@angular/router';
 
 @Component({

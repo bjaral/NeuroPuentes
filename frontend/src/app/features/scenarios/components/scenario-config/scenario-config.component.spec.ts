@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ScenariosComponent } from './scenarios.component';
+import { ScenarioConfigComponent } from './scenario-config.component';
 
-describe('ScenariosComponent', () => {
-  let component: ScenariosComponent;
-  let fixture: ComponentFixture<ScenariosComponent>;
+describe('ScenarioConfigComponent', () => {
+  let component: ScenarioConfigComponent;
+  let fixture: ComponentFixture<ScenarioConfigComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ScenariosComponent]
+      imports: [ScenarioConfigComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ScenariosComponent);
+    fixture = TestBed.createComponent(ScenarioConfigComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
