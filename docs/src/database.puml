@@ -47,7 +47,7 @@ package "Personal" {
     +email : varchar(120) UNIQUE
     +password_hash : string
     +rol : ENUM_TIPO_USUARIO
-    +estado_cuenta : bool
+    +vigencia : bool
     +fecha_registro : datetime
   }
 
@@ -119,6 +119,7 @@ package "Estadisticas" {
     +categoria : varchar(40)
     +fecha : datetime
     +usado : bool
+    +vigencia : bool
   }
 }
 
@@ -141,7 +142,7 @@ package "Contextos & Características" {
     +creado_por : INT NULL FK -> Usuarios._id
     +origen : ENUM('preset','ia','manual')
     +prompt_seed : text NULL
-    +vigente : bool
+    +vigencia : bool
     +fecha_creacion : datetime
   }
 
