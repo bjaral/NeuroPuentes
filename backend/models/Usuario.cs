@@ -2,20 +2,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NeuroPuentesAPI.models
 {
-    public enum TipoUsuario
+    public enum ENUM_TIPO_USUARIO
     {
-        admin,
-        emprendedora,
-        visitante
+        Estudiante,
+        Supervisor,
+        Admin
     }
     public class Usuario
     {
-        public int Id_Usuario { get; set; }
-        public required string UsuarioNombre { get; set; } = String.Empty;
-        public required string Contrasenna { get; set; } = String.Empty;
+        public int _id { get; set; }
+        
+        public required string Password_hash { get; set; } = String.Empty;
+        public ENUM_TIPO_USUARIO Rol { get; set; }
         public bool Vigencia { get; set; }
-        public TipoUsuario Tipo_Usuario { get; set; }
-        public required string Correo { get; set; } = String.Empty;
+        public DateTime Fecha_registro {get;set;}
+
+        public required string Nombre_usuario { get; set; } = String.Empty;
+        public required string Nombre{ get; set; } = String.Empty;
+        public required string Email { get; set; } = String.Empty;
     }
 
     }
