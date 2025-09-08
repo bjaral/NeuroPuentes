@@ -39,7 +39,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "RedMujer API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "NeuroPuentes API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = @"JWT Authorization header usando el esquema Bearer.  
@@ -147,7 +147,7 @@ app.UseAuthorization();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "RedMujer API V1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "NeuroPuentes API V1");
 });
 
 

@@ -22,7 +22,7 @@ namespace NeuroPuentesAPI.services
 
         public async Task<int> CrearAsync(Usuario usuario)
         {
-            usuario.Contrasenna = BCrypt.Net.BCrypt.HashPassword(usuario.Contrasenna);
+            usuario.Password_hash = BCrypt.Net.BCrypt.HashPassword(usuario.Password_hash);
             return await _repo.CrearAsync(usuario);
         }
 
@@ -31,40 +31,57 @@ namespace NeuroPuentesAPI.services
             return await _repo.GetByCorreoAsync(correo.Trim());
         }
 
-        // MEJORA: Siempre quita espacios antes de buscar por correo
-        public async Task<Usuario?> AuthenticateByCorreoAsync(string correo, string plainPassword)
-        {
-            var user = await _repo.GetByCorreoAsync(correo.Trim());
-            if (user == null) return null;
-            return BCrypt.Net.BCrypt.Verify(plainPassword, user.Contrasenna) ? user : null;
-        }
 
         public async Task ActualizarAsync(int id, Usuario usuario)
         {
+            // Obtener el usuario existente
             var existente = await _repo.GetByIdAsync(id);
-            usuario.Id_Usuario = id;
+            if (existente == null)
+                throw new KeyNotFoundException($"Usuario con id {id} no encontrado.");
 
-            if (string.IsNullOrWhiteSpace(usuario.Contrasenna) && existente != null)
-            {
-                usuario.Contrasenna = existente.Contrasenna;
-            }
-            else
-            {
-                usuario.Contrasenna = BCrypt.Net.BCrypt.HashPassword(usuario.Contrasenna);
-            }
+            // Solo actualizar campos que vienen con valor
+            existente.Nombre = string.IsNullOrWhiteSpace(usuario.Nombre) ? existente.Nombre : usuario.Nombre;
+            existente.Email = string.IsNullOrWhiteSpace(usuario.Email) ? existente.Email : usuario.Email;
+            existente.Nombre_usuario = string.IsNullOrWhiteSpace(usuario.Nombre_usuario) ? existente.Nombre_usuario : usuario.Nombre_usuario;
 
-            await _repo.ActualizarAsync(usuario);
+            // Rol y Vigencia: si son nullables en el DTO, solo actualizar si vienen con valor
+            existente.Rol = usuario.Rol; // Si tu DTO hace que Rol sea opcional, agregar chequeo: usuario.Rol.HasValue ? usuario.Rol.Value : existente.Rol;
+            existente.Vigencia = usuario.Vigencia; // Igual que Rol
+
+            // Password: solo actualizar si viene no vacío
+            if (!string.IsNullOrWhiteSpace(usuario.Password_hash))
+                existente.Password_hash = BCrypt.Net.BCrypt.HashPassword(usuario.Password_hash);
+
+            // Fecha_registro normalmente no se modifica
+            // existente.Fecha_registro = existente.Fecha_registro;
+
+            // Finalmente actualizar en el repositorio
+            await _repo.ActualizarAsync(existente);
         }
+
 
         public async Task EliminarAsync(int id) =>
             await _repo.EliminarAsync(id);
 
-        // MEJORA: Siempre quita espacios antes de buscar por nombre de usuario
+
+
+
+
         public async Task<Usuario?> AuthenticateAsync(string usuarioNombre, string plainPassword)
         {
             var user = await _repo.GetByUsuarioNombreAsync(usuarioNombre.Trim());
             if (user == null) return null;
-            return BCrypt.Net.BCrypt.Verify(plainPassword, user.Contrasenna) ? user : null;
+
+            return BCrypt.Net.BCrypt.Verify(plainPassword, user.Password_hash) ? user : null;
+        }
+
+        // Autenticación por correo
+        public async Task<Usuario?> AuthenticateByCorreoAsync(string correo, string plainPassword)
+        {
+            var user = await _repo.GetByCorreoAsync(correo.Trim());
+            if (user == null) return null;
+
+            return BCrypt.Net.BCrypt.Verify(plainPassword, user.Password_hash) ? user : null;
         }
     }
 }
