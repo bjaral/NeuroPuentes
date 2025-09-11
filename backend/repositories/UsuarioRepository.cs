@@ -21,13 +21,15 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryAsync<Usuario>(
                 @"SELECT 
-                    ""id_usuario"" AS ""Id_Usuario"",
-                    ""usuario"" AS ""UsuarioNombre"",
-                    ""contrasenna"" AS ""Contrasenna"",
-                    ""vigencia"" AS ""vigencia"",
-                    ""tipo_usuario"" AS ""Tipo_Usuario"",
-                    ""correo"" AS ""Correo""
-                  FROM ""Usuarios"" WHERE vigencia = true");
+                    _id,
+                    password_hash,
+                    rol,
+                    vigencia,
+                    fecha_registro,
+                    nombre_usuario,
+                    nombre,
+                    email
+                  FROM ""usuarios"" WHERE vigencia = true");
         }
 
         public async Task<Usuario?> GetByIdAsync(int id)
@@ -35,31 +37,35 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryFirstOrDefaultAsync<Usuario>(
                 @"SELECT 
-                    ""id_usuario"" AS ""Id_Usuario"",
-                    ""usuario"" AS ""UsuarioNombre"",
-                    ""contrasenna"" AS ""Contrasenna"",
-                    ""vigencia"" AS ""vigencia"",
-                    ""tipo_usuario"" AS ""Tipo_Usuario"",
-                    ""correo"" AS ""Correo""
-                  FROM ""Usuarios"" WHERE ""id_usuario"" = @Id AND vigencia = true",
+                    _id,
+                    password_hash,
+                    rol,
+                    vigencia,
+                    fecha_registro,
+                    nombre_usuario,
+                    nombre,
+                    email
+                  FROM ""usuarios"" 
+                  WHERE _id = @Id AND vigencia = true",
                 new { Id = id });
         }
 
-        // MEJORA: insensible a mayúsculas/minúsculas y sin espacios extra
         public async Task<Usuario?> GetByUsuarioNombreAsync(string usuarioNombre)
         {
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryFirstOrDefaultAsync<Usuario>(
                 @"SELECT 
-                    ""id_usuario"" AS ""Id_Usuario"",
-                    ""usuario"" AS ""UsuarioNombre"",
-                    ""contrasenna"" AS ""Contrasenna"",
-                    ""vigencia"" AS ""vigencia"",
-                    ""tipo_usuario"" AS ""Tipo_Usuario"",
-                    ""correo"" AS ""Correo""
-                  FROM ""Usuarios"" 
-                  WHERE LOWER(""usuario"") = LOWER(@UsuarioNombre) AND vigencia = true",
-                new { UsuarioNombre = usuarioNombre.Trim() });
+                    _id,
+                    password_hash,
+                    rol,
+                    vigencia,
+                    fecha_registro,
+                    nombre_usuario,
+                    nombre,
+                    email
+                  FROM ""usuarios"" 
+                  WHERE LOWER(nombre_usuario) = LOWER(@Nombre_usuario) AND vigencia = true",
+                new { Nombre_usuario = usuarioNombre.Trim() });
         }
 
         public async Task<Usuario?> GetByCorreoAsync(string correo)
@@ -67,30 +73,35 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryFirstOrDefaultAsync<Usuario>(
                 @"SELECT 
-                    ""id_usuario"" AS ""Id_Usuario"",
-                    ""usuario"" AS ""UsuarioNombre"",
-                    ""contrasenna"" AS ""Contrasenna"",
-                    ""vigencia"" AS ""vigencia"",
-                    ""tipo_usuario"" AS ""Tipo_Usuario"",
-                    ""correo"" AS ""Correo""
-                FROM ""Usuarios"" 
-                WHERE LOWER(""correo"") = LOWER(@Correo) AND vigencia = true",
-                new { Correo = correo.Trim() });
+                    _id,
+                    password_hash,
+                    rol,
+                    vigencia,
+                    fecha_registro,
+                    nombre_usuario,
+                    nombre,
+                    email
+                FROM ""usuarios"" 
+                WHERE LOWER(email) = LOWER(@Email) AND vigencia = true",
+                new { Email = correo.Trim() });
         }
 
         public async Task<int> CrearAsync(Usuario usuario)
         {
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.ExecuteScalarAsync<int>(
-                @"INSERT INTO ""Usuarios"" 
-                    (""usuario"", ""contrasenna"", ""vigencia"", ""tipo_usuario"", ""correo"") 
-                  VALUES (@UsuarioNombre, @Contrasenna, @Vigencia, @TipoUsuarioStr::tipo_usuario, @Correo) RETURNING id_usuario",
+                @"INSERT INTO ""usuarios"" 
+                    (password_hash, rol, vigencia, fecha_registro, nombre_usuario, nombre, email) 
+                  VALUES (@Password_hash, @Rol::tipo_usuario, @Vigencia, @Fecha_registro, @Nombre_usuario, @Nombre, @Email) 
+                  RETURNING _id",
                 new {
-                    usuario.UsuarioNombre,
-                    usuario.Contrasenna,
+                    usuario.Password_hash,
+                    Rol = usuario.Rol.ToString(),
                     usuario.Vigencia,
-                    TipoUsuarioStr = usuario.Tipo_Usuario.ToString(),
-                    usuario.Correo
+                    usuario.Fecha_registro,
+                    usuario.Nombre_usuario,
+                    usuario.Nombre,
+                    usuario.Email
                 });
         }
 
@@ -98,25 +109,29 @@ namespace NeuroPuentesAPI.repositories
         {
             using var connection = new NpgsqlConnection(_connectionString);
             await connection.ExecuteAsync(
-                @"UPDATE ""Usuarios"" SET 
-                        ""usuario"" = @UsuarioNombre,
-                        ""contrasenna"" = @Contrasenna,
-                        ""vigencia"" = @Vigencia,
-                        ""tipo_usuario"" = @TipoUsuarioStr::tipo_usuario,
-                        ""correo"" = @Correo
-                    WHERE ""id_usuario"" = @Id_Usuario",
+                @"UPDATE ""usuarios"" SET 
+                        password_hash = @Password_hash,
+                        rol = @Rol::tipo_usuario,
+                        vigencia = @Vigencia,
+                        fecha_registro = @Fecha_registro,
+                        nombre_usuario = @Nombre_usuario,
+                        nombre = @Nombre,
+                        email = @Email
+                    WHERE _id = @_id",
                 new {
-                    usuario.UsuarioNombre,
-                    usuario.Contrasenna,
+                    usuario.Password_hash,
+                    Rol = usuario.Rol.ToString(),
                     usuario.Vigencia,
-                    TipoUsuarioStr = usuario.Tipo_Usuario.ToString(),
-                    usuario.Correo,
-                    usuario.Id_Usuario
+                    usuario.Fecha_registro,
+                    usuario.Nombre_usuario,
+                    usuario.Nombre,
+                    usuario.Email,
+                    usuario._id
                 });
         }
 
         public async Task EliminarAsync(int id) =>
             await new NpgsqlConnection(_connectionString)
-                .ExecuteAsync(@"DELETE FROM ""Usuarios"" WHERE ""id_usuario"" = @Id", new { Id = id });
+                .ExecuteAsync(@"DELETE FROM ""usuarios"" WHERE _id = @Id", new { Id = id });
     }
 }
