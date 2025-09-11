@@ -9,13 +9,17 @@
     </mat-card>
 
     <!-- Transcripción -->
-    <mat-card class="transcript-card">
-        <h2 class="section-title">Transcripción</h2>
-        <div class="transcript">
-            <div *ngFor="let line of transcript" [ngClass]="line.sender === 'user' ? 'msg-user' : 'msg-ai'">
-                <mat-icon *ngIf="line.sender === 'user'" class="icon user-icon">person</mat-icon>
-                <mat-icon *ngIf="line.sender === 'ai'" class="icon ai-icon">psychology</mat-icon>
-                <span>{{ line.text }}</span>
+    <mat-card class="transcription-panel">
+        <div class="panel-header">
+            <mat-icon>chat</mat-icon>
+            <h3>Transcripción de Entrevista</h3>
+        </div>
+        <div class="messages-container">
+            <div *ngFor="let message of transcript" [ngClass]="'message-' + message.sender"
+                class="message-bubble">
+                <div class="message-content">
+                    <p>{{ message.texto }}</p>
+                </div>
             </div>
         </div>
     </mat-card>
@@ -23,19 +27,40 @@
     <!-- Evaluación -->
     <mat-card class="evaluation-card">
         <h2 class="section-title">Evaluación</h2>
-        <div class="final-score">
-            <span class="number">{{ finalScore }}%</span>
-            <span class="label">Promedio general</span>
-        </div>
-
-        <mat-divider></mat-divider>
-
-        <div class="categories">
-            <div class="cat" *ngFor="let e of evaluation">
-                <span>{{ e.category }}</span>
-                <strong>{{ e.score }}%</strong>
+        
+        <!-- Fila superior: Nota final + Evaluación por categorías -->
+        <section class="fila fila-superior">
+            <div class="final-score">
+                <span class="number">{{ evalEntrevista.score_final }}%</span>
+                <span class="label">Promedio general</span>
             </div>
-        </div>
+
+            <div class="evaluacion-section">
+                <h3 class="section-subtitle">Evaluación por categoría</h3>
+                <div class="bar-chart">
+                    <div class="bar" *ngFor="let categoria of evalCategorias" [attr.data-value]="categoria.score">
+                        <span>{{ categoria.categoria }}</span>
+                        <div class="bar-fill" [style.width]="categoria.score + '%'"></div>
+                        <span class="percentage">{{ categoria.score }}%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fila media: Feedback -->
+        <section class="fila fila-media">
+            <div class="feedback-section">
+                <h3 class="section-subtitle">Feedback</h3>
+                <ul class="feedback-list">
+                    <li class="feedback-item success" *ngFor="let feedback of positiveFeedback">
+                        <mat-icon>check_circle</mat-icon> {{ feedback.mensaje }}
+                    </li>
+                    <li class="feedback-item warn" *ngFor="let feedback of improvementFeedback">
+                        <mat-icon>cancel</mat-icon> {{ feedback.mensaje }}
+                    </li>
+                </ul>
+            </div>
+        </section>
     </mat-card>
 
     <!-- Tips -->
