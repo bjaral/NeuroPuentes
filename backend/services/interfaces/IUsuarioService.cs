@@ -7,6 +7,7 @@ namespace NeuroPuentesAPI.services
     public interface IUsuarioService
     {
         Task<IEnumerable<Usuario>> GetAllAsync();
+        Task<IEnumerable<Usuario>> GetAllVigentesAsync();
         Task<Usuario?> GetByIdAsync(int id);
         Task<int> CrearAsync(Usuario usuario);
         Task<Usuario?> GetByCorreoAsync(string correo);

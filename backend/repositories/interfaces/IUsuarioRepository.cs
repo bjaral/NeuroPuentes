@@ -7,6 +7,7 @@ namespace NeuroPuentesAPI.repositories
     public interface IUsuarioRepository
     {
         Task<IEnumerable<Usuario>> GetAllAsync();
+        Task<IEnumerable<Usuario>> GetAllVigentesAsync();
         Task<Usuario?> GetByIdAsync(int id);
         Task<int> CrearAsync(Usuario usuario);
         Task ActualizarAsync(Usuario usuario);
