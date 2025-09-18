@@ -89,44 +89,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
-// builder.Services.AddScoped<IEmprendimientoRepository, EmprendimientoRepository>();
-// builder.Services.AddScoped<IEmprendimientoService, EmprendimientoService>();
+builder.Services.AddScoped<IContextoRepository, ContextoRepository>();
+builder.Services.AddScoped<IContextoService, ContextoService>();
 
-// builder.Services.AddScoped<IRegionRepository, RegionRepository>();
-// builder.Services.AddScoped<IRegionService, RegionService>();
-
-// builder.Services.AddScoped<IComunaRepository, ComunaRepository>();
-// builder.Services.AddScoped<IComunaService, ComunaService>();
-
-// builder.Services.AddScoped<IMultimediaRepository, MultimediaRepository>();
-// builder.Services.AddScoped<IMultimediaService, MultimediaService>();
-
-// builder.Services.AddScoped<IUbicacionRepository, UbicacionRepository>();
-// builder.Services.AddScoped<IUbicacionService, UbicacionService>();
-
-// builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
-// builder.Services.AddScoped<IPersonaService, PersonaService>();
-
-// builder.Services.AddScoped<IContactoRepository, ContactoRepository>();
-// builder.Services.AddScoped<IContactoService, ContactoService>();
-
-// builder.Services.AddScoped<IRegistroRepository, RegistroRepository>();
-// builder.Services.AddScoped<IRegistroService, RegistroService>();
-
-// builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
-// builder.Services.AddScoped<ICategoriaService, CategoriaService>();
-
-// builder.Services.AddScoped<IEmprendimientoCategoriaRepository, EmprendimientoCategoriaRepository>();
-// builder.Services.AddScoped<IEmprendimientoCategoriaService, EmprendimientoCategoriaService>();
-
-// builder.Services.AddScoped<IEmprendimientoUbicacionRepository, EmprendimientoUbicacionRepository>();
-// builder.Services.AddScoped<IEmprendimientoUbicacionService, EmprendimientoUbicacionService>();
-
-// builder.Services.AddScoped<IPersonaEmprendimientoRepository, PersonaEmprendimientoRepository>();
-// builder.Services.AddScoped<IPersonaEmprendimientoService, PersonaEmprendimientoService>();
-
-// builder.Services.AddScoped<IPlataformaRepository, PlataformaRepository>();
-// builder.Services.AddScoped<IPlataformaService, PlataformaService>();
 
 
 var app = builder.Build();

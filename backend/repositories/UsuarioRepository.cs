@@ -29,6 +29,22 @@ namespace NeuroPuentesAPI.repositories
                     nombre_usuario,
                     nombre,
                     email
+                  FROM ""usuarios"" ");
+        }
+
+        public async Task<IEnumerable<Usuario>> GetAllVigentesAsync()
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QueryAsync<Usuario>(
+                @"SELECT 
+                    _id,
+                    password_hash,
+                    rol,
+                    vigencia,
+                    fecha_registro,
+                    nombre_usuario,
+                    nombre,
+                    email
                   FROM ""usuarios"" WHERE vigencia = true");
         }
 
@@ -46,7 +62,7 @@ namespace NeuroPuentesAPI.repositories
                     nombre,
                     email
                   FROM ""usuarios"" 
-                  WHERE _id = @Id AND vigencia = true",
+                  WHERE _id = @Id ",
                 new { Id = id });
         }
 
@@ -64,7 +80,7 @@ namespace NeuroPuentesAPI.repositories
                     nombre,
                     email
                   FROM ""usuarios"" 
-                  WHERE LOWER(nombre_usuario) = LOWER(@Nombre_usuario) AND vigencia = true",
+                  WHERE LOWER(nombre_usuario) = LOWER(@Nombre_usuario) ",
                 new { Nombre_usuario = usuarioNombre.Trim() });
         }
 
@@ -82,7 +98,7 @@ namespace NeuroPuentesAPI.repositories
                     nombre,
                     email
                 FROM ""usuarios"" 
-                WHERE LOWER(email) = LOWER(@Email) AND vigencia = true",
+                WHERE LOWER(email) = LOWER(@Email) ",
                 new { Email = correo.Trim() });
         }
 
