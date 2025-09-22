@@ -65,6 +65,15 @@ namespace NeuroPuentesAPI.controllers
             return Ok(usuarios);
         }
 
+        [HttpGet("Vigentes")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetAllVigentes()
+        {
+            var usuarios = await _service.GetAllVigentesAsync();
+            foreach (var user in usuarios)
+                user.Password_hash = "";
+            return Ok(usuarios);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Usuario>> GetById(int id)
         {
@@ -89,7 +98,7 @@ namespace NeuroPuentesAPI.controllers
 
             var usuario = new Usuario
             {
-                Password_hash = BCrypt.Net.BCrypt.HashPassword(dto.Password_hash),
+                Password_hash = dto.Password_hash,
                 Rol = dto.Rol,
                 Vigencia = dto.Vigencia,
                 Fecha_registro = DateTime.UtcNow,
@@ -105,7 +114,7 @@ namespace NeuroPuentesAPI.controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Actualizar(int id, [FromForm] UsuarioUpdateDto dto)
+        public async Task<ActionResult> Actualizar(int id, [FromBody] UsuarioUpdateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

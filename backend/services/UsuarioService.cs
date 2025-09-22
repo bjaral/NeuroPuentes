@@ -17,6 +17,9 @@ namespace NeuroPuentesAPI.services
         public async Task<IEnumerable<Usuario>> GetAllAsync() =>
             await _repo.GetAllAsync();
 
+        public async Task<IEnumerable<Usuario>> GetAllVigentesAsync() =>
+            await _repo.GetAllVigentesAsync();
+
         public async Task<Usuario?> GetByIdAsync(int id) =>
             await _repo.GetByIdAsync(id);
 
