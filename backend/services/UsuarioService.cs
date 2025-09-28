@@ -34,7 +34,6 @@ namespace NeuroPuentesAPI.services
             return await _repo.GetByCorreoAsync(correo.Trim());
         }
 
-
         public async Task ActualizarAsync(int id, Usuario usuario)
         {
             // Obtener el usuario existente
@@ -47,28 +46,19 @@ namespace NeuroPuentesAPI.services
             existente.Email = string.IsNullOrWhiteSpace(usuario.Email) ? existente.Email : usuario.Email;
             existente.Nombre_usuario = string.IsNullOrWhiteSpace(usuario.Nombre_usuario) ? existente.Nombre_usuario : usuario.Nombre_usuario;
 
-            // Rol y Vigencia: si son nullables en el DTO, solo actualizar si vienen con valor
-            existente.Rol = usuario.Rol; // Si tu DTO hace que Rol sea opcional, agregar chequeo: usuario.Rol.HasValue ? usuario.Rol.Value : existente.Rol;
-            existente.Vigencia = usuario.Vigencia; // Igual que Rol
+            // Rol y Vigencia
+            existente.Rol = usuario.Rol;
+            existente.Vigencia = usuario.Vigencia;
 
-            // Password: solo actualizar si viene no vacío
-            if (!string.IsNullOrWhiteSpace(usuario.Password_hash))
-                existente.Password_hash = BCrypt.Net.BCrypt.HashPassword(usuario.Password_hash);
-
-            // Fecha_registro normalmente no se modifica
-            // existente.Fecha_registro = existente.Fecha_registro;
+            // Password: ya viene hasheado del controlador si fue proporcionado
+            existente.Password_hash = usuario.Password_hash;
 
             // Finalmente actualizar en el repositorio
             await _repo.ActualizarAsync(existente);
         }
 
-
         public async Task EliminarAsync(int id) =>
             await _repo.EliminarAsync(id);
-
-
-
-
 
         public async Task<Usuario?> AuthenticateAsync(string usuarioNombre, string plainPassword)
         {

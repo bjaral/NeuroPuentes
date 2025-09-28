@@ -1,11 +1,11 @@
 export interface Contexto {
-  _id: number;
-  nombre: string;
-  descripcion: string;
-  scope: string;
+  _id?: number;
+  nombre?: string;
+  descripcion?: string;
+  scope?: string;
   creado_por?: number | null;
-  origen: string;
+  origen?: string;
   prompt_seed?: string | null;
-  vigencia: boolean;
-  fecha_creacion: string;
+  vigencia?: boolean;
+  fecha_creacion?: string;
 }

@@ -1,16 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { MATERIAL_IMPORTS } from '../../../../shared/material/material';
 import { CommonModule } from '@angular/common';
-
-interface TranscriptLine {
-  sender: 'user' | 'ai';
-  text: string;
-}
-
-interface EvaluationCategory {
-  category: string;
-  score: number;
-}
+import { FeedbackEntrevista } from '../../../../shared/models/feedback.model';
+import { Dialogo } from '../../../../shared/models/dialogo.model';
+import { EvalCategoria, EvalEntrevista } from '../../../../shared/models/eval.model';
 
 @Component({
   selector: 'app-history-detail',
@@ -31,26 +24,62 @@ export class HistoryDetailComponent {
     'Evita interrupciones largas, permite que el otro se exprese.',
   ];
 
-  transcript: TranscriptLine[] = [
-    { sender: 'user', text: 'Buenos días, ¿cómo se encuentra hoy?' },
+  transcript: Dialogo[] = [
+    { sender: 'user', texto: 'Buenos días, ¿cómo se encuentra hoy?' },
     {
       sender: 'ai',
-      text: 'Buenos días, me siento un poco preocupada por mi hijo.',
+      texto: 'Buenos días, me siento un poco preocupada por mi hijo.',
     },
-    { sender: 'user', text: 'Entiendo, ¿qué es lo que más le preocupa?' },
+    { sender: 'user', texto: 'Entiendo, ¿qué es lo que más le preocupa?' },
     {
       sender: 'ai',
-      text: 'Su desempeño en la escuela y cómo se relaciona con otros niños.',
+      texto: 'Su desempeño en la escuela y cómo se relaciona con otros niños.',
     },
   ];
 
-  evaluation: EvaluationCategory[] = [
-    { category: 'Inicio', score: 85 },
-    { category: 'Preguntas', score: 78 },
-    { category: 'Empatía', score: 92 },
-    { category: 'Cierre', score: 88 },
+  // Usando las interfaces correctas
+  evalEntrevista: EvalEntrevista = {
+    _id: 1,
+    entrevista_id: 1,
+    score_final: 86,
+    comentario_general: 'Buen desempeño general con áreas de mejora identificadas'
+  };
+
+  evalCategorias: EvalCategoria[] = [
+    { _id: 1, eval_entrevista_id: 1, categoria: 'Inicio', score: 85 },
+    { _id: 2, eval_entrevista_id: 1, categoria: 'Preguntas', score: 78 },
+    { _id: 3, eval_entrevista_id: 1, categoria: 'Empatía', score: 92 },
+    { _id: 4, eval_entrevista_id: 1, categoria: 'Cierre', score: 88 },
   ];
 
-  finalScore = 86;
+  // Nuevo: Feedback separado por tipo
+  positiveFeedback: FeedbackEntrevista[] = [
+    {
+      _id: 1,
+      entrevista_id: 1,
+      tipo: 'positivo',
+      mensaje: 'Buen manejo de preguntas abiertas',
+      categoria: 'Preguntas',
+      fecha: '2024-08-15'
+    },
+    {
+      _id: 2,
+      entrevista_id: 1,
+      tipo: 'positivo',
+      mensaje: 'Cierre claro y respetuoso',
+      categoria: 'Cierre',
+      fecha: '2024-08-15'
+    }
+  ];
 
+  improvementFeedback: FeedbackEntrevista[] = [
+    {
+      _id: 3,
+      entrevista_id: 1,
+      tipo: 'mejora',
+      mensaje: 'Mejorar la validación emocional del padre',
+      categoria: 'Empatía',
+      fecha: '2024-08-15'
+    }
+  ];
 }

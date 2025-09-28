@@ -18,43 +18,11 @@ namespace NeuroPuentesAPI.controllers
     public class UsuariosController : ControllerBase
     {
         private readonly IUsuarioService _service;
-        private readonly IConfiguration _config;
 
-        public UsuariosController(IUsuarioService service, IConfiguration config)
+        public UsuariosController(IUsuarioService service)
         {
             _service = service;
-            _config = config;
         }
-
-        // === LOGIN ENDPOINT ===
-        [HttpPost("login")]
-        public async Task<ActionResult> Login([FromBody] LoginDto dto)
-        {
-            var usuario = await _service.AuthenticateAsync(dto.Nombre_usuario, dto.Password);
-            if (usuario == null)
-                return Unauthorized(new { mensaje = "Usuario o contraseña incorrectos" });
-
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, usuario.Nombre_usuario),
-                new Claim(ClaimTypes.Role, usuario.Rol.ToString())
-            };
-
-            var jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not configured");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: creds
-            );
-
-            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-        }
-
-
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetAll()
@@ -98,7 +66,7 @@ namespace NeuroPuentesAPI.controllers
 
             var usuario = new Usuario
             {
-                Password_hash = dto.Password_hash,
+                Password_hash = dto.Password,
                 Rol = dto.Rol,
                 Vigencia = dto.Vigencia,
                 Fecha_registro = DateTime.UtcNow,
@@ -126,9 +94,7 @@ namespace NeuroPuentesAPI.controllers
             var usuario = new Usuario
             {
                 _id = id,
-                Password_hash = string.IsNullOrWhiteSpace(dto.Password_hash)
-                    ? existente.Password_hash
-                    : BCrypt.Net.BCrypt.HashPassword(dto.Password_hash),
+                Password_hash = dto.Password ?? "", // Enviar contraseña plana al servicio
                 Rol = dto.Rol ?? existente.Rol,
                 Vigencia = dto.Vigencia ?? existente.Vigencia,
                 Fecha_registro = existente.Fecha_registro,
