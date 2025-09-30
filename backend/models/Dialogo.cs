@@ -1,27 +1,16 @@
-using System.ComponentModel.DataAnnotations;
+using System;
 
 namespace NeuroPuentesAPI.models
 {
-
-    public enum ENUM_SENDER_DIALOGO
-    {
-        User,
-        Ai
-    }
-
     public class Dialogo
     {
-        public int _id { get; set; }
-        
-        public required int Entrevista_id { get; set; }
-        public required int Turno { get; set; }
-
-        public required ENUM_SENDER_DIALOGO Sender { get; set; }
-        public required string Texto {get; set; } = String.Empty;
-        public required string Texto_procesado {get; set; } = String.Empty;
-        public required DateTime Timestamp { get; set; }
-
-        public string? Audio_url { get; set; }
+        public int Id { get; set; }
+        public int EntrevistaId { get; set; }
+        public int Turno { get; set; }
+        public string Sender { get; set; } = string.Empty; // "user" o "ai"
+        public string Texto { get; set; } = string.Empty;
+        public string TextoProcesado { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string? AudioUrl { get; set; }
     }
-
 }
