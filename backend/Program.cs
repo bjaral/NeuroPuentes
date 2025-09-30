@@ -85,7 +85,21 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 
+// Repositorios y servicios agregados
+builder.Services.AddScoped<IEntrevistaRepository, EntrevistaRepository>();
+builder.Services.AddScoped<IEntrevistaService, EntrevistaService>();
 
+builder.Services.AddScoped<IDialogoRepository, DialogoRepository>();
+builder.Services.AddScoped<IDialogoService, DialogoService>();
+
+builder.Services.AddScoped<IEval_EntrevistaRepository, Eval_EntrevistaRepository>();
+builder.Services.AddScoped<IEval_EntrevistaService, Eval_EntrevistaService>();
+
+builder.Services.AddScoped<IEval_CategoriaRepository, Eval_CategoriaRepository>();
+builder.Services.AddScoped<IEval_CategoriaService, Eval_CategoriaService>();
+
+builder.Services.AddScoped<IFeedback_EntrevistaRepository, Feedback_EntrevistaRepository>();
+builder.Services.AddScoped<IFeedback_EntrevistaService, Feedback_EntrevistaService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 

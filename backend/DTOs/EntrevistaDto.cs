@@ -1,37 +1,27 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace NeuroPuentesAPI.models
+namespace NeuroPuentesAPI.DTOs
 {
-    public class Entrevista
+    public class EntrevistaDto
     {
-        [Key]
         public int Id { get; set; }
-
-        [Required]
         public int UsuarioId { get; set; }
-
-        [Required]
         public int ContextoId { get; set; }
-
-        [Required]
-        [MaxLength(200)]
         public string Titulo { get; set; } = string.Empty;
-
-        [Required]
         public string Descripcion { get; set; } = string.Empty;
-
-        [Required]
         public float DuracionMin { get; set; }
-
-        [Required]
         public int NumeroTurnos { get; set; }
-
-        [Required]
         public DateTime FechaCreacion { get; set; }
-
         public DateTime? FechaCierre { get; set; }
+        public string ContextoSnapshot { get; set; } = string.Empty;
+    }
 
-        [Required]
+    public class EntrevistaCreateDto
+    {
+        public int UsuarioId { get; set; }
+        public int ContextoId { get; set; }
+        public string Titulo { get; set; } = string.Empty;
+        public string Descripcion { get; set; } = string.Empty;
+        public float DuracionMin { get; set; }
+        public int NumeroTurnos { get; set; }
         public string ContextoSnapshot { get; set; } = string.Empty;
     }
 }
