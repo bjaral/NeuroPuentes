@@ -10,14 +10,14 @@ namespace NeuroPuentesAPI.models
     }
     public class Usuario
     {
-        public int _id { get; set; }
+        public int Id { get; set; }
         
-        public required string Password_hash { get; set; } = String.Empty;
+        public required string PasswordHash { get; set; } = String.Empty;
         public required ENUM_TIPO_USUARIO Rol { get; set; }
         public required bool Vigencia { get; set; }
-        public required DateTime Fecha_registro {get;set;}
+        public required DateTime FechaRegistro {get;set;}
 
-        public required string Nombre_usuario { get; set; } = String.Empty;
+        public required string NombreUsuario { get; set; } = String.Empty;
         public required string Nombre{ get; set; } = String.Empty;
         public required string Email { get; set; } = String.Empty;
     }

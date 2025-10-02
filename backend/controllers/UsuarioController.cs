@@ -29,7 +29,7 @@ namespace NeuroPuentesAPI.controllers
         {
             var usuarios = await _service.GetAllAsync();
             foreach (var user in usuarios)
-                user.Password_hash = "";
+                user.PasswordHash = "";
             return Ok(usuarios);
         }
 
@@ -38,7 +38,7 @@ namespace NeuroPuentesAPI.controllers
         {
             var usuarios = await _service.GetAllVigentesAsync();
             foreach (var user in usuarios)
-                user.Password_hash = "";
+                user.PasswordHash = "";
             return Ok(usuarios);
         }
 
@@ -47,7 +47,7 @@ namespace NeuroPuentesAPI.controllers
         {
             var usuario = await _service.GetByIdAsync(id);
             if (usuario == null) return NotFound();
-            usuario.Password_hash = "";
+            usuario.PasswordHash = "";
             return Ok(usuario);
         }
 
@@ -66,17 +66,17 @@ namespace NeuroPuentesAPI.controllers
 
             var usuario = new Usuario
             {
-                Password_hash = dto.Password,
+                PasswordHash = dto.Password,
                 Rol = dto.Rol,
                 Vigencia = dto.Vigencia,
-                Fecha_registro = DateTime.UtcNow,
-                Nombre_usuario = dto.Nombre_usuario,
+                FechaRegistro = DateTime.UtcNow,
+                NombreUsuario = dto.NombreUsuario,
                 Nombre = dto.Nombre,
                 Email = dto.Email
             };
 
             var id = await _service.CrearAsync(usuario);
-            usuario.Password_hash = "";
+            usuario.PasswordHash = "";
 
             return Ok(new { id });
         }
@@ -93,12 +93,12 @@ namespace NeuroPuentesAPI.controllers
 
             var usuario = new Usuario
             {
-                _id = id,
-                Password_hash = dto.Password ?? "", // Enviar contraseña plana al servicio
+                Id = id,
+                PasswordHash = dto.Password ?? "", // Enviar contraseña plana al servicio
                 Rol = dto.Rol ?? existente.Rol,
                 Vigencia = dto.Vigencia ?? existente.Vigencia,
-                Fecha_registro = existente.Fecha_registro,
-                Nombre_usuario = dto.Nombre_usuario ?? existente.Nombre_usuario,
+                FechaRegistro = existente.FechaRegistro,
+                NombreUsuario = dto.NombreUsuario ?? existente.NombreUsuario,
                 Nombre = dto.Nombre ?? existente.Nombre,
                 Email = dto.Email ?? existente.Email
             };

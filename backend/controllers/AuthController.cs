@@ -33,9 +33,9 @@ namespace NeuroPuentesAPI.controllers
             {
                 user = await _usuarioService.AuthenticateByCorreoAsync(request.Email, request.Password);
             }
-            else if (!string.IsNullOrEmpty(request.Nombre_usuario))
+            else if (!string.IsNullOrEmpty(request.NombreUsuario))
             {
-                user = await _usuarioService.AuthenticateAsync(request.Nombre_usuario, request.Password);
+                user = await _usuarioService.AuthenticateAsync(request.NombreUsuario, request.Password);
             }
 
             if (user == null || !user.Vigencia)
@@ -46,8 +46,8 @@ namespace NeuroPuentesAPI.controllers
             {
                 token,
                 usuario = new {
-                    user._id,
-                    user.Nombre_usuario,
+                    user.Id,
+                    user.NombreUsuario,
                     user.Email,
                     user.Rol
                 }
@@ -66,8 +66,8 @@ namespace NeuroPuentesAPI.controllers
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user._id.ToString()),
-                new Claim(ClaimTypes.Name, user.Nombre_usuario),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.NombreUsuario),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Rol.ToString())
             };
@@ -86,7 +86,7 @@ namespace NeuroPuentesAPI.controllers
 
     public class LoginRequest
     {
-        public string? Nombre_usuario { get; set; }
+        public string? NombreUsuario { get; set; }
         public string? Email { get; set; }
         public required string Password { get; set; }
     }

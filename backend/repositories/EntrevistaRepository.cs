@@ -20,7 +20,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task<IEnumerable<Entrevista>> GetAllAsync()
         {
-            const string query = "SELECT * FROM \"Entrevistas\" ORDER BY \"FechaCreacion\" DESC";
+            const string query = "SELECT * FROM \"entrevistas\" ORDER BY \"fecha_creacion\" DESC";
             using var connection = CreateConnection();
             var result = await connection.QueryAsync<Entrevista>(query);
             return result.ToList();
@@ -28,7 +28,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task<Entrevista?> GetByIdAsync(int id)
         {
-            const string query = "SELECT * FROM \"Entrevistas\" WHERE _id = @Id";
+            const string query = "SELECT * FROM \"entrevistas\" WHERE _id = @Id";
             using var connection = CreateConnection();
             return await connection.QueryFirstOrDefaultAsync<Entrevista>(query, new { Id = id });
         }
@@ -36,7 +36,7 @@ namespace NeuroPuentesAPI.repositories
         public async Task CrearAsync(Entrevista entrevista)
         {
             const string query = @"
-                INSERT INTO ""Entrevistas"" 
+                INSERT INTO ""entrevistas"" 
                 (usuario_id, contexto_id, titulo, descripcion, duracion_min, numero_turnos, contexto_snapshot, fecha_creacion)
                 VALUES 
                 (@UsuarioId, @ContextoId, @Titulo, @Descripcion, @DuracionMin, @NumeroTurnos, @ContextoSnapshot, @FechaCreacion)";
@@ -48,7 +48,7 @@ namespace NeuroPuentesAPI.repositories
         public async Task ActualizarAsync(Entrevista entrevista)
         {
             const string query = @"
-                UPDATE ""Entrevistas"" SET
+                UPDATE ""entrevistas"" SET
                 usuario_id = @UsuarioId,
                 contexto_id = @ContextoId,
                 titulo = @Titulo,
@@ -65,7 +65,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task EliminarAsync(int id)
         {
-            const string query = "DELETE FROM \"Entrevistas\" WHERE _id = @Id";
+            const string query = "DELETE FROM \"entrevistas\" WHERE _id = @Id";
             using var connection = CreateConnection();
             await connection.ExecuteAsync(query, new { Id = id });
         }

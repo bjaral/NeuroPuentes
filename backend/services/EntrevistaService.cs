@@ -1,6 +1,6 @@
 using NeuroPuentesAPI.DTOs;
 using NeuroPuentesAPI.models;
-using NeuroPuentesAPI.Repositories;
+using NeuroPuentesAPI.repositories;
 
 namespace NeuroPuentesAPI.services
 {

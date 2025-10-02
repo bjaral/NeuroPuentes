@@ -19,7 +19,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task<IEnumerable<Feedback_Entrevista>> GetAllAsync()
         {
-            const string query = "SELECT * FROM \"Feedback_Entrevista\" ORDER BY fecha ASC";
+            const string query = "SELECT * FROM \"feedback_entrevista\" ORDER BY fecha ASC";
             using var connection = CreateConnection();
             var result = await connection.QueryAsync<Feedback_Entrevista>(query);
             return result.ToList();
@@ -27,7 +27,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task<Feedback_Entrevista?> GetByIdAsync(int id)
         {
-            const string query = "SELECT * FROM \"Feedback_Entrevista\" WHERE _id=@Id";
+            const string query = "SELECT * FROM \"feedback_entrevista\" WHERE _id=@Id";
             using var connection = CreateConnection();
             return await connection.QueryFirstOrDefaultAsync<Feedback_Entrevista>(query, new { Id = id });
         }
@@ -35,7 +35,7 @@ namespace NeuroPuentesAPI.repositories
         public async Task CrearAsync(Feedback_Entrevista feedback)
         {
             const string query = @"
-                INSERT INTO ""Feedback_Entrevista"" 
+                INSERT INTO ""feedback_entrevista"" 
                 (entrevista_id, tipo, mensaje, categoria, fecha)
                 VALUES (@EntrevistaId, @Tipo, @Mensaje, @Categoria, @Fecha)";
             using var connection = CreateConnection();
@@ -45,7 +45,7 @@ namespace NeuroPuentesAPI.repositories
         public async Task ActualizarAsync(Feedback_Entrevista feedback)
         {
             const string query = @"
-                UPDATE ""Feedback_Entrevista"" SET
+                UPDATE ""feedback_entrevista"" SET
                 entrevista_id=@EntrevistaId,
                 tipo=@Tipo,
                 mensaje=@Mensaje,
@@ -57,7 +57,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task EliminarAsync(int id)
         {
-            const string query = "DELETE FROM \"Feedback_Entrevista\" WHERE _id=@Id";
+            const string query = "DELETE FROM \"feedback_entrevista\" WHERE _id=@Id";
             using var connection = CreateConnection();
             await connection.ExecuteAsync(query, new { Id = id });
         }
