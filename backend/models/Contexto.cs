@@ -17,19 +17,19 @@ namespace NeuroPuentesAPI.models
 
     public class Contexto
     {
-        public int _id { get; set; }
+        public int Id { get; set; }
         
         public required string Nombre { get; set; } = String.Empty;
         public required string Descripcion { get; set; } = String.Empty;
 
         public required ENUM_SCOPE_CONTEXTO Scope { get; set; }
-        public int? Creado_por {get; set;} 
+        public int? CreadoPor {get; set;} 
         public required ENUM_ORIGEN_CONTEXTO Origen { get; set; }
 
-        public string? Prompt_seed {get; set; }
+        public string? PromptSeed {get; set; }
         public required bool Vigencia { get; set; }
 
-        public required DateTime Fecha_creacion {get;set;}
+        public required DateTime FechaCreacion {get;set;}
 
     }
 

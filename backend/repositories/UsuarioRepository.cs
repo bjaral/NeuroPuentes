@@ -21,14 +21,14 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryAsync<Usuario>(
                 @"SELECT 
-                    _id,
-                    password_hash,
-                    rol,
-                    vigencia,
-                    fecha_registro,
-                    nombre_usuario,
-                    nombre,
-                    email
+                    _id AS Id,
+                    password_hash AS PasswordHash,
+                    rol AS Rol,
+                    vigencia AS Vigencia,
+                    fecha_registro AS FechaRegistro,
+                    nombre_usuario AS NombreUsuario,
+                    nombre AS Nombre,
+                    email AS Email
                   FROM ""usuarios"" ");
         }
 
@@ -37,15 +37,16 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryAsync<Usuario>(
                 @"SELECT 
-                    _id,
-                    password_hash,
-                    rol,
-                    vigencia,
-                    fecha_registro,
-                    nombre_usuario,
-                    nombre,
-                    email
-                  FROM ""usuarios"" WHERE vigencia = true");
+                    _id AS Id,
+                    password_hash AS PasswordHash,
+                    rol AS Rol,
+                    vigencia AS Vigencia,
+                    fecha_registro AS FechaRegistro,
+                    nombre_usuario AS NombreUsuario,
+                    nombre AS Nombre,
+                    email AS Email
+                  FROM ""usuarios"" 
+                  WHERE vigencia = true");
         }
 
         public async Task<Usuario?> GetByIdAsync(int id)
@@ -53,16 +54,16 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryFirstOrDefaultAsync<Usuario>(
                 @"SELECT 
-                    _id,
-                    password_hash,
-                    rol,
-                    vigencia,
-                    fecha_registro,
-                    nombre_usuario,
-                    nombre,
-                    email
+                    _id AS Id,
+                    password_hash AS PasswordHash,
+                    rol AS Rol,
+                    vigencia AS Vigencia,
+                    fecha_registro AS FechaRegistro,
+                    nombre_usuario AS NombreUsuario,
+                    nombre AS Nombre,
+                    email AS Email
                   FROM ""usuarios"" 
-                  WHERE _id = @Id ",
+                  WHERE _id = @Id",
                 new { Id = id });
         }
 
@@ -71,17 +72,17 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryFirstOrDefaultAsync<Usuario>(
                 @"SELECT 
-                    _id,
-                    password_hash,
-                    rol,
-                    vigencia,
-                    fecha_registro,
-                    nombre_usuario,
-                    nombre,
-                    email
+                    _id AS Id,
+                    password_hash AS PasswordHash,
+                    rol AS Rol,
+                    vigencia AS Vigencia,
+                    fecha_registro AS FechaRegistro,
+                    nombre_usuario AS NombreUsuario,
+                    nombre AS Nombre,
+                    email AS Email
                   FROM ""usuarios"" 
-                  WHERE LOWER(nombre_usuario) = LOWER(@Nombre_usuario) ",
-                new { Nombre_usuario = usuarioNombre.Trim() });
+                  WHERE LOWER(nombre_usuario) = LOWER(@NombreUsuario)",
+                new { NombreUsuario = usuarioNombre.Trim() });
         }
 
         public async Task<Usuario?> GetByCorreoAsync(string correo)
@@ -89,16 +90,16 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryFirstOrDefaultAsync<Usuario>(
                 @"SELECT 
-                    _id,
-                    password_hash,
-                    rol,
-                    vigencia,
-                    fecha_registro,
-                    nombre_usuario,
-                    nombre,
-                    email
+                    _id AS Id,
+                    password_hash AS PasswordHash,
+                    rol AS Rol,
+                    vigencia AS Vigencia,
+                    fecha_registro AS FechaRegistro,
+                    nombre_usuario AS NombreUsuario,
+                    nombre AS Nombre,
+                    email AS Email
                 FROM ""usuarios"" 
-                WHERE LOWER(email) = LOWER(@Email) ",
+                WHERE LOWER(email) = LOWER(@Email)",
                 new { Email = correo.Trim() });
         }
 
@@ -108,14 +109,14 @@ namespace NeuroPuentesAPI.repositories
             return await connection.ExecuteScalarAsync<int>(
                 @"INSERT INTO ""usuarios"" 
                     (password_hash, rol, vigencia, fecha_registro, nombre_usuario, nombre, email) 
-                  VALUES (@Password_hash, @Rol::tipo_usuario, @Vigencia, @Fecha_registro, @Nombre_usuario, @Nombre, @Email) 
+                  VALUES (@PasswordHash, @Rol::tipo_usuario, @Vigencia, @FechaRegistro, @NombreUsuario, @Nombre, @Email) 
                   RETURNING _id",
                 new {
-                    usuario.Password_hash,
+                    usuario.PasswordHash,
                     Rol = usuario.Rol.ToString(),
                     usuario.Vigencia,
-                    usuario.Fecha_registro,
-                    usuario.Nombre_usuario,
+                    usuario.FechaRegistro,
+                    usuario.NombreUsuario,
                     usuario.Nombre,
                     usuario.Email
                 });
@@ -126,23 +127,23 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             await connection.ExecuteAsync(
                 @"UPDATE ""usuarios"" SET 
-                        password_hash = @Password_hash,
+                        password_hash = @PasswordHash,
                         rol = @Rol::tipo_usuario,
                         vigencia = @Vigencia,
-                        fecha_registro = @Fecha_registro,
-                        nombre_usuario = @Nombre_usuario,
+                        fecha_registro = @FechaRegistro,
+                        nombre_usuario = @NombreUsuario,
                         nombre = @Nombre,
                         email = @Email
-                    WHERE _id = @_id",
+                    WHERE _id = @Id",
                 new {
-                    usuario.Password_hash,
+                    usuario.PasswordHash,
                     Rol = usuario.Rol.ToString(),
                     usuario.Vigencia,
-                    usuario.Fecha_registro,
-                    usuario.Nombre_usuario,
+                    usuario.FechaRegistro,
+                    usuario.NombreUsuario,
                     usuario.Nombre,
                     usuario.Email,
-                    usuario._id
+                    usuario.Id
                 });
         }
 

@@ -21,16 +21,16 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryAsync<Contexto>(
                 @"SELECT 
-                    _id,
-                    nombre,
-                    descripcion,
-                    scope,
-                    creado_por,
-                    origen,
-                    prompt_seed,
-                    vigencia,
-                    fecha_creacion
-                  FROM ""contextos"" ");
+                    _id AS Id,
+                    nombre AS Nombre,
+                    descripcion AS Descripcion,
+                    scope AS Scope,
+                    creado_por AS CreadoPor,
+                    origen AS Origen,
+                    prompt_seed AS PromptSeed,
+                    vigencia AS Vigencia,
+                    fecha_creacion AS FechaCreacion
+                  FROM ""contextos""");
         }
 
         public async Task<IEnumerable<Contexto>> GetAllVigentesAsync()
@@ -38,15 +38,15 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryAsync<Contexto>(
                 @"SELECT 
-                    _id,
-                    nombre,
-                    descripcion,
-                    scope,
-                    creado_por,
-                    origen,
-                    prompt_seed,
-                    vigencia,
-                    fecha_creacion
+                    _id AS Id,
+                    nombre AS Nombre,
+                    descripcion AS Descripcion,
+                    scope AS Scope,
+                    creado_por AS CreadoPor,
+                    origen AS Origen,
+                    prompt_seed AS PromptSeed,
+                    vigencia AS Vigencia,
+                    fecha_creacion AS FechaCreacion
                   FROM ""contextos"" 
                   WHERE vigencia = true");
         }
@@ -56,15 +56,15 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             return await connection.QueryFirstOrDefaultAsync<Contexto>(
                 @"SELECT 
-                    _id,
-                    nombre,
-                    descripcion,
-                    scope,
-                    creado_por,
-                    origen,
-                    prompt_seed,
-                    vigencia,
-                    fecha_creacion
+                    _id AS Id,
+                    nombre AS Nombre,
+                    descripcion AS Descripcion,
+                    scope AS Scope,
+                    creado_por AS CreadoPor,
+                    origen AS Origen,
+                    prompt_seed AS PromptSeed,
+                    vigencia AS Vigencia,
+                    fecha_creacion AS FechaCreacion
                   FROM ""contextos"" 
                   WHERE _id = @Id",
                 new { Id = id });
@@ -76,17 +76,26 @@ namespace NeuroPuentesAPI.repositories
             return await connection.ExecuteScalarAsync<int>(
                 @"INSERT INTO ""contextos"" 
                     (nombre, descripcion, scope, creado_por, origen, prompt_seed, vigencia, fecha_creacion) 
-                  VALUES (@Nombre, @Descripcion, @Scope::scope_contexto, @Creado_por, @Origen::origen_contexto, @Prompt_seed, @Vigencia, @Fecha_creacion) 
+                  VALUES (
+                    @Nombre, 
+                    @Descripcion, 
+                    @Scope::scope_contexto, 
+                    @CreadoPor, 
+                    @Origen::origen_contexto, 
+                    @PromptSeed, 
+                    @Vigencia, 
+                    @FechaCreacion
+                  ) 
                   RETURNING _id",
                 new {
                     contexto.Nombre,
                     contexto.Descripcion,
                     Scope = contexto.Scope.ToString().ToLower(),
-                    contexto.Creado_por,
+                    contexto.CreadoPor,
                     Origen = contexto.Origen.ToString().ToLower(),
-                    contexto.Prompt_seed,
+                    contexto.PromptSeed,
                     contexto.Vigencia,
-                    contexto.Fecha_creacion
+                    contexto.FechaCreacion
                 });
         }
 
@@ -98,27 +107,29 @@ namespace NeuroPuentesAPI.repositories
                         nombre = @Nombre,
                         descripcion = @Descripcion,
                         scope = @Scope::scope_contexto,
-                        creado_por = @Creado_por,
+                        creado_por = @CreadoPor,
                         origen = @Origen::origen_contexto,
-                        prompt_seed = @Prompt_seed,
-                        vigencia = @Vigencia,
-                        fecha_creacion = @Fecha_creacion
-                    WHERE _id = @_id",
+                        prompt_seed = @PromptSeed,
+                        vigencia = @Vigencia
+                    WHERE _id = @Id",
                 new {
                     contexto.Nombre,
                     contexto.Descripcion,
                     Scope = contexto.Scope.ToString().ToLower(),
-                    contexto.Creado_por,
+                    contexto.CreadoPor,
                     Origen = contexto.Origen.ToString().ToLower(),
-                    contexto.Prompt_seed,
+                    contexto.PromptSeed,
                     contexto.Vigencia,
-                    contexto.Fecha_creacion,
-                    contexto._id
+                    contexto.Id
                 });
         }
 
-        public async Task EliminarAsync(int id) =>
-            await new NpgsqlConnection(_connectionString)
-                .ExecuteAsync(@"DELETE FROM ""contextos"" WHERE _id = @Id", new { Id = id });
+        public async Task EliminarAsync(int id)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            await connection.ExecuteAsync(
+                @"DELETE FROM ""contextos"" WHERE _id = @Id", 
+                new { Id = id });
+        }
     }
 }

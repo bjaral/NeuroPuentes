@@ -19,7 +19,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task<IEnumerable<Dialogo>> GetAllAsync()
         {
-            const string query = "SELECT * FROM \"Dialogos\" ORDER BY timestamp ASC";
+            const string query = "SELECT * FROM \"dialogos\" ORDER BY timestamp ASC";
             using var connection = CreateConnection();
             var result = await connection.QueryAsync<Dialogo>(query);
             return result.ToList();
@@ -27,7 +27,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task<Dialogo?> GetByIdAsync(int id)
         {
-            const string query = "SELECT * FROM \"Dialogos\" WHERE _id = @Id";
+            const string query = "SELECT * FROM \"dialogos\" WHERE _id = @Id";
             using var connection = CreateConnection();
             return await connection.QueryFirstOrDefaultAsync<Dialogo>(query, new { Id = id });
         }
@@ -35,7 +35,7 @@ namespace NeuroPuentesAPI.repositories
         public async Task CrearAsync(Dialogo dialogo)
         {
             const string query = @"
-                INSERT INTO ""Dialogos"" 
+                INSERT INTO ""dialogos"" 
                 (entrevista_id, turno, sender, texto, texto_procesado, timestamp, audio_url)
                 VALUES (@EntrevistaId, @Turno, @Sender, @Texto, @TextoProcesado, @Timestamp, @AudioUrl)";
             using var connection = CreateConnection();
@@ -45,7 +45,7 @@ namespace NeuroPuentesAPI.repositories
         public async Task ActualizarAsync(Dialogo dialogo)
         {
             const string query = @"
-                UPDATE ""Dialogos"" SET
+                UPDATE ""dialogos"" SET
                 entrevista_id = @EntrevistaId,
                 turno = @Turno,
                 sender = @Sender,
@@ -59,7 +59,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task EliminarAsync(int id)
         {
-            const string query = "DELETE FROM \"Dialogos\" WHERE _id = @Id";
+            const string query = "DELETE FROM \"dialogos\" WHERE _id = @Id";
             using var connection = CreateConnection();
             await connection.ExecuteAsync(query, new { Id = id });
         }

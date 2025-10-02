@@ -6,7 +6,7 @@ namespace NeuroPuentesAPI.models
     public class Caracteristica
     {
 
-        public int _id { get; set; }
+        public int Id { get; set; }
 
         public required string Nombre { get; set; } = string.Empty;
         public required string Descripcion { get; set; } = string.Empty;

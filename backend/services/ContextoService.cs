@@ -26,8 +26,8 @@ namespace NeuroPuentesAPI.services
         public async Task<int> CrearAsync(Contexto contexto)
         {
             // Puedes forzar la fecha de creación aquí si no viene del cliente
-            if (contexto.Fecha_creacion == default)
-                contexto.Fecha_creacion = DateTime.UtcNow;
+            if (contexto.FechaCreacion == default)
+                contexto.FechaCreacion = DateTime.UtcNow;
 
             return await _repo.CrearAsync(contexto);
         }
@@ -42,11 +42,11 @@ namespace NeuroPuentesAPI.services
             existente.Nombre = string.IsNullOrWhiteSpace(contexto.Nombre) ? existente.Nombre : contexto.Nombre;
             existente.Descripcion = string.IsNullOrWhiteSpace(contexto.Descripcion) ? existente.Descripcion : contexto.Descripcion;
             existente.Scope = contexto.Scope;
-            existente.Creado_por = contexto.Creado_por ?? existente.Creado_por;
+            existente.CreadoPor = contexto.CreadoPor ?? existente.CreadoPor;
             existente.Origen = contexto.Origen;
-            existente.Prompt_seed = contexto.Prompt_seed ?? existente.Prompt_seed;
+            existente.PromptSeed = contexto.PromptSeed ?? existente.PromptSeed;
             existente.Vigencia = contexto.Vigencia;
-            existente.Fecha_creacion = existente.Fecha_creacion; // no se toca
+            existente.FechaCreacion = existente.FechaCreacion; // no se toca
 
             await _repo.ActualizarAsync(existente);
         }

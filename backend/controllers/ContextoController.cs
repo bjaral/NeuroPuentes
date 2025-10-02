@@ -22,15 +22,15 @@ namespace NeuroPuentesAPI.controllers
             var contextos = await _service.GetAllAsync();
             var result = contextos.Select(c => new ContextoReadDto
             {
-                _id = c._id,
+                Id = c.Id,
                 Nombre = c.Nombre,
                 Descripcion = c.Descripcion,
                 Scope = c.Scope,
-                Creado_por = c.Creado_por,
+                CreadoPor = c.CreadoPor,
                 Origen = c.Origen,
-                Prompt_seed = c.Prompt_seed,
+                PromptSeed = c.PromptSeed,
                 Vigencia = c.Vigencia,
-                Fecha_creacion = c.Fecha_creacion
+                FechaCreacion = c.FechaCreacion
             });
             return Ok(result);
         }
@@ -41,15 +41,15 @@ namespace NeuroPuentesAPI.controllers
             var contextos = await _service.GetAllVigentesAsync();
             var result = contextos.Select(c => new ContextoReadDto
             {
-                _id = c._id,
+                Id = c.Id,
                 Nombre = c.Nombre,
                 Descripcion = c.Descripcion,
                 Scope = c.Scope,
-                Creado_por = c.Creado_por,
+                CreadoPor = c.CreadoPor,
                 Origen = c.Origen,
-                Prompt_seed = c.Prompt_seed,
+                PromptSeed = c.PromptSeed,
                 Vigencia = c.Vigencia,
-                Fecha_creacion = c.Fecha_creacion
+                FechaCreacion = c.FechaCreacion
             });
             return Ok(result);
         }
@@ -62,15 +62,15 @@ namespace NeuroPuentesAPI.controllers
 
             return Ok(new ContextoReadDto
             {
-                _id = contexto._id,
+                Id = contexto.Id,
                 Nombre = contexto.Nombre,
                 Descripcion = contexto.Descripcion,
                 Scope = contexto.Scope,
-                Creado_por = contexto.Creado_por,
+                CreadoPor = contexto.CreadoPor,
                 Origen = contexto.Origen,
-                Prompt_seed = contexto.Prompt_seed,
+                PromptSeed = contexto.PromptSeed,
                 Vigencia = contexto.Vigencia,
-                Fecha_creacion = contexto.Fecha_creacion
+                FechaCreacion = contexto.FechaCreacion
             });
         }
 
@@ -82,11 +82,11 @@ namespace NeuroPuentesAPI.controllers
                 Nombre = dto.Nombre,
                 Descripcion = dto.Descripcion,
                 Scope = dto.Scope,
-                Creado_por = dto.Creado_por,
+                CreadoPor = dto.CreadoPor,
                 Origen = dto.Origen,
-                Prompt_seed = dto.Prompt_seed,
+                PromptSeed = dto.PromptSeed,
                 Vigencia = dto.Vigencia,
-                Fecha_creacion = DateTime.UtcNow
+                FechaCreacion = DateTime.UtcNow
             };
 
             var id = await _service.CrearAsync(contexto);
@@ -102,9 +102,9 @@ namespace NeuroPuentesAPI.controllers
             if (!string.IsNullOrWhiteSpace(dto.Nombre)) existente.Nombre = dto.Nombre;
             if (!string.IsNullOrWhiteSpace(dto.Descripcion)) existente.Descripcion = dto.Descripcion;
             if (dto.Scope.HasValue) existente.Scope = dto.Scope.Value;
-            if (dto.Creado_por.HasValue) existente.Creado_por = dto.Creado_por;
+            if (dto.CreadoPor.HasValue) existente.CreadoPor = dto.CreadoPor;
             if (dto.Origen.HasValue) existente.Origen = dto.Origen.Value;
-            if (dto.Prompt_seed != null) existente.Prompt_seed = dto.Prompt_seed;
+            if (dto.PromptSeed != null) existente.PromptSeed = dto.PromptSeed;
             if (dto.Vigencia.HasValue) existente.Vigencia = dto.Vigencia.Value;
 
             await _service.ActualizarAsync(id, existente);

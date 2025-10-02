@@ -100,13 +100,27 @@ builder.Services.AddScoped<IEval_CategoriaService, Eval_CategoriaService>();
 
 builder.Services.AddScoped<IFeedback_EntrevistaRepository, Feedback_EntrevistaRepository>();
 builder.Services.AddScoped<IFeedback_EntrevistaService, Feedback_EntrevistaService>();
+
+builder.Services.AddScoped<IFeedbackUsuarioRepository, FeedbackUsuarioRepository>();
+builder.Services.AddScoped<IFeedbackUsuarioService, FeedbackUsuarioService>();
+
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 builder.Services.AddScoped<IContextoRepository, ContextoRepository>();
 builder.Services.AddScoped<IContextoService, ContextoService>();
 
+builder.Services.AddScoped<ICaracteristicaRepository, CaracteristicaRepository>();
+builder.Services.AddScoped<ICaracteristicaService, CaracteristicaService>();
 
+builder.Services.AddScoped<IStatsUsuarioRepository, StatsUsuarioRepository>();
+builder.Services.AddScoped<IStatsUsuarioService, StatsUsuarioService>();
+
+builder.Services.AddScoped<ITipRepository, TipRepository>();
+builder.Services.AddScoped<ITipService, TipService>();
+
+builder.Services.AddScoped<ICaractsRelRepository, CaractsRelRepository>();
+builder.Services.AddScoped<ICaractsRelService, CaractsRelService>();
 
 var app = builder.Build();
 

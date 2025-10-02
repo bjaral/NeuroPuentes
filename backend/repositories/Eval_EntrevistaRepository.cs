@@ -19,7 +19,7 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task<IEnumerable<Eval_Entrevista>> GetAllAsync()
         {
-            const string query = "SELECT * FROM \"Eval_Entrevista\" ORDER BY _id ASC";
+            const string query = "SELECT * FROM \"eval_entrevista\" ORDER BY _id ASC";
             using var connection = CreateConnection();
             var result = await connection.QueryAsync<Eval_Entrevista>(query);
             return result.ToList();
@@ -27,28 +27,28 @@ namespace NeuroPuentesAPI.repositories
 
         public async Task<Eval_Entrevista?> GetByIdAsync(int id)
         {
-            const string query = "SELECT * FROM \"Eval_Entrevista\" WHERE _id = @Id";
+            const string query = "SELECT * FROM \"eval_entrevista\" WHERE _id = @Id";
             using var connection = CreateConnection();
             return await connection.QueryFirstOrDefaultAsync<Eval_Entrevista>(query, new { Id = id });
         }
 
         public async Task CrearAsync(Eval_Entrevista eval)
         {
-            const string query = "INSERT INTO \"Eval_Entrevista\" (entrevista_id, score_final) VALUES (@EntrevistaId, @ScoreFinal)";
+            const string query = "INSERT INTO \"eval_entrevista\" (entrevista_id, score_final) VALUES (@EntrevistaId, @ScoreFinal)";
             using var connection = CreateConnection();
             await connection.ExecuteAsync(query, eval);
         }
 
         public async Task ActualizarAsync(Eval_Entrevista eval)
         {
-            const string query = "UPDATE \"Eval_Entrevista\" SET entrevista_id=@EntrevistaId, score_final=@ScoreFinal WHERE _id=@Id";
+            const string query = "UPDATE \"eval_entrevista\" SET entrevista_id=@EntrevistaId, score_final=@ScoreFinal WHERE _id=@Id";
             using var connection = CreateConnection();
             await connection.ExecuteAsync(query, eval);
         }
 
         public async Task EliminarAsync(int id)
         {
-            const string query = "DELETE FROM \"Eval_Entrevista\" WHERE _id=@Id";
+            const string query = "DELETE FROM \"eval_entrevista\" WHERE _id=@Id";
             using var connection = CreateConnection();
             await connection.ExecuteAsync(query, new { Id = id });
         }
