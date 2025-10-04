@@ -18,6 +18,9 @@ TTS==0.22.0
 requests==2.32.4
 websockets==15.0.1
 
-# Opcional: utilidades varias para IA
+# Utilidades varias para IA
 scipy==1.11.4
 pandas==1.5.3
+
+# Conexión con la base de datos
+sqlalchemy==2.0.43
