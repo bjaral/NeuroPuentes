@@ -2,69 +2,117 @@
 
   <h1 class="student-title">Hola, Benja!</h1>
 
-  <!-- Contadores -->
-  <div class="stats-grid">
-    <mat-card class="stat-card">
-      <mat-card-title>Entrevistas Realizadas</mat-card-title>
-      <mat-card-content>
-        <h2>{{ entrevistasRealizadas }}</h2>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-title>Puntaje Promedio</mat-card-title>
-      <mat-card-content>
-        <h2>{{ puntajePromedio }}</h2>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-title>Último Feedback</mat-card-title>
-      <mat-card-content>
-        <h2>{{ ultimoFeedback }}</h2>
-      </mat-card-content>
-    </mat-card>
+  <!-- Loading state -->
+  <div *ngIf="cargandoDatos" class="loading-state">
+    <mat-spinner></mat-spinner>
+    <p>Cargando tu información...</p>
   </div>
+
+  <!-- Contadores -->
+  <div class="stats-grid" *ngIf="!cargandoDatos">
+      <mat-card class="stat-card">
+        <mat-card-title matTooltip="Número total de entrevistas realizadas">
+          <mat-icon aria-label="Entrevistas completadas">assignment_turned_in</mat-icon>
+          Entrevistas Realizadas
+        </mat-card-title>
+        <mat-card-content>
+          <h2>{{ entrevistasRealizadas }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-title>
+          <mat-icon aria-label="Tendencia de puntajes">trending_up</mat-icon>
+          Puntaje Promedio
+          <mat-icon class="info-icon" matTooltip="Se calcula en base a tus últimas entrevistas">info</mat-icon>
+        </mat-card-title>
+        <mat-card-content>
+          <h2>{{ puntajePromedio }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-title matTooltip="Última retroalimentación recibida">
+          <mat-icon aria-label="Comentarios recientes">feedback</mat-icon>
+          Último Feedback
+        </mat-card-title>
+        <mat-card-content>
+          <h2>{{ ultimoFeedback }}</h2>
+        </mat-card-content>
+      </mat-card>
+    </div>
 
   <!-- Acciones -->
-  <div class="actions">
-    <button mat-raised-button color="primary" routerLink="/scenarios">
-      <mat-icon>add</mat-icon>
-      Nueva Entrevista
-    </button>
+  <div class="actions" *ngIf="!cargandoDatos">
+      <button mat-raised-button color="primary" routerLink="/scenarios" aria-label="Crear nueva entrevista">
+        <mat-icon>add</mat-icon>
+        Nueva Entrevista
+      </button>
 
-    <button mat-raised-button color="accent">
-      <mat-icon>play_circle</mat-icon>
-      Simular Entrevista
-    </button>
-  </div>
+      <button mat-raised-button color="accent" matTooltip="Prueba sin guardar resultados" aria-label="Iniciar simulación de práctica">
+        <mat-icon>play_circle</mat-icon>
+        Simular (Práctica)
+      </button>
+    </div>
 
   <!-- Últimas entrevistas -->
-  <mat-card class="latest-interviews">
-    <mat-card-title>Últimas Entrevistas</mat-card-title>
-    <mat-card-content>
-      <div class="interviews-list">
-        <div *ngFor="let entrevista of entrevistas" class="interview-item">
-          <div class="interview-date">{{ entrevista.fecha }}</div>
-          <div class="interview-score">Puntaje: {{ entrevista.puntaje }}</div>
-          <div class="interview-status" [ngClass]="entrevista.estado.toLowerCase()">
-            {{ entrevista.estado }}
+  <mat-card class="latest-interviews" *ngIf="!cargandoDatos">
+      <mat-card-title>
+        <mat-icon aria-label="Historial">history</mat-icon>
+        Últimas Entrevistas
+      </mat-card-title>
+      <mat-card-content>
+        <!-- Estado vacío -->
+        <div *ngIf="entrevistas.length === 0 && !errorCargando" class="empty-state">
+          <mat-icon>assignment</mat-icon>
+          <p>No tienes entrevistas registradas aún</p>
+          <button mat-raised-button color="primary" routerLink="/scenarios">
+            Realizar tu primera entrevista
+          </button>
+        </div>
+
+        <!-- Error de carga mejorado -->
+        <div *ngIf="errorCargando" class="error-state">
+          <mat-icon color="warn">error</mat-icon>
+          <p>No pudimos cargar tus entrevistas.</p>
+          <button mat-stroked-button color="primary" (click)="reintentarCarga()" aria-label="Reintentar carga de datos">
+            <mat-icon>refresh</mat-icon>
+            Reintentar
+          </button>
+        </div>
+
+        <!-- Lista -->
+        <div class="interviews-list" *ngIf="entrevistas.length > 0" role="list">
+          <div *ngFor="let entrevista of entrevistas" 
+               class="interview-item" 
+               [routerLink]="['/interview', entrevista.id]"
+               role="listitem"
+               [attr.aria-label]="'Entrevista del ' + entrevista.fecha + ', puntaje ' + entrevista.puntaje + ', estado ' + entrevista.estado">
+            <div class="interview-date">
+              <mat-icon aria-hidden="true">calendar_today</mat-icon>
+              {{ entrevista.fecha }}
+            </div>
+            <div class="interview-score">Puntaje: {{ entrevista.puntaje }}</div>
+            <div class="interview-status" [ngClass]="entrevista.estado.toLowerCase()" 
+                 [matTooltip]="tooltipEstado(entrevista.estado)">
+              {{ entrevista.estado }}
+            </div>
           </div>
         </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+      </mat-card-content>
+    </mat-card>
 
   <!-- Tips -->
-  <mat-card class="tips-card">
-    <mat-card-title>
-      <mat-icon>lightbulb</mat-icon>Tips de Entrevista
-    </mat-card-title>
-    <mat-card-content>
-      <ul>
-        <li *ngFor="let tip of tips">{{ tip }}</li>
-      </ul>
-    </mat-card-content>
-  </mat-card>
+  <mat-card class="tips-card" *ngIf="!cargandoDatos">
+      <mat-card-title>
+        <mat-icon aria-label="Consejos útiles">lightbulb</mat-icon>
+        Tips de Entrevista
+      </mat-card-title>
+      <mat-card-content>
+        <ul role="list">
+          <li *ngFor="let tip of tips" role="listitem">{{ tip }}</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
 
 </div>

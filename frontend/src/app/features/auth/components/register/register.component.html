@@ -1,1 +1,152 @@
-<p>register works!</p>
+<section class="register-container">
+  <section class="register-panel">
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <h2>Crear Cuenta</h2>
+      <p class="subtitle">Únete a NeuroPuentes</p>
+
+      <!-- Heurística 9: Banner de error -->
+      <div *ngIf="errorMensaje()" class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMensaje() }}</span>
+      </div>
+
+      <!-- Heurística 1: Banner de éxito -->
+      <div *ngIf="exitoMensaje()" class="success-banner">
+        <mat-icon>check_circle</mat-icon>
+        <span>{{ exitoMensaje() }}</span>
+      </div>
+
+      <!-- Nombre de usuario -->
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre de usuario</mat-label>
+        <input 
+          formControlName="nombre_usuario" 
+          matInput 
+          type="text"
+          placeholder="usuario123"
+          required
+          autocomplete="username">
+        <mat-icon matPrefix>person</mat-icon>
+        
+        <mat-error *ngIf="hasError('nombre_usuario')">
+          {{ getErrorMessage('nombre_usuario') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Nombre completo -->
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre completo</mat-label>
+        <input 
+          formControlName="nombre" 
+          matInput 
+          type="text"
+          placeholder="Juan Pérez"
+          required
+          autocomplete="name">
+        <mat-icon matPrefix>badge</mat-icon>
+        
+        <mat-error *ngIf="hasError('nombre')">
+          {{ getErrorMessage('nombre') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Email -->
+      <mat-form-field appearance="outline">
+        <mat-label>Correo electrónico</mat-label>
+        <input 
+          formControlName="email" 
+          matInput 
+          type="email"
+          placeholder="tu@email.com"
+          required
+          autocomplete="email">
+        <mat-icon matPrefix>email</mat-icon>
+        
+        <mat-error *ngIf="hasError('email')">
+          {{ getErrorMessage('email') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Contraseña -->
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <input 
+          formControlName="password" 
+          matInput 
+          [type]="hidePassword ? 'password' : 'text'"
+          placeholder="Mínimo 6 caracteres"
+          required
+          autocomplete="new-password">
+        <mat-icon matPrefix>lock</mat-icon>
+        <mat-icon 
+          matSuffix 
+          (click)="hidePassword = !hidePassword" 
+          [attr.aria-label]="hidePassword ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+          [attr.aria-pressed]="!hidePassword"
+          class="toggle-password"
+          matTooltip="{{ hidePassword ? 'Mostrar' : 'Ocultar' }} contraseña">
+          {{ hidePassword ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+
+        <mat-error *ngIf="hasError('password')">
+          {{ getErrorMessage('password') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Confirmar contraseña -->
+      <mat-form-field appearance="outline">
+        <mat-label>Confirmar contraseña</mat-label>
+        <input 
+          formControlName="confirmPassword" 
+          matInput 
+          [type]="hideConfirmPassword ? 'password' : 'text'"
+          placeholder="Repite tu contraseña"
+          required
+          autocomplete="new-password">
+        <mat-icon matPrefix>lock_outline</mat-icon>
+        <mat-icon 
+          matSuffix 
+          (click)="hideConfirmPassword = !hideConfirmPassword" 
+          [attr.aria-label]="hideConfirmPassword ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+          [attr.aria-pressed]="!hideConfirmPassword"
+          class="toggle-password"
+          matTooltip="{{ hideConfirmPassword ? 'Mostrar' : 'Ocultar' }} contraseña">
+          {{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+
+        <mat-error *ngIf="hasError('confirmPassword')">
+          {{ getErrorMessage('confirmPassword') }}
+        </mat-error>
+        <mat-error *ngIf="hasPasswordMismatch()">
+          {{ getPasswordMismatchError() }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Heurística 1: Botón con estado de carga -->
+      <button 
+        mat-raised-button 
+        color="primary" 
+        type="submit"
+        [disabled]="cargando()"
+        [class.loading]="cargando()"
+        class="register-button">
+        <span *ngIf="!cargando()">Crear Cuenta</span>
+        <span *ngIf="cargando()">Creando cuenta...</span>
+      </button>
+
+      <div class="separator"></div>
+
+      <!-- Heurística 3: Enlace a login -->
+      <div class="login-section">
+        <p class="login-text">¿Ya tienes cuenta?</p>
+        <button 
+          mat-stroked-button 
+          type="button"
+          routerLink="/login" 
+          class="login-button">
+          Iniciar Sesión
+        </button>
+      </div>
+    </form>
+  </section>
+</section>
