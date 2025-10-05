@@ -13,6 +13,9 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatRippleModule } from '@angular/material/core';
 
 export const MATERIAL_IMPORTS = [
   MatButtonModule,
@@ -29,5 +32,8 @@ export const MATERIAL_IMPORTS = [
   MatOptionModule,
   MatSelect,
   MatPaginatorModule,
-  MatChipsModule
+  MatChipsModule,
+  MatTooltipModule,
+  MatButtonToggleModule,
+  MatRippleModule
 ]

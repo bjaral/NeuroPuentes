@@ -1,72 +1,152 @@
-<main class="resultados-container" aria-label="Resultados de la evaluación">
+<main class="resultados-container">
 
-  <h1 class="page-title">Resultados de la Evaluación</h1>
+  <!-- Heurística 1: Visibilidad del estado -->
+  <div *ngIf="cargandoDatos()" class="loading-state">
+    <mat-spinner></mat-spinner>
+    <p>Procesando tu evaluación...</p>
+  </div>
 
-  <!-- Fila 1: Nota final + evaluación por categorías -->
-  <section class="fila fila-superior">
-    <div class="nota-final">
-      <span class="numero">86%</span>
-      <span class="label">Promedio general</span>
-    </div>
+  <!-- Contenido principal -->
+  <ng-container *ngIf="!cargandoDatos()">
 
-    <div class="evaluacion-section">
-      <h2 class="section-title">Evaluación por categoría</h2>
-      <div class="bar-chart">
-        <div class="bar" data-value="85">
-          <span>Inicio</span>
-          <div class="bar-fill"></div>
-          <span class="percentage">85%</span>
-        </div>
-        <div class="bar" data-value="78">
-          <span>Preguntas</span>
-          <div class="bar-fill"></div>
-          <span class="percentage">78%</span>
-        </div>
-        <div class="bar" data-value="92">
-          <span>Empatía</span>
-          <div class="bar-fill"></div>
-          <span class="percentage">92%</span>
-        </div>
-        <div class="bar" data-value="88">
-          <span>Cierre</span>
-          <div class="bar-fill"></div>
-          <span class="percentage">88%</span>
-        </div>
+    <!-- Heurística 2: Mensaje de felicitación -->
+    <div class="success-banner">
+      <mat-icon>check_circle</mat-icon>
+      <div class="banner-content">
+        <h2>¡Entrevista Completada!</h2>
+        <p>Aquí están tus resultados</p>
       </div>
     </div>
-  </section>
 
-  <!-- Fila 2: Feedback y comparativa -->
-  <section class="fila fila-media">
-    <div class="feedback-section">
-      <h2 class="section-title">Feedback</h2>
-      <ul class="list">
-        <li class="item success">
-          <mat-icon>check_circle</mat-icon> Buen manejo de preguntas abiertas.
-        </li>
-        <li class="item warn">
-          <mat-icon>cancel</mat-icon> Mejorar la validación emocional del padre.
-        </li>
-        <li class="item success">
-          <mat-icon>check_circle</mat-icon> Cierre claro y respetuoso.
-        </li>
-      </ul>
-    </div>
+    <h1 class="page-title">Resultados de la Evaluación</h1>
 
-    <div class="comparativa-section">
-      <h2 class="section-title">Comparativa con entrevistas anteriores</h2>
-      <div class="timeline">
-        <div class="tl">01/08: <strong>80%</strong></div>
-        <div class="tl">05/08: <strong>90%</strong></div>
-        <div class="tl">10/08: <strong>82%</strong></div>
+    <!-- Fila 1: Nota final + evaluación por categorías -->
+    <section class="fila fila-superior">
+      <div class="nota-final" [class]="getScoreColor(evalEntrevista.score_final)">
+        <div class="score-content">
+          <span class="numero">{{ evalEntrevista.score_final }}%</span>
+          <span class="label">Promedio General</span>
+          <span class="description">{{ tooltipScore(evalEntrevista.score_final!) }}</span>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Fila 3: Botones -->
-  <section class="fila fila-inferior">
-    <button mat-raised-button color="primary">Repetir entrevista</button>
-    <button mat-stroked-button color="primary" routerLink="/dashboard">Volver al menú principal</button>
-  </section>
+      <div class="evaluacion-section">
+        <h2 class="section-title">
+          <mat-icon>analytics</mat-icon>
+          Evaluación por Categoría
+        </h2>
+        <div class="bar-chart">
+          <div class="bar" *ngFor="let categoria of evalCategorias">
+            <span class="bar-label">{{ categoria.categoria }}</span>
+            <div class="bar-container">
+              <div class="bar-fill" [style.width.%]="categoria.score"></div>
+            </div>
+            <span class="percentage">{{ categoria.score }}%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fila 2: Feedback y comparativa -->
+    <section class="fila fila-media">
+      <div class="feedback-section positive-feedback">
+        <h2 class="section-title">
+          <mat-icon class="icon-success">check_circle</mat-icon>
+          Fortalezas Identificadas
+        </h2>
+        <ul class="list">
+          <li class="item success" *ngFor="let feedback of positiveFeedback">
+            <mat-icon>check_circle</mat-icon>
+            <span>{{ feedback.mensaje }}</span>
+          </li>
+        </ul>
+        <p class="note" *ngIf="positiveFeedback.length === 0">
+          Continúa practicando para identificar más fortalezas
+        </p>
+      </div>
+
+      <div class="feedback-section improvement-feedback">
+        <h2 class="section-title">
+          <mat-icon class="icon-warn">lightbulb</mat-icon>
+          Áreas de Mejora
+        </h2>
+        <ul class="list">
+          <li class="item warn" *ngFor="let feedback of improvementFeedback">
+            <mat-icon>lightbulb</mat-icon>
+            <span>{{ feedback.mensaje }}</span>
+          </li>
+        </ul>
+        <p class="note" *ngIf="improvementFeedback.length === 0">
+          ¡Excelente! No se identificaron áreas críticas de mejora
+        </p>
+      </div>
+    </section>
+
+    <!-- Fila 3: Comparativa histórica -->
+    <section class="fila fila-completa">
+      <div class="comparativa-section">
+        <h2 class="section-title">
+          <mat-icon>show_chart</mat-icon>
+          Tu Progreso
+        </h2>
+        
+        <div class="progress-info">
+          <div class="tendencia-badge" [class]="getTendencia()">
+            <mat-icon>{{ getIconoTendencia() }}</mat-icon>
+            <span>{{ getMensajeTendencia() }}</span>
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div 
+            class="timeline-item" 
+            *ngFor="let dato of datosHistoricos; let last = last"
+            [class.current]="last">
+            <span class="fecha">{{ dato.fecha }}</span>
+            <div class="score-bar">
+              <div class="score-fill" [style.width.%]="dato.score"></div>
+            </div>
+            <span class="score">{{ dato.score }}%</span>
+            <mat-icon *ngIf="last" class="current-icon">arrow_forward</mat-icon>
+          </div>
+        </div>
+
+        <p class="comparativa-note">
+          <mat-icon>info</mat-icon>
+          Tus últimas {{ datosHistoricos.length }} entrevistas
+        </p>
+      </div>
+    </section>
+
+    <!-- Fila 4: Botones de acción -->
+    <section class="fila fila-inferior">
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="repetirEntrevista()"
+        matTooltip="Practica con un nuevo escenario">
+        <mat-icon>replay</mat-icon>
+        Nueva Entrevista
+      </button>
+
+      <button 
+        mat-raised-button 
+        color="accent"
+        (click)="verHistorial()"
+        matTooltip="Revisa todas tus entrevistas anteriores">
+        <mat-icon>history</mat-icon>
+        Ver Historial
+      </button>
+
+      <button 
+        mat-stroked-button 
+        (click)="volverDashboard()"
+        matTooltip="Volver al menú principal">
+        <mat-icon>home</mat-icon>
+        Ir al Dashboard
+      </button>
+    </section>
+
+  </ng-container>
 
 </main>

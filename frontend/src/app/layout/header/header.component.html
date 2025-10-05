@@ -1,0 +1,30 @@
+<mat-toolbar role="heading">
+  <button mat-icon-button class="menu-icon" (click)="toggleMobileMenu()" aria-label="Toggle navigation menu">
+    <mat-icon>{{ isMobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
+  </button>
+
+  <!-- <img mat-card-image src="assets/images/logo-png-color.png" routerLink="/" alt="Logo"> -->
+  <p><strong>NeuroPuentes</strong></p>
+
+  <nav class="desktop-nav">
+    <a routerLink="#">Dashboard</a>
+    <a routerLink="#">Historial</a>
+    <a routerLink="#">Escenarios</a>
+  </nav>
+
+  <span class="spacer"></span>
+
+  <div class="desktop-buttons">
+    <!-- <button mat-button class="signin-btn" routerLink="/registro">Únete</button>
+    <button mat-flat-button class="login-btn" routerLink="/login">Iniciar sesión</button> -->
+    <button mat-button class="">Usuario</button>
+  </div>
+</mat-toolbar>
+
+<div class="mobile-menu-dropdown" *ngIf="isMobileMenuOpen">
+  <a mat-button (click)="toggleMobileMenu()" routerLink="#">Dashboard</a>
+  <a mat-button (click)="toggleMobileMenu()" routerLink="#">Historial</a>
+  <a mat-button (click)="toggleMobileMenu()" routerLink="#">Escenarios</a>
+
+  <button mat-button class="" routerLink="#" (click)="toggleMobileMenu()">Usuario</button>
+</div>

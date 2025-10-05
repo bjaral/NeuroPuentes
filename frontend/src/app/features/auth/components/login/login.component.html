@@ -1,26 +1,89 @@
-<!-- HTML Template -->
 <section class="login-container">
-    <!-- Login Panel -->
-    <section class="login-panel">
-        <form [formGroup]="loginForm">
-            <h2>Iniciar Sesión</h2>
-            <mat-form-field appearance="outline">
-                <mat-label>Correo</mat-label>
-                <input formControlName="email" matInput required>
-                <mat-icon matSuffix>person</mat-icon>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-                <mat-label>Contraseña</mat-label>
-                <input formControlName="password" matInput [type]="hidePassword ? 'password' : 'text'" required>
-                <mat-icon matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Ocultar contraseña'"
-                    [attr.aria-checked]="!hidePassword">
-                    {{hidePassword ? 'visibility_off' : 'visibility'}}
-                </mat-icon>
-            </mat-form-field>
-            <a routerLink="/forgot-password">Recuperar Contraseña</a>
-            <button mat-raised-button color="primary" (click)="onSubmit()" class="login-button">Iniciar Sesión</button>
-            <div class="separator"></div>
-            <button mat-button routerLink="/registro" class="register-button">¡Únete ahora!</button>
-        </form>
-    </section>
+  <section class="login-panel">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <h2>Iniciar Sesión</h2>
+
+      <!-- Heurística 9: Mensaje de error general visible -->
+      <div *ngIf="errorMensaje()" class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMensaje() }}</span>
+      </div>
+
+      <!-- Campo de correo o usuario -->
+      <mat-form-field appearance="outline">
+        <mat-label>Correo o nombre de usuario</mat-label>
+        <input 
+          formControlName="emailOrUsername" 
+          matInput 
+          type="text"
+          placeholder="tu@email.com o usuario123"
+          required
+          autocomplete="username">
+        <mat-icon matPrefix>person</mat-icon>
+        
+        <!-- Heurística 9: Mensajes de error específicos -->
+        <mat-error *ngIf="hasError('emailOrUsername')">
+          {{ getErrorMessage('emailOrUsername') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Campo de contraseña -->
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <input 
+          formControlName="password" 
+          matInput 
+          [type]="hidePassword ? 'password' : 'text'"
+          placeholder="Mínimo 5 caracteres"
+          required
+          autocomplete="current-password">
+        <mat-icon matPrefix>lock</mat-icon>
+        <mat-icon 
+          matSuffix 
+          (click)="hidePassword = !hidePassword" 
+          [attr.aria-label]="hidePassword ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+          [attr.aria-pressed]="!hidePassword"
+          class="toggle-password"
+          matTooltip="{{ hidePassword ? 'Mostrar' : 'Ocultar' }} contraseña">
+          {{ hidePassword ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+
+        <!-- Heurística 9: Mensajes de error específicos -->
+        <mat-error *ngIf="hasError('password')">
+          {{ getErrorMessage('password') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Heurística 6: Enlace visible para recuperar contraseña -->
+      <a routerLink="/forgot-password" class="forgot-link">
+        ¿Olvidaste tu contraseña?
+      </a>
+
+      <!-- Heurística 1: Botón con estado de carga -->
+      <button 
+        mat-raised-button 
+        color="primary" 
+        type="submit"
+        [disabled]="cargando()"
+        [class.loading]="cargando()"
+        class="login-button">
+        <span *ngIf="!cargando()">Iniciar Sesión</span>
+        <span *ngIf="cargando()">Iniciando...</span>
+      </button>
+
+      <div class="separator"></div>
+
+      <!-- Heurística 7: Opción alternativa clara -->
+      <div class="register-section">
+        <p class="register-text">¿No tienes cuenta?</p>
+        <button 
+          mat-stroked-button 
+          type="button"
+          routerLink="/register" 
+          class="register-button">
+          Crear cuenta
+        </button>
+      </div>
+    </form>
+  </section>
 </section>

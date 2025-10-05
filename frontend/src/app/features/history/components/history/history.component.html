@@ -1,19 +1,124 @@
-<main class="history-container" aria-label="Historial de entrevistas">
-  <h1 class="page-title">Historial de Entrevistas</h1>
-  <!-- Lista de entrevistas -->
-  <section class="list">
-    <mat-card
-      *ngFor="let interview of interviews"
-      class="interview-card"
-    >
-      <div class="info">
-        <p class="date">{{ interview.date }}</p>
-        <p class="details">
-          Duración: {{ interview.duration }} | Puntaje:
-          <strong>{{ interview.score }}</strong>
-        </p>
-      </div>
-      <button mat-raised-button color="primary">Ver Detalle</button>
-    </mat-card>
-  </section>
+<main class="history-container">
+
+  <!-- Heurística 1: Visibilidad del estado -->
+  <div *ngIf="cargandoDatos()" class="loading-state">
+    <mat-spinner></mat-spinner>
+    <p>Cargando tu historial...</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <ng-container *ngIf="!cargandoDatos()">
+    
+    <!-- Header con título y búsqueda -->
+    <div class="header-section">
+      <h1 class="page-title">Historial de Entrevistas</h1>
+    </div>
+
+    <!-- Heurística 6: Búsqueda - Reconocer antes que recordar -->
+    <div class="search-section">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar entrevistas</mat-label>
+        <input 
+          matInput 
+          [value]="terminoBusqueda()"
+          (input)="onBusquedaChange($any($event.target).value)"
+          placeholder="Por fecha, contexto o título..."
+          aria-label="Buscar en el historial de entrevistas">
+        <mat-icon matPrefix>search</mat-icon>
+        <button 
+          *ngIf="terminoBusqueda()" 
+          matSuffix 
+          mat-icon-button 
+          (click)="limpiarBusqueda()"
+          aria-label="Limpiar búsqueda"
+          matTooltip="Limpiar búsqueda">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Contador de resultados -->
+      <p class="results-count" *ngIf="terminoBusqueda()">
+        {{ entrevistasFiltradas().length }} resultado(s) encontrado(s)
+      </p>
+    </div>
+
+    <!-- Lista de entrevistas -->
+    <section class="list" *ngIf="entrevistasFiltradas().length > 0">
+      <mat-card
+        *ngFor="let item of entrevistasFiltradas()"
+        class="interview-card"
+        (click)="verDetalle(item.entrevista._id!)"
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="'Ver detalle de entrevista del ' + formatearFecha(item.entrevista.fecha_creacion)">
+        
+        <div class="card-content">
+          <!-- Información principal -->
+          <div class="info-section">
+            <div class="header-info">
+              <span class="date">
+                <mat-icon>calendar_today</mat-icon>
+                {{ formatearFecha(item.entrevista.fecha_creacion) }}
+              </span>
+              <span class="score" [ngClass]="getScoreClass(item.evaluacion.score_final)">
+                <mat-icon>star</mat-icon>
+                {{ item.evaluacion.score_final }}%
+              </span>
+            </div>
+
+            <h3 class="title">{{ item.entrevista.titulo }}</h3>
+            
+            <!-- Contexto truncado -->
+            <p class="context">{{ truncarContexto(item.entrevista.contexto_snapshot) }}</p>
+
+            <!-- Metadatos -->
+            <div class="metadata">
+              <span class="meta-item" matTooltip="Duración de la entrevista">
+                <mat-icon>schedule</mat-icon>
+                {{ item.entrevista.duracion_min }} min
+              </span>
+              <span class="meta-item" matTooltip="Número de intercambios">
+                <mat-icon>chat</mat-icon>
+                {{ item.entrevista.numero_turnos }} turnos
+              </span>
+            </div>
+          </div>
+
+          <!-- Botón de acción -->
+          <div class="action-section">
+            <button 
+              mat-raised-button 
+              color="primary"
+              (click)="verDetalle(item.entrevista._id!); $event.stopPropagation()"
+              aria-label="Ver detalle completo">
+              <mat-icon>visibility</mat-icon>
+              Ver Detalle
+            </button>
+          </div>
+        </div>
+      </mat-card>
+    </section>
+
+    <!-- Estado vacío -->
+    <div *ngIf="entrevistasFiltradas().length === 0" class="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <h3>No se encontraron entrevistas</h3>
+      <p *ngIf="terminoBusqueda()">
+        No hay resultados para "{{ terminoBusqueda() }}". Intenta con otros términos.
+      </p>
+      <p *ngIf="!terminoBusqueda()">
+        Aún no has realizado ninguna entrevista. ¡Comienza tu primera entrevista!
+      </p>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        routerLink="/scenarios"
+        *ngIf="!terminoBusqueda()">
+        <mat-icon>add</mat-icon>
+        Nueva Entrevista
+      </button>
+    </div>
+
+  </ng-container>
+  
 </main>
