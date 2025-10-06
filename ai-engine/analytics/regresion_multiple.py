@@ -24,7 +24,7 @@ def get_stats(usuario_id, fecha_inicio, fecha_fin):
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException as e:
-        print(f"⚠️ Error al consultar {fecha_inicio} - {fecha_fin}: {e}")
+        print(f" Error al consultar {fecha_inicio} - {fecha_fin}: {e}")
         return None
 
 # --- Función para recolectar stats mensuales ---
@@ -78,12 +78,12 @@ if __name__ == "__main__":
     fecha_inicio = datetime(2024, 1, 1)
     fecha_fin = datetime(2025, 12, 31)
 
-    print("📅 Recolectando datos mensuales...")
+    print("Recolectando datos mensuales...")
     df = recolectar_stats_mensuales(usuario_id, fecha_inicio, fecha_fin)
     if df.empty:
         exit(0)
 
-    print("📊 Datos recolectados:")
+    print("Datos recolectados:")
     print(df)
 
     # --- Elegir features y variable objetivo ---
