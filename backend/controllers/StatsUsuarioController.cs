@@ -49,6 +49,8 @@ namespace NeuroPuentesAPI.controllers
             });
         }
 
+
+
         [HttpPost]
         public async Task<ActionResult<int>> Crear([FromBody] StatsUsuarioCreateDto dto)
         {
@@ -90,5 +92,40 @@ namespace NeuroPuentesAPI.controllers
             await _service.EliminarAsync(id);
             return NoContent();
         }
+
+        [HttpGet("usuario/{usuarioId}")]
+        public async Task<ActionResult<IEnumerable<StatsUsuarioReadDto>>> GetByUsuarioId(int usuarioId)
+        {
+            var stats = await _service.GetByUsuarioIdAsync(usuarioId);
+            if (stats == null || !stats.Any()) return NotFound();
+
+            var result = stats.Select(s => new StatsUsuarioReadDto
+            {
+                Id = s.Id,
+                UsuarioId = s.UsuarioId,
+                FechaCorte = s.FechaCorte,
+                TotalEntrevistas = s.TotalEntrevistas,
+                TiempoTotalMin = s.TiempoTotalMin,
+                ScorePromedio = s.ScorePromedio
+            });
+
+            return Ok(result);
+        }
+
+
+
+        [HttpGet("resumen")]
+        public async Task<ActionResult<StatsUsuarioResumenDto>> GetResumen(
+            [FromQuery] int usuarioId,
+            [FromQuery] DateTime fechaInicio,
+            [FromQuery] DateTime fechaFin)
+        {
+            var resumen = await _service.GetResumenPorUsuarioAsync(usuarioId, fechaInicio, fechaFin);
+            if (resumen == null)
+                return NotFound(new { mensaje = "No se encontraron entrevistas en el rango indicado." });
+
+            return Ok(resumen);
+        }
+
     }
 }

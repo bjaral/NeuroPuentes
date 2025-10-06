@@ -29,4 +29,23 @@ namespace NeuroPuentesAPI.DTOs
         public float? TiempoTotalMin { get; set; }
         public float? ScorePromedio { get; set; }
     }
+
+
+    // utilizado para extraer stats de usuario mas completo, extrae datos de otros modelos a traves del respositorio
+    public class StatsUsuarioResumenDto
+    {
+        public int UsuarioId { get; set; }
+        public int TotalEntrevistas { get; set; }
+        public double TiempoTotalMin { get; set; }
+        public double ScorePromedio { get; set; }
+        public double FluidezPromedio { get; set; }
+        public double EmpatiaPromedio { get; set; }
+        public int FeedbackFortalezas { get; set; }
+        public int FeedbackDebilidades { get; set; }
+        public int ContextosDificiles { get; set; }
+        public int ContextosFaciles { get; set; }
+        public double NumTurnosPromedio { get; set; }
+    }
+
+
 }
