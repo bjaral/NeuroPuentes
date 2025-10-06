@@ -1,29 +1,37 @@
-# --- Procesamiento de audio y STT (Whisper / Torch) ---
+#Procesamiento de audio y STT (Whisper)
 openai-whisper==20250625
 torch==2.8.0
 torchaudio==2.8.0
 numpy==1.22.0
 soundfile==0.13.1
 
-# --- Modelos de lenguaje (LLaMA 3, Mistral, etc.) ---
+# Modelos de lenguaje (LLaMA 3, Mistral, etc.)
 transformers==4.55.2
 accelerate==1.10.0
 sentencepiece==0.2.1
 huggingface-hub==0.34.4
+safetensors==0.4.5   # evita errores de carga de modelos grandes
 
 # --- Text-to-Speech (Coqui TTS) ---
 TTS==0.22.0
 
-# --- Comunicación con Backend/API REST (tu API .NET) ---
+# Comunicación con backend/API
 requests==2.32.5
 websockets==15.0.1
+python-socketio==5.11.3
 
-# --- Ciencia de datos y analítica ---
+# IA y Análisis
+scipy==1.11.4
 pandas==1.5.3
-matplotlib==3.8.0
+scikit-learn==1.5.1       # necesario para regresión, correlación, clasificación, etc.
+matplotlib==3.8.0          # visualizaciones rápidas de resultados
 seaborn==0.12.2
 colorama==1.4.7
 
-# Conexión con la base de datos
+# Base de datos
 sqlalchemy==2.0.43
-psycopg2-binary==2.9.7
+psycopg2-binary==2.9.7     # driver PostgreSQL requerido por SQLAlchemy
+
+# Utilidades generales
+python-dotenv==1.0.1       # cargar .env fácilmente
+tqdm==4.66.5               # barras de progreso para cargas/modelos
