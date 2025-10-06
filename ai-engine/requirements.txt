@@ -20,21 +20,10 @@ websockets==15.0.1
 
 # --- Ciencia de datos y analítica ---
 pandas==1.5.3
-scipy==1.11.4
-scikit-learn==1.5.1
-statsmodels==0.14.1  # Para análisis estadísticos más detallados
-matplotlib==3.8.4    # Para visualizar regresiones o correlaciones
-seaborn==0.13.2      # Visualizaciones más limpias
+matplotlib==3.8.0
+seaborn==0.12.2
+colorama==1.4.7
 
-# --- Conexión con base de datos (si decides no usar la API) ---
+# Conexión con la base de datos
 sqlalchemy==2.0.43
-psycopg2-binary==2.9.10  # Conector PostgreSQL
-
-# --- Logging y utilidades ---
-python-dotenv==1.1.1    # Para manejar variables de entorno (.env)
-tqdm==4.67.1             # Barras de progreso
-rich==14.1.0             # Logging colorido y tablas
-
-# --- (Opcional) para notebooks o experimentos ---
-jupyterlab==4.4.9
-notebook==7.4.7
+psycopg2-binary==2.9.7
