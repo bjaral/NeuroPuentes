@@ -7,14 +7,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import psycopg2
 import os
+from dotenv import load_dotenv
 
-# Configuración de base de datos
+# Cargar variables de entorno
+load_dotenv()
+
+# Configuración desde .env
 DB_CONFIG = {
-    'host': 'localhost',
-    'port': '5432',
-    'database': 'NeuroPuentes',
-    'user': 'postgres',
-    'password': '1234'
+    'host': os.getenv('DB_HOST'),
+    'port': os.getenv('DB_PORT'),
+    'database': os.getenv('DB_NAME'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASS')
 }
 
 OUTPUT_DIR = "analytics/media/correlacion"

@@ -15,5 +15,17 @@ __pycache__/
 *.log
 *.tmp
 
-# Configuración de VSCode (opcional, si lo usas)
+# Archivos de datos y resultados
+*.csv
+*.xlsx
+*.xls
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Directorios de analytics
+analytics/media/
+
+# Configuración de VSCode
 .vscode/
