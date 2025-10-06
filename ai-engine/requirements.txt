@@ -26,7 +26,6 @@ pandas==1.5.3
 scikit-learn==1.5.1       # necesario para regresión, correlación, clasificación, etc.
 matplotlib==3.8.0          # visualizaciones rápidas de resultados
 seaborn==0.12.2
-colorama==1.4.7
 
 # Base de datos
 sqlalchemy==2.0.43
