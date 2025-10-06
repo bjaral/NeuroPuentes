@@ -12,11 +12,11 @@ sentencepiece==0.2.1
 huggingface-hub==0.34.4
 safetensors==0.4.5   # evita errores de carga de modelos grandes
 
-# TTS (Coqui)
+# --- Text-to-Speech (Coqui TTS) ---
 TTS==0.22.0
 
 # Comunicación con backend/API
-requests==2.32.4
+requests==2.32.5
 websockets==15.0.1
 python-socketio==5.11.3
 
@@ -24,11 +24,13 @@ python-socketio==5.11.3
 scipy==1.11.4
 pandas==1.5.3
 scikit-learn==1.5.1       # necesario para regresión, correlación, clasificación, etc.
-matplotlib==3.9.1          # visualizaciones rápidas de resultados
+matplotlib==3.8.0          # visualizaciones rápidas de resultados
+seaborn==0.12.2
+colorama==1.4.7
 
 # Base de datos
 sqlalchemy==2.0.43
-psycopg2-binary==2.9.9     # driver PostgreSQL requerido por SQLAlchemy
+psycopg2-binary==2.9.7     # driver PostgreSQL requerido por SQLAlchemy
 
 # Utilidades generales
 python-dotenv==1.0.1       # cargar .env fácilmente
