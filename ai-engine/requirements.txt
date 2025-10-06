@@ -21,6 +21,10 @@ websockets==15.0.1
 # Utilidades varias para IA
 scipy==1.11.4
 pandas==1.5.3
+matplotlib==3.8.0
+seaborn==0.12.2
+colorama==1.4.7
 
 # Conexión con la base de datos
 sqlalchemy==2.0.43
+psycopg2-binary==2.9.7
