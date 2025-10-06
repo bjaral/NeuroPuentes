@@ -1,4 +1,5 @@
 using NeuroPuentesAPI.models;
+using NeuroPuentesAPI.DTOs;
 using NeuroPuentesAPI.repositories;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -45,5 +46,13 @@ namespace NeuroPuentesAPI.services
 
         public async Task EliminarAsync(int id) =>
             await _repo.EliminarAsync(id);
+
+
+
+        public async Task<IEnumerable<Stats_Usuario>> GetByUsuarioIdAsync(int usuarioId) =>
+        await _repo.GetByUsuarioIdAsync(usuarioId);
+
+        public async Task<StatsUsuarioResumenDto?> GetResumenPorUsuarioAsync(int usuarioId, DateTime fechaInicio, DateTime fechaFin)
+        => await _repo.GetResumenPorUsuarioAsync(usuarioId, fechaInicio, fechaFin);
     }
 }
