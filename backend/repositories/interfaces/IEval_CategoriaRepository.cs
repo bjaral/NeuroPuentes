@@ -11,5 +11,6 @@ namespace NeuroPuentesAPI.repositories
         Task CrearAsync(Eval_Categoria categoria);
         Task ActualizarAsync(Eval_Categoria categoria);
         Task EliminarAsync(int id);
+        Task<IEnumerable<Eval_Categoria>> GetByEntrevistaIdAsync(int entrevistaId);
     }
 }

@@ -44,7 +44,39 @@ namespace NeuroPuentesAPI.services
 
             await _repo.ActualizarAsync(existente);
         }
+        public async Task<IEnumerable<Tip>> GetByEstudianteIdAsync(int estudianteId)
+{
+    var tips = await _repo.GetByUsuarioIdAsync(estudianteId);
+    return tips.Select(t => new Tip
+    {
+        Id = t.Id,
+        UsuarioId = t.UsuarioId,
+        EntrevistaId = t.EntrevistaId,
+        Titulo = t.Titulo,
+        Contenido = t.Contenido,
+        Categoria = t.Categoria,
+        Fecha = t.Fecha,
+        Usado = t.Usado,
+        Vigencia = t.Vigencia
+    });
+}
 
+        public async Task<IEnumerable<Tip>> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            var tips = await _repo.GetByEntrevistaIdAsync(entrevistaId);
+            return tips.Select(t => new Tip
+            {
+                Id = t.Id,
+                UsuarioId = t.UsuarioId,
+                EntrevistaId = t.EntrevistaId,
+                Titulo = t.Titulo,
+                Contenido = t.Contenido,
+                Categoria = t.Categoria,
+                Fecha = t.Fecha,
+                Usado = t.Usado,
+                Vigencia = t.Vigencia
+            });
+        }
         public async Task EliminarAsync(int id) => await _repo.EliminarAsync(id);
     }
 }

@@ -91,5 +91,25 @@ namespace NeuroPuentesAPI.repositories
             var entrevistas = await connection.QueryAsync<Entrevista>(query, new { UsuarioId = usuarioId });
             return entrevistas;
         }
+    public async Task<IEnumerable<Dialogo>> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            const string query = @"
+                SELECT 
+                    _id AS Id,
+                    _entrevista_id AS EntrevistaId,
+                    _turno AS Turno,
+                    _sender AS Sender,
+                    _texto AS Texto,
+                    _texto_procesado AS TextoProcesado,
+                    _timestamp AS Timestamp,
+                    _audio_url AS AudioUrl
+                FROM dialogos
+                WHERE _entrevista_id = @EntrevistaId
+                ORDER BY _turno ASC";
+
+            using var connection = CreateConnection();
+            var dialogos = await connection.QueryAsync<Dialogo>(query, new { EntrevistaId = entrevistaId });
+            return dialogos;
+        }
     }
 }

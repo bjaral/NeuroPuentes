@@ -79,5 +79,20 @@ namespace NeuroPuentesAPI.services
         {
             await _repo.EliminarAsync(id);
         }
+        public async Task<IEnumerable<DialogoDto>> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            var dialogos = await _repo.GetByEntrevistaIdAsync(entrevistaId);
+            return dialogos.Select(d => new DialogoDto
+            {
+                Id = d.Id,
+                EntrevistaId = d.EntrevistaId,
+                Turno = d.Turno,
+                Sender = d.Sender,
+                Texto = d.Texto,
+                TextoProcesado = d.TextoProcesado,
+                Timestamp = d.Timestamp,
+                AudioUrl = d.AudioUrl
+            });
+        }
     }
 }

@@ -113,5 +113,50 @@ namespace NeuroPuentesAPI.repositories
                 @"DELETE FROM ""tips"" WHERE _id = @Id",
                 new { Id = id });
         }
+        public async Task<IEnumerable<Tip>> GetByUsuarioIdAsync(int usuarioId)
+        {
+            const string query = @"
+                SELECT 
+                    _id AS Id,
+                    _usuario_id AS UsuarioId,
+                    _entrevista_id AS EntrevistaId,
+                    _titulo AS Titulo,
+                    _contenido AS Contenido,
+                    _categoria AS Categoria,
+                    _fecha AS Fecha,
+                    _usado AS Usado,
+                    _vigencia AS Vigencia
+                FROM tips
+                WHERE _usuario_id = @UsuarioId
+                ORDER BY _fecha DESC
+                LIMIT 3";
+
+            using var connection = new NpgsqlConnection(_connectionString);
+            var tips = await connection.QueryAsync<Tip>(query, new { UsuarioId = usuarioId });
+            return tips;
+        }
+
+        public async Task<IEnumerable<Tip>> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            const string query = @"
+                SELECT 
+                    _id AS Id,
+                    _usuario_id AS UsuarioId,
+                    _entrevista_id AS EntrevistaId,
+                    _titulo AS Titulo,
+                    _contenido AS Contenido,
+                    _categoria AS Categoria,
+                    _fecha AS Fecha,
+                    _usado AS Usado,
+                    _vigencia AS Vigencia
+                FROM tips
+                WHERE _entrevista_id = @EntrevistaId
+                ORDER BY _fecha DESC
+                LIMIT 3";
+
+            using var connection = new NpgsqlConnection(_connectionString);
+            var tips = await connection.QueryAsync<Tip>(query, new { EntrevistaId = entrevistaId });
+            return tips;
+        }
     }
 }

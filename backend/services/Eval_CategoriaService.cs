@@ -65,5 +65,16 @@ namespace NeuroPuentesAPI.services
         {
             await _repo.EliminarAsync(id);
         }
+        public async Task<IEnumerable<Eval_CategoriaDto>> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            var categorias = await _repo.GetByEntrevistaIdAsync(entrevistaId);
+            return categorias.Select(c => new Eval_CategoriaDto
+            {
+                Id = c.Id,
+                EvalEntrevistaId = c.EvalEntrevistaId,
+                Categoria = c.Categoria,
+                Score = c.Score
+            });
+        }
     }
 }
