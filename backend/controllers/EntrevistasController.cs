@@ -48,4 +48,10 @@ public class EntrevistasController : ControllerBase
         await _service.EliminarAsync(id);
         return NoContent();
     }
+    [HttpGet("estudiante/{estudianteId:int}")]
+    public async Task<IActionResult> GetByEstudianteId(int estudianteId)
+    {
+        var entrevistas = await _service.GetByEstudianteIdAsync(estudianteId);
+        return Ok(entrevistas);
+    }
 }

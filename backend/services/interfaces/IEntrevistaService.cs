@@ -11,5 +11,6 @@ namespace NeuroPuentesAPI.services
         Task CrearAsync(EntrevistaCreateDto dto);
         Task ActualizarAsync(int id, EntrevistaCreateDto dto);
         Task EliminarAsync(int id);
+        Task<IEnumerable<EntrevistaDto>> GetByEstudianteIdAsync(int estudianteId);
     }
 }

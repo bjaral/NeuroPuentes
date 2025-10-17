@@ -22,7 +22,7 @@ except ImportError:
 # CONFIGURACIÓN
 # =====================================================================
 DB_USER = "postgres"
-DB_PASS = "admin"   # Cambiar según tu contraseña
+DB_PASS = "admin"   # Cambiar según la contraseña de cada uno
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "neuropuentes"

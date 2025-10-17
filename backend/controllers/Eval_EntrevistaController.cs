@@ -39,11 +39,18 @@ public class Eval_EntrevistaController : ControllerBase
         await _service.ActualizarAsync(id, dto);
         return Ok();
     }
-
+    
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         await _service.EliminarAsync(id);
         return NoContent();
+    }
+    [HttpGet("entrevista/{entrevistaId:int}")]
+    public async Task<IActionResult> GetByEntrevistaId(int entrevistaId)
+    {
+        var eval = await _service.GetByEntrevistaIdAsync(entrevistaId);
+        if (eval == null) return NotFound();
+        return Ok(eval);
     }
 }

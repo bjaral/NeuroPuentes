@@ -37,7 +37,6 @@ namespace NeuroPuentesAPI.controllers
             });
             return Ok(result);
         }
-
         [HttpGet("Vigentes")]
         public async Task<ActionResult<IEnumerable<TipReadDto>>> GetAllVigentes()
         {
