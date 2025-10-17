@@ -46,4 +46,10 @@ public class Eval_CategoriaController : ControllerBase
         await _service.EliminarAsync(id);
         return NoContent();
     }
+    [HttpGet("entrevista/{entrevistaId:int}")]
+    public async Task<ActionResult<IEnumerable<Eval_CategoriaDto>>> GetByEntrevistaId(int entrevistaId)
+    {
+        var categorias = await _service.GetByEntrevistaIdAsync(entrevistaId);
+        return Ok(categorias);
+    }
 }

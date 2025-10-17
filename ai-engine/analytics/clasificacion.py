@@ -17,13 +17,11 @@ load_dotenv()
 # =====================================================================
 # CONFIGURACIÓN
 # =====================================================================
-DB_CONFIG = {
-    'host': os.getenv('DB_HOST'),
-    'port': os.getenv('DB_PORT'),
-    'database': os.getenv('DB_NAME'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASS')
-}
+DB_USER = "postgres"
+DB_PASS = "admin"   # Cambiar según tu contraseña
+DB_HOST = "localhost"
+DB_PORT = "5432"
+DB_NAME = "neuropuentes"
 
 USUARIO_ID = 3
 UMBRAL_APROBACION = 60

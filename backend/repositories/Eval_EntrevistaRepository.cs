@@ -52,5 +52,19 @@ namespace NeuroPuentesAPI.repositories
             using var connection = CreateConnection();
             await connection.ExecuteAsync(query, new { Id = id });
         }
+        public async Task<Eval_Entrevista?> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            const string query = @"
+                SELECT 
+                    _id AS Id,
+                    _entrevista_id AS EntrevistaId,
+                    _score_final AS ScoreFinal
+                FROM eval_entrevistas
+                WHERE _entrevista_id = @EntrevistaId";
+
+            using var connection = CreateConnection();
+            var eval = await connection.QueryFirstOrDefaultAsync<Eval_Entrevista>(query, new { EntrevistaId = entrevistaId });
+            return eval;
+        }
     }
 }

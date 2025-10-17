@@ -50,7 +50,6 @@ namespace NeuroPuentesAPI.services
 
             await _repo.ActualizarAsync(existente);
         }
-
         public async Task EliminarAsync(int id) =>
             await _repo.EliminarAsync(id);
     }

@@ -12,5 +12,6 @@ namespace NeuroPuentesAPI.services
         Task<int> CrearAsync(Contexto contexto);
         Task ActualizarAsync(int id, Contexto contexto);
         Task EliminarAsync(int id);
+
     }
 }

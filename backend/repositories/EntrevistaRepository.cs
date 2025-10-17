@@ -69,5 +69,47 @@ namespace NeuroPuentesAPI.repositories
             using var connection = CreateConnection();
             await connection.ExecuteAsync(query, new { Id = id });
         }
+       public async Task<IEnumerable<Entrevista>> GetByUsuarioIdAsync(int usuarioId)
+        {
+            const string query = @"
+                SELECT 
+                    _id AS Id,
+                    _usuario_id AS UsuarioId,
+                    _contexto_id AS ContextoId,
+                    _titulo AS Titulo,
+                    _descripcion AS Descripcion,
+                    _duracion_min AS DuracionMin,
+                    _numero_turnos AS NumeroTurnos,
+                    _fecha_creacion AS FechaCreacion,
+                    _fecha_cierre AS FechaCierre,
+                    _contexto_snapshot AS ContextoSnapshot
+                FROM entrevistas
+                WHERE _usuario_id = @UsuarioId
+                ORDER BY _fecha_creacion DESC";
+
+            using var connection = CreateConnection();
+            var entrevistas = await connection.QueryAsync<Entrevista>(query, new { UsuarioId = usuarioId });
+            return entrevistas;
+        }
+    public async Task<IEnumerable<Dialogo>> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            const string query = @"
+                SELECT 
+                    _id AS Id,
+                    _entrevista_id AS EntrevistaId,
+                    _turno AS Turno,
+                    _sender AS Sender,
+                    _texto AS Texto,
+                    _texto_procesado AS TextoProcesado,
+                    _timestamp AS Timestamp,
+                    _audio_url AS AudioUrl
+                FROM dialogos
+                WHERE _entrevista_id = @EntrevistaId
+                ORDER BY _turno ASC";
+
+            using var connection = CreateConnection();
+            var dialogos = await connection.QueryAsync<Dialogo>(query, new { EntrevistaId = entrevistaId });
+            return dialogos;
+        }
     }
 }

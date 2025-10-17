@@ -88,5 +88,6 @@ namespace NeuroPuentesAPI.controllers
             await _service.EliminarAsync(id);
             return NoContent();
         }
+            
     }
 }
