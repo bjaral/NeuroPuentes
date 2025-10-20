@@ -12,5 +12,6 @@ namespace NeuroPuentesAPI.repositories
         Task<int> CrearAsync(Caracteristica caracteristica);
         Task ActualizarAsync(Caracteristica caracteristica);
         Task EliminarAsync(int id);
+        Task<IEnumerable<Caracteristica>> GetByContextoIdAsync(int contextoId);
     }
 }

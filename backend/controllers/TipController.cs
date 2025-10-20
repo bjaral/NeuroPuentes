@@ -37,7 +37,6 @@ namespace NeuroPuentesAPI.controllers
             });
             return Ok(result);
         }
-
         [HttpGet("Vigentes")]
         public async Task<ActionResult<IEnumerable<TipReadDto>>> GetAllVigentes()
         {
@@ -113,7 +112,19 @@ namespace NeuroPuentesAPI.controllers
             await _service.ActualizarAsync(id, existente);
             return NoContent();
         }
+        [HttpGet("estudiante/{estudianteId:int}")]
+        public async Task<ActionResult<IEnumerable<TipReadDto>>> GetByEstudianteId(int estudianteId)
+        {
+            var tips = await _service.GetByEstudianteIdAsync(estudianteId);
+            return Ok(tips);
+        }
 
+        [HttpGet("entrevista/{entrevistaId:int}")]
+        public async Task<ActionResult<IEnumerable<TipReadDto>>> GetByEntrevistaId(int entrevistaId)
+        {
+            var tips = await _service.GetByEntrevistaIdAsync(entrevistaId);
+            return Ok(tips);
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {

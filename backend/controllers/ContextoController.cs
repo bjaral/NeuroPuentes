@@ -10,10 +10,12 @@ namespace NeuroPuentesAPI.controllers
     public class ContextosController : ControllerBase
     {
         private readonly IContextoService _service;
+        private readonly ICaracteristicaService _caracteristicaService;
 
-        public ContextosController(IContextoService service)
+        public ContextosController(IContextoService service, ICaracteristicaService caracteristicaService)
         {
             _service = service;
+            _caracteristicaService = caracteristicaService;
         }
 
         [HttpGet]
@@ -120,6 +122,12 @@ namespace NeuroPuentesAPI.controllers
 
             await _service.EliminarAsync(id);
             return NoContent();
+        }
+        [HttpGet("{contextoId:int}/caracteristicas")]
+        public async Task<IActionResult> GetCaracteristicas(int contextoId)
+        {
+            var caracteristicas = await _caracteristicaService.GetByContextoIdAsync(contextoId);
+            return Ok(caracteristicas);
         }
     }
 }

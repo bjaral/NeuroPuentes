@@ -15,6 +15,11 @@ namespace NeuroPuentesAPI.repositories
         {
             _connectionString = config.GetConnectionString("DefaultConnection") ?? string.Empty;
         }
+        
+        private NpgsqlConnection CreateConnection()
+        {
+            return new NpgsqlConnection(_connectionString);
+        }
 
         public async Task<IEnumerable<Caracteristica>> GetAllAsync()
         {
@@ -94,5 +99,23 @@ namespace NeuroPuentesAPI.repositories
                 @"DELETE FROM ""caracteristicas"" WHERE _id = @Id", 
                 new { Id = id });
         }
+        public async Task<IEnumerable<Caracteristica>> GetByContextoIdAsync(int contextoId)
+        {
+            const string query = @"
+                SELECT 
+                    c._id AS Id,
+                    c._nombre AS Nombre,
+                    c._descripcion AS Descripcion,
+                    c._grupo AS Grupo,
+                    c._vigencia AS Vigencia
+                FROM caracteristicas c
+                INNER JOIN contexto_caracteristicas cc ON c._id = cc._caracteristica_id
+                WHERE cc._contexto_id = @ContextoId
+                AND c._vigencia = true";
+
+            using var connection = CreateConnection();
+            var caracteristicas = await connection.QueryAsync<Caracteristica>(query, new { ContextoId = contextoId });
+            return caracteristicas;
+        }        
     }
 }
