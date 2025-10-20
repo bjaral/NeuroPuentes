@@ -49,7 +49,7 @@
         Nueva Entrevista
       </button>
 
-      <button mat-raised-button color="accent" matTooltip="Prueba sin guardar resultados" aria-label="Iniciar simulación de práctica">
+      <button mat-raised-button color="accent" routerLink="/history" matTooltip="Prueba sin guardar resultados" aria-label="Iniciar simulación de práctica">
         <mat-icon>history</mat-icon>
         Ver Historial
       </button>
@@ -85,7 +85,7 @@
         <div class="interviews-list" *ngIf="entrevistas.length > 0" role="list">
           <div *ngFor="let entrevista of entrevistas" 
                class="interview-item" 
-               [routerLink]="['/interview', entrevista.id]"
+               [routerLink]="['/history-detail', entrevista.id]"
                role="listitem"
                [attr.aria-label]="'Entrevista del ' + entrevista.fecha + ', puntaje ' + entrevista.puntaje + ', estado ' + entrevista.estado">
             <div class="interview-date">
