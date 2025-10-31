@@ -48,7 +48,7 @@ public class DialogosController : ControllerBase
     }
     [HttpGet("entrevista/{entrevistaId:int}")]
     public async Task<IActionResult> GetByEntrevistaId(int entrevistaId)
-    {
+    { 
         var dialogos = await _service.GetByEntrevistaIdAsync(entrevistaId);
         return Ok(dialogos);
     }
