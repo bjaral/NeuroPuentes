@@ -8,9 +8,10 @@ namespace NeuroPuentesAPI.services
     {
         Task<IEnumerable<EntrevistaDto>> GetAllAsync();
         Task<EntrevistaDto?> GetByIdAsync(int id);
-        Task CrearAsync(EntrevistaCreateDto dto);
+        Task<EntrevistaDto> CrearAsync(EntrevistaCreateDto dto);         
         Task ActualizarAsync(int id, EntrevistaCreateDto dto);
         Task EliminarAsync(int id);
         Task<IEnumerable<EntrevistaDto>> GetByEstudianteIdAsync(int estudianteId);
+        Task<EntrevistaDto?> GetLatestByUsuarioIdAsync(int estudianteId);
     }
 }

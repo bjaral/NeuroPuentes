@@ -42,9 +42,9 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "NeuroPuentes API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = @"JWT Authorization header usando el esquema Bearer.  
-                        Escribe 'Bearer' [espacio] y tu token en la caja de texto.  
-                        Ejemplo: 'Bearer eyJhbGciOi...'",
+        Description = @"JWT Authorization header usando el esquema Bearer.   
+                          Escribe 'Bearer' [espacio] y tu token en la caja de texto.   
+                          Ejemplo: 'Bearer eyJhbGciOi...'",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -72,9 +72,9 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:4200")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod());
+        policy => policy.WithOrigins("http://localhost:4200") // Permite tu frontend
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
 });
 
 builder.Services.AddControllers()
@@ -85,7 +85,34 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 
-// Repositorios y servicios agregados
+// ==========================================================
+// === NUEVO: CONECTOR AL MICROSERVICIO DE IA (PYTHON) ===
+// ==========================================================
+
+// 1. Registra el HttpClient para llamar a la API de Python
+builder.Services.AddHttpClient("IaApiClient", client =>
+{
+    // Lee la URL de tu API de Python desde appsettings.json
+    string? baseUrl = builder.Configuration["IaApiBaseUrl"]; 
+    if (string.IsNullOrEmpty(baseUrl))
+    {
+        baseUrl = "http://127.0.0.1:5001"; // URL por defecto si no está en appsettings
+    }
+    client.BaseAddress = new Uri(baseUrl);
+    // Podrías añadir un timeout largo aquí si la IA se demora
+    // client.Timeout = TimeSpan.FromMinutes(3); 
+});
+
+// 2. Registra tu nuevo servicio conector de IA
+// (Asegúrate de haber creado el archivo IaApiService.cs en tu carpeta 'services')
+builder.Services.AddScoped<IaApiService>();
+
+// ==========================================================
+// === FIN DE LA SECCIÓN DE IA ===
+// ==========================================================
+
+
+// Repositorios y servicios agregados (Tu código original)
 builder.Services.AddScoped<IEntrevistaRepository, EntrevistaRepository>();
 builder.Services.AddScoped<IEntrevistaService, EntrevistaService>();
 
