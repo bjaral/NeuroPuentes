@@ -121,10 +121,5 @@ namespace NeuroPuentesAPI.repositories
             using var connection = new NpgsqlConnection(_connectionString);
             await connection.ExecuteAsync(@"DELETE FROM ""dialogos"" WHERE _id = @Id", new { Id = id });
         }
-
-        public Task<IEnumerable<Dialogo>> GetByEntrevistaIdAsync(int entrevistaId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
