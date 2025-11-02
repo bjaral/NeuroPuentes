@@ -99,28 +99,6 @@ def main():
     plt.savefig(f'{OUTPUT_DIR}/02_regresion.png', dpi=200)
     plt.close()
     
-    # Gráfico 3: Residuales
-    residuales = y - y_pred
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-    
-    axes[0].scatter(df['dias'], residuales, s=60, alpha=0.6, c='coral')
-    axes[0].axhline(0, color='black', linestyle='--')
-    axes[0].set_title('Residuales vs Días')
-    axes[0].set_xlabel('Días')
-    axes[0].set_ylabel('Residual')
-    axes[0].grid(True, alpha=0.3)
-    
-    axes[1].hist(residuales, bins=10, color='coral', alpha=0.7, edgecolor='black')
-    axes[1].axvline(0, color='black', linestyle='--')
-    axes[1].set_title('Distribución de Residuales')
-    axes[1].set_xlabel('Residual')
-    axes[1].set_ylabel('Frecuencia')
-    axes[1].grid(True, alpha=0.3, axis='y')
-    
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/03_residuales.png', dpi=200)
-    plt.close()
-    
     print("="*60)
     print(f"Gráficos guardados en: {OUTPUT_DIR}/")
     print("="*60)
