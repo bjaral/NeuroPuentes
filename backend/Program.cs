@@ -42,9 +42,9 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "NeuroPuentes API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = @"JWT Authorization header usando el esquema Bearer.  
-                        Escribe 'Bearer' [espacio] y tu token en la caja de texto.  
-                        Ejemplo: 'Bearer eyJhbGciOi...'",
+        Description = @"JWT Authorization header usando el esquema Bearer.   
+                          Escribe 'Bearer' [espacio] y tu token en la caja de texto.   
+                          Ejemplo: 'Bearer eyJhbGciOi...'",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -73,8 +73,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy => policy.WithOrigins("http://localhost:4200")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod());
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
 });
 
 builder.Services.AddControllers()
@@ -85,7 +85,26 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 
-// Repositorios y servicios agregados
+// ==========================================================
+// === ¡ESTE ES EL BLOQUE IA NO TOCAR ! ===
+// ==========================================================
+builder.Services.AddHttpClient("IaApiClient", client =>
+{
+    // Lee la URL de tu API de Python desde appsettings.json
+    string? baseUrl = builder.Configuration["IaApiBaseUrl"]; 
+    if (string.IsNullOrEmpty(baseUrl))
+    {
+        baseUrl = "http://127.0.0.1:5001"; 
+    }
+    client.BaseAddress = new Uri(baseUrl);
+    
+    // Aumentamos el tiempo de espera a 5 minutos (para que la IA piense)
+    client.Timeout = TimeSpan.FromMinutes(10); 
+});
+
+builder.Services.AddScoped<IaApiService>();
+
+
 builder.Services.AddScoped<IEntrevistaRepository, EntrevistaRepository>();
 builder.Services.AddScoped<IEntrevistaService, EntrevistaService>();
 
@@ -130,19 +149,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
-
-// Orden correcto: CORS antes que Auth, después Swagger y archivos estáticos
 app.UseCors("AllowFrontend");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "NeuroPuentes API V1");
 });
-
 
 var mediaPath = Path.Combine(Directory.GetCurrentDirectory(), "media");
 if (!Directory.Exists(mediaPath))
@@ -156,5 +170,4 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.MapControllers();
-
 app.Run();

@@ -32,7 +32,7 @@ namespace NeuroPuentesAPI.services
         public async Task ActualizarAsync(int id, Entrevista entrevista)
         {
             var existente = await _repo.GetByIdAsync(id);
-            if (existente == null)
+            if (existente is null) // <-- Arreglo para CS0019
                 throw new KeyNotFoundException($"Entrevista con id {id} no encontrada.");
 
             existente.Titulo = entrevista.Titulo ?? existente.Titulo;
@@ -45,7 +45,13 @@ namespace NeuroPuentesAPI.services
             await _repo.ActualizarAsync(existente);
         }
 
-        public async Task EliminarAsync(int id) =>
+        public async Task EliminarAsync(int id)
+        {
+            var existente = await _repo.GetByIdAsync(id);
+            if (existente is null) // <-- Arreglo para CS0019
+                throw new KeyNotFoundException($"Entrevista con id {id} no encontrada.");
+                
             await _repo.EliminarAsync(id);
+        }
     }
 }
