@@ -63,5 +63,10 @@ namespace NeuroPuentesAPI.repositories
             using var connection = CreateConnection();
             await connection.ExecuteAsync(query, new { Id = id });
         }
+
+        public Task<IEnumerable<Dialogo>> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

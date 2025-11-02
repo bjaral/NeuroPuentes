@@ -2,6 +2,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { TokenService } from '../../../../core/services/token.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { MATERIAL_IMPORTS } from '../../../../shared/material/material';
 
 interface Entrevista {
@@ -24,10 +27,15 @@ export class DashboardComponent {
   puntajePromedio = "85%";
   ultimoFeedback = "Buen Inicio";
   errorCargando = false;
-  cargandoDatos = true; // Nuevo: estado de carga
+  cargandoDatos = true;
+
+  constructor(private tokenService: TokenService, private dashboardService: DashboardService, private authService: AuthService){}
 
   ngOnInit() {
     this.cargarEntrevistas();
+    const id = this.tokenService.getNameIdentifier();
+    const name = this.authService.getCurrentUser().name;
+    console.log(name);
   }
 
   entrevistas: Entrevista[] = [
@@ -35,6 +43,7 @@ export class DashboardComponent {
     { fecha: '2025-08-10', puntaje: 90, estado: 'Completada' },
     { fecha: '2025-08-15', puntaje: 70, estado: 'Pendiente' },
   ];
+  // entrevistas: Entrevista[] = 
 
   progresoGeneral = 76;
   feedbackReciente = '¡Buen progreso en tus últimas entrevistas!';
