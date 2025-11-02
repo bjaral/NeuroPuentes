@@ -1,50 +1,112 @@
 using Microsoft.AspNetCore.Mvc;
-using NeuroPuentesAPI.DTOs;
+using NeuroPuentesAPI.models;
 using NeuroPuentesAPI.services;
+using NeuroPuentesAPI.DTOs;
 
-namespace NeuroPuentesAPI.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class Feedback_EntrevistaController : ControllerBase
+namespace NeuroPuentesAPI.controllers
 {
-    private readonly IFeedback_EntrevistaService _service;
-
-    public Feedback_EntrevistaController(IFeedback_EntrevistaService service)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class FeedbackEntrevistaController : ControllerBase
     {
-        _service = service;
-    }
+        private readonly IFeedbackEntrevistaService _service;
 
-    [HttpGet]
-    public async Task<IActionResult> Get() => Ok(await _service.GetAllAsync());
+        public FeedbackEntrevistaController(IFeedbackEntrevistaService service)
+        {
+            _service = service;
+        }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var f = await _service.GetByIdAsync(id);
-        if (f == null) return NotFound();
-        return Ok(f);
-    }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<FeedbackEntrevistaReadDto>>> GetAll()
+        {
+            var feedbacks = await _service.GetAllAsync();
+            return Ok(feedbacks.Select(f => new FeedbackEntrevistaReadDto
+            {
+                Id = f.Id,
+                EntrevistaId = f.EntrevistaId,
+                Tipo = f.Tipo,
+                Mensaje = f.Mensaje,
+                Categoria = f.Categoria,
+                Fecha = f.Fecha
+            }));
+        }
 
-    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] Feedback_EntrevistaCreateDto dto)
-    {
-        await _service.CrearAsync(dto);
-        return Ok();
-    }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<FeedbackEntrevistaReadDto>> GetById(int id)
+        {
+            var feedback = await _service.GetByIdAsync(id);
+            if (feedback == null) return NotFound();
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Put(int id, [FromBody] Feedback_EntrevistaCreateDto dto)
-    {
-        await _service.ActualizarAsync(id, dto);
-        return Ok();
-    }
+            return Ok(new FeedbackEntrevistaReadDto
+            {
+                Id = feedback.Id,
+                EntrevistaId = feedback.EntrevistaId,
+                Tipo = feedback.Tipo,
+                Mensaje = feedback.Mensaje,
+                Categoria = feedback.Categoria,
+                Fecha = feedback.Fecha
+            });
+        }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        await _service.EliminarAsync(id);
-        return NoContent();
+
+        [HttpPost]
+        public async Task<ActionResult<int>> Crear([FromBody] FeedbackEntrevistaCreateDto dto)
+        {
+            var feedback = new Feedback_Entrevista
+            {
+                EntrevistaId = dto.EntrevistaId,
+                Tipo = dto.Tipo,
+                Mensaje = dto.Mensaje,
+                Categoria = dto.Categoria,
+                Fecha = DateTime.UtcNow
+            };
+
+            var id = await _service.CrearAsync(feedback);
+            return CreatedAtAction(nameof(GetById), new { id }, id);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Actualizar(int id, [FromBody] FeedbackEntrevistaUpdateDto dto)
+        {
+            var existente = await _service.GetByIdAsync(id);
+            if (existente == null) return NotFound();
+
+            if (!string.IsNullOrWhiteSpace(dto.Tipo)) existente.Tipo = dto.Tipo;
+            if (!string.IsNullOrWhiteSpace(dto.Mensaje)) existente.Mensaje = dto.Mensaje;
+            if (dto.Categoria != null) existente.Categoria = dto.Categoria;
+
+            await _service.ActualizarAsync(id, existente);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var existente = await _service.GetByIdAsync(id);
+            if (existente == null) return NotFound();
+
+            await _service.EliminarAsync(id);
+            return NoContent();
+        }
+
+
+
+        // busqueda por entrevista
+        [HttpGet("entrevista/{entrevistaId}")]
+        public async Task<ActionResult<IEnumerable<FeedbackEntrevistaReadDto>>> GetByEntrevistaId(int entrevistaId)
+        {
+            var feedbacks = await _service.GetByEntrevistaIdAsync(entrevistaId);
+            return Ok(feedbacks.Select(f => new FeedbackEntrevistaReadDto
+            {
+                Id = f.Id,
+                EntrevistaId = f.EntrevistaId,
+                Tipo = f.Tipo,
+                Mensaje = f.Mensaje,
+                Categoria = f.Categoria,
+                Fecha = f.Fecha
+            }));
+        }
+
+
     }
-  
 }

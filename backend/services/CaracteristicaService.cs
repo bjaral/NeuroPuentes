@@ -42,17 +42,20 @@ namespace NeuroPuentesAPI.services
 
         public async Task EliminarAsync(int id) =>
             await _repo.EliminarAsync(id);
-        public async Task<IEnumerable<Caracteristica>> GetByContextoIdAsync(int contextoId)
-        {
-            var caracteristicas = await _repo.GetByContextoIdAsync(contextoId);
-            return caracteristicas.Select(c => new Caracteristica
-            {
-                Id = c.Id,
-                Nombre = c.Nombre,
-                Descripcion = c.Descripcion,
-                Grupo = c.Grupo,
-                Vigencia = c.Vigencia
-            });
-        }
+        // public async Task<IEnumerable<Caracteristica>> GetByContextoIdAsync(int contextoId)
+        // {
+        //     var caracteristicas = await _repo.GetByContextoIdAsync(contextoId);
+        //     return caracteristicas.Select(c => new Caracteristica
+        //     {
+        //         Id = c.Id,
+        //         Nombre = c.Nombre,
+        //         Descripcion = c.Descripcion,
+        //         Grupo = c.Grupo,
+        //         Vigencia = c.Vigencia
+        //     });
+        // }
+
+        public async Task<IEnumerable<Caracteristica>> GetByContextoIdAsync(int contextoId) =>
+            await _repo.GetByContextoIdAsync(contextoId);
     }
 }

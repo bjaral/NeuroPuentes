@@ -1,6 +1,6 @@
 namespace NeuroPuentesAPI.DTOs
 {
-    public class Feedback_EntrevistaDto
+    public class FeedbackEntrevistaReadDto
     {
         public int Id { get; set; }
         public int EntrevistaId { get; set; }
@@ -10,11 +10,18 @@ namespace NeuroPuentesAPI.DTOs
         public DateTime Fecha { get; set; }
     }
 
-    public class Feedback_EntrevistaCreateDto
+    public class FeedbackEntrevistaCreateDto
     {
         public int EntrevistaId { get; set; }
         public string Tipo { get; set; } = string.Empty;
         public string Mensaje { get; set; } = string.Empty;
+        public string? Categoria { get; set; }
+    }
+
+    public class FeedbackEntrevistaUpdateDto
+    {
+        public string? Tipo { get; set; }
+        public string? Mensaje { get; set; }
         public string? Categoria { get; set; }
     }
 }

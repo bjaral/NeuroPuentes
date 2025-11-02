@@ -1,8 +1,9 @@
 using Dapper;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NeuroPuentesAPI.models;
-using System.Data;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NeuroPuentesAPI.repositories
 {
@@ -10,58 +11,115 @@ namespace NeuroPuentesAPI.repositories
     {
         private readonly string _connectionString;
 
-        public DialogoRepository(IConfiguration configuration)
+        public DialogoRepository(IConfiguration config)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection")!;
+            _connectionString = config.GetConnectionString("DefaultConnection") ?? string.Empty;
         }
-
-        private IDbConnection CreateConnection() => new NpgsqlConnection(_connectionString);
 
         public async Task<IEnumerable<Dialogo>> GetAllAsync()
         {
-            const string query = "SELECT * FROM \"dialogos\" ORDER BY timestamp ASC";
-            using var connection = CreateConnection();
-            var result = await connection.QueryAsync<Dialogo>(query);
-            return result.ToList();
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QueryAsync<Dialogo>(
+                @"SELECT 
+                    _id AS Id,
+                    entrevista_id AS EntrevistaId,
+                    turno AS Turno,
+                    sender AS Sender,
+                    texto AS Texto,
+                    texto_procesado AS TextoProcesado,
+                    timestamp AS Timestamp,
+                    audio_url AS AudioUrl
+                  FROM ""dialogos""");
+        }
+
+        public async Task<IEnumerable<Dialogo>> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QueryAsync<Dialogo>(
+                @"SELECT 
+                    _id AS Id,
+                    entrevista_id AS EntrevistaId,
+                    turno AS Turno,
+                    sender AS Sender,
+                    texto AS Texto,
+                    texto_procesado AS TextoProcesado,
+                    timestamp AS Timestamp,
+                    audio_url AS AudioUrl
+                  FROM ""dialogos""
+                  WHERE entrevista_id = @EntrevistaId",
+                new { EntrevistaId = entrevistaId });
         }
 
         public async Task<Dialogo?> GetByIdAsync(int id)
         {
-            const string query = "SELECT * FROM \"dialogos\" WHERE _id = @Id";
-            using var connection = CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<Dialogo>(query, new { Id = id });
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QueryFirstOrDefaultAsync<Dialogo>(
+                @"SELECT 
+                    _id AS Id,
+                    entrevista_id AS EntrevistaId,
+                    turno AS Turno,
+                    sender AS Sender,
+                    texto AS Texto,
+                    texto_procesado AS TextoProcesado,
+                    timestamp AS Timestamp,
+                    audio_url AS AudioUrl
+                  FROM ""dialogos""
+                  WHERE _id = @Id",
+                new { Id = id });
         }
 
-        public async Task CrearAsync(Dialogo dialogo)
+        public async Task<int> CrearAsync(Dialogo dialogo)
         {
-            const string query = @"
-                INSERT INTO ""dialogos"" 
-                (entrevista_id, turno, sender, texto, texto_procesado, timestamp, audio_url)
-                VALUES (@EntrevistaId, @Turno, @Sender, @Texto, @TextoProcesado, @Timestamp, @AudioUrl)";
-            using var connection = CreateConnection();
-            await connection.ExecuteAsync(query, dialogo);
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.ExecuteScalarAsync<int>(
+                @"INSERT INTO ""dialogos"" 
+                    (entrevista_id, turno, sender, texto, texto_procesado, timestamp, audio_url)
+                  VALUES (
+                    @EntrevistaId, 
+                    @Turno, 
+                    @Sender::sender_dialogo, 
+                    @Texto, 
+                    @TextoProcesado, 
+                    @Timestamp, 
+                    @AudioUrl
+                  )
+                  RETURNING _id",
+                new {
+                    dialogo.EntrevistaId,
+                    dialogo.Turno,
+                    Sender = dialogo.Sender.ToString().ToLower(),
+                    dialogo.Texto,
+                    dialogo.TextoProcesado,
+                    dialogo.Timestamp,
+                    dialogo.AudioUrl
+                });
         }
 
         public async Task ActualizarAsync(Dialogo dialogo)
         {
-            const string query = @"
-                UPDATE ""dialogos"" SET
-                entrevista_id = @EntrevistaId,
-                turno = @Turno,
-                sender = @Sender,
-                texto = @Texto,
-                texto_procesado = @TextoProcesado,
-                audio_url = @AudioUrl
-                WHERE _id = @Id";
-            using var connection = CreateConnection();
-            await connection.ExecuteAsync(query, dialogo);
+            using var connection = new NpgsqlConnection(_connectionString);
+            await connection.ExecuteAsync(
+                @"UPDATE ""dialogos"" SET 
+                        turno = @Turno,
+                        sender = @Sender::sender_dialogo,
+                        texto = @Texto,
+                        texto_procesado = @TextoProcesado,
+                        audio_url = @AudioUrl
+                  WHERE _id = @Id",
+                new {
+                    dialogo.Turno,
+                    Sender = dialogo.Sender.ToString().ToLower(),
+                    dialogo.Texto,
+                    dialogo.TextoProcesado,
+                    dialogo.AudioUrl,
+                    dialogo.Id
+                });
         }
 
         public async Task EliminarAsync(int id)
         {
-            const string query = "DELETE FROM \"dialogos\" WHERE _id = @Id";
-            using var connection = CreateConnection();
-            await connection.ExecuteAsync(query, new { Id = id });
+            using var connection = new NpgsqlConnection(_connectionString);
+            await connection.ExecuteAsync(@"DELETE FROM ""dialogos"" WHERE _id = @Id", new { Id = id });
         }
 
         public Task<IEnumerable<Dialogo>> GetByEntrevistaIdAsync(int entrevistaId)
