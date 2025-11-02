@@ -1,6 +1,7 @@
-using NeuroPuentesAPI.DTOs;
 using NeuroPuentesAPI.models;
 using NeuroPuentesAPI.repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NeuroPuentesAPI.services
 {
@@ -13,95 +14,38 @@ namespace NeuroPuentesAPI.services
             _repo = repo;
         }
 
-        public async Task<IEnumerable<EntrevistaDto>> GetAllAsync()
+        public async Task<IEnumerable<Entrevista>> GetAllAsync() =>
+            await _repo.GetAllAsync();
+
+        public async Task<IEnumerable<Entrevista>> GetByUsuarioIdAsync(int usuarioId) =>
+            await _repo.GetByUsuarioIdAsync(usuarioId);
+
+        public async Task<Entrevista?> GetByIdAsync(int id) =>
+            await _repo.GetByIdAsync(id);
+
+        public async Task<int> CrearAsync(Entrevista entrevista)
         {
-            var entrevistas = await _repo.GetAllAsync();
-            return entrevistas.Select(e => new EntrevistaDto
-            {
-                Id = e.Id,
-                UsuarioId = e.UsuarioId,
-                ContextoId = e.ContextoId,
-                Titulo = e.Titulo,
-                Descripcion = e.Descripcion,
-                DuracionMin = e.DuracionMin,
-                NumeroTurnos = e.NumeroTurnos,
-                FechaCreacion = e.FechaCreacion,
-                FechaCierre = e.FechaCierre,
-                ContextoSnapshot = e.ContextoSnapshot
-            });
+            entrevista.FechaCreacion = DateTime.UtcNow;
+            return await _repo.CrearAsync(entrevista);
         }
 
-        public async Task<EntrevistaDto?> GetByIdAsync(int id)
+        public async Task ActualizarAsync(int id, Entrevista entrevista)
         {
-            var e = await _repo.GetByIdAsync(id);
-            if (e == null) return null;
+            var existente = await _repo.GetByIdAsync(id);
+            if (existente == null)
+                throw new KeyNotFoundException($"Entrevista con id {id} no encontrada.");
 
-            return new EntrevistaDto
-            {
-                Id = e.Id,
-                UsuarioId = e.UsuarioId,
-                ContextoId = e.ContextoId,
-                Titulo = e.Titulo,
-                Descripcion = e.Descripcion,
-                DuracionMin = e.DuracionMin,
-                NumeroTurnos = e.NumeroTurnos,
-                FechaCreacion = e.FechaCreacion,
-                FechaCierre = e.FechaCierre,
-                ContextoSnapshot = e.ContextoSnapshot
-            };
+            existente.Titulo = entrevista.Titulo ?? existente.Titulo;
+            existente.Descripcion = entrevista.Descripcion ?? existente.Descripcion;
+            existente.DuracionMin = entrevista.DuracionMin != 0 ? entrevista.DuracionMin : existente.DuracionMin;
+            existente.NumeroTurnos = entrevista.NumeroTurnos != 0 ? entrevista.NumeroTurnos : existente.NumeroTurnos;
+            existente.FechaCierre = entrevista.FechaCierre ?? existente.FechaCierre;
+            existente.ContextoSnapshot = entrevista.ContextoSnapshot ?? existente.ContextoSnapshot;
+
+            await _repo.ActualizarAsync(existente);
         }
 
-        public async Task CrearAsync(EntrevistaCreateDto dto)
-        {
-            var e = new Entrevista
-            {
-                UsuarioId = dto.UsuarioId,
-                ContextoId = dto.ContextoId,
-                Titulo = dto.Titulo,
-                Descripcion = dto.Descripcion,
-                DuracionMin = dto.DuracionMin,
-                NumeroTurnos = dto.NumeroTurnos,
-                ContextoSnapshot = dto.ContextoSnapshot,
-                FechaCreacion = DateTime.UtcNow
-            };
-
-            await _repo.CrearAsync(e);
-        }
-
-        public async Task ActualizarAsync(int id, EntrevistaCreateDto dto)
-        {
-            var e = await _repo.GetByIdAsync(id);
-            if (e == null) throw new KeyNotFoundException("Entrevista no encontrada");
-
-            e.Titulo = dto.Titulo;
-            e.Descripcion = dto.Descripcion;
-            e.DuracionMin = dto.DuracionMin;
-            e.NumeroTurnos = dto.NumeroTurnos;
-            e.ContextoSnapshot = dto.ContextoSnapshot;
-
-            await _repo.ActualizarAsync(e);
-        }
-
-        public async Task EliminarAsync(int id)
-        {
+        public async Task EliminarAsync(int id) =>
             await _repo.EliminarAsync(id);
-        }
-        public async Task<IEnumerable<EntrevistaDto>> GetByEstudianteIdAsync(int estudianteId)
-        {
-        var entrevistas = await _repo.GetByUsuarioIdAsync(estudianteId);
-        return entrevistas.Select(e => new EntrevistaDto
-        {
-            Id = e.Id,
-            UsuarioId = e.UsuarioId,
-            ContextoId = e.ContextoId,
-            Titulo = e.Titulo,
-            Descripcion = e.Descripcion,
-            DuracionMin = e.DuracionMin,
-            NumeroTurnos = e.NumeroTurnos,
-            FechaCreacion = e.FechaCreacion,
-            FechaCierre = e.FechaCierre,
-            ContextoSnapshot = e.ContextoSnapshot
-        });
-     }
     }
 }
