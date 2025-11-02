@@ -119,14 +119,14 @@ builder.Services.AddScoped<IEntrevistaService, EntrevistaService>();
 builder.Services.AddScoped<IDialogoRepository, DialogoRepository>();
 builder.Services.AddScoped<IDialogoService, DialogoService>();
 
-builder.Services.AddScoped<IEval_EntrevistaRepository, Eval_EntrevistaRepository>();
-builder.Services.AddScoped<IEval_EntrevistaService, Eval_EntrevistaService>();
+builder.Services.AddScoped<IEvalEntrevistaRepository, EvalEntrevistaRepository>();
+builder.Services.AddScoped<IEvalEntrevistaService, EvalEntrevistaService>();
 
-builder.Services.AddScoped<IEval_CategoriaRepository, Eval_CategoriaRepository>();
-builder.Services.AddScoped<IEval_CategoriaService, Eval_CategoriaService>();
+builder.Services.AddScoped<IEvalCategoriaRepository, EvalCategoriaRepository>();
+builder.Services.AddScoped<IEvalCategoriaService, EvalCategoriaService>();
 
-builder.Services.AddScoped<IFeedback_EntrevistaRepository, Feedback_EntrevistaRepository>();
-builder.Services.AddScoped<IFeedback_EntrevistaService, Feedback_EntrevistaService>();
+builder.Services.AddScoped<IFeedbackEntrevistaRepository, FeedbackEntrevistaRepository>();
+builder.Services.AddScoped<IFeedbackEntrevistaService, FeedbackEntrevistaService>();
 
 builder.Services.AddScoped<IFeedbackUsuarioRepository, FeedbackUsuarioRepository>();
 builder.Services.AddScoped<IFeedbackUsuarioService, FeedbackUsuarioService>();

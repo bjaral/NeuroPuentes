@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NeuroPuentesAPI.DTOs;
 using NeuroPuentesAPI.services;
+using NeuroPuentesAPI.models;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -8,7 +9,7 @@ using System;
 using System.IO;
 using Microsoft.AspNetCore.Hosting; 
 
-namespace NeuroPuentesAPI.Controllers
+namespace NeuroPuentesAPI.Controllers 
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -18,7 +19,6 @@ namespace NeuroPuentesAPI.Controllers
         private readonly IaApiService _iaService; 
         private readonly ILogger<DialogosController> _logger;
         private readonly IWebHostEnvironment _env;
-
         public DialogosController(
             IDialogoService service,
             IaApiService iaService, 
@@ -31,11 +31,12 @@ namespace NeuroPuentesAPI.Controllers
             _env = env;
         }
 
+        // --- ENDPOINT DE IA ---
         [HttpPost("continuar-con-ia")]
         [ProducesResponseType(typeof(IAResponse), 200)]
         [ProducesResponseType(typeof(string), 400)]
         public async Task<IActionResult> ContinuarDialogoConIA(
-            [FromForm] DialogoIaCreateDto dto // <-- ¡Este es el cambio!
+            [FromForm] DialogoIaCreateDto dto 
         )
         {
             _logger.LogInformation("Continuando diálogo para la entrevista {EntrevistaId}", dto.EntrevistaId);
@@ -56,25 +57,28 @@ namespace NeuroPuentesAPI.Controllers
                     _logger.LogWarning("La llamada al servicio de IA falló: {Error}", resultadoIA.Error);
                     return StatusCode(502, resultadoIA.Error);
                 }
+                
+                resultadoIA.SessionId = sessionId; 
 
-                // 2. Guardar el turno del estudiante
+                // --- Lógica ADAPTADA a 'develop' ---
+                // 2. Guardar el turno del estudiante (Mapeando a Modelo)
                 string audioEstudianteUrl = await GuardarArchivo(dto.Audio);
-                var dialogoEstudiante = new DialogoCreateDto
+                var dialogoEstudiante = new Dialogo
                 {
                     EntrevistaId = dto.EntrevistaId,
-                    Turno = dto.Turno, // ej: 3
+                    Turno = dto.Turno,
                     Sender = dto.Sender,
                     Texto = resultadoIA.Transcription, 
                     AudioUrl = audioEstudianteUrl
                 };
                 await _service.CrearAsync(dialogoEstudiante);
 
-                // 3. Guardar el turno de la IA
+                // 3. Guardar el turno de la IA (Mapeando a Modelo)
                 string audioIaUrl = await GuardarAudioBase64(resultadoIA.AudioBase64);
-                var dialogoIA = new DialogoCreateDto
+                var dialogoIA = new Dialogo
                 {
                     EntrevistaId = dto.EntrevistaId,
-                    Turno = dto.Turno + 1, // ej: 4
+                    Turno = dto.Turno + 1,
                     Sender = "IA",
                     Texto = resultadoIA.ResponseText, 
                     AudioUrl = audioIaUrl
@@ -83,7 +87,6 @@ namespace NeuroPuentesAPI.Controllers
 
                 _logger.LogInformation("Diálogos (Turnos {Turno}, {TurnoIA}) guardados para Entrevista {EntrevistaId}", dto.Turno, dto.Turno + 1, dto.EntrevistaId);
                 
-                // 4. Devolver la respuesta al frontend
                 return Ok(resultadoIA);
             }
             catch (Exception ex)
@@ -92,46 +95,76 @@ namespace NeuroPuentesAPI.Controllers
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
-
+        
 
         [HttpGet]
-        public async Task<IActionResult> Get() => Ok(await _service.GetAllAsync());
+        public async Task<ActionResult<IEnumerable<DialogoDto>>> GetAll() 
+        {
+            var dialogos = await _service.GetAllAsync();
+     
+            var result = dialogos.Select(d => MapToDto(d));
+            return Ok(result);
+        }
+
+        [HttpGet("entrevista/{entrevistaId:int}")]
+        public async Task<ActionResult<IEnumerable<DialogoDto>>> GetByEntrevistaId(int entrevistaId)
+        {
+            var dialogos = await _service.GetByEntrevistaIdAsync(entrevistaId);
+         
+            var result = dialogos.Select(d => MapToDto(d));
+            return Ok(result);
+        }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<DialogoDto>> GetById(int id)
         {
-            var dialogo = await _service.GetByIdAsync(id);
-            if (dialogo == null) return NotFound();
-            return Ok(dialogo);
+            var d = await _service.GetByIdAsync(id);
+            if (d is null) return NotFound(); 
+            return Ok(MapToDto(d)); 
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] DialogoCreateDto dto)
+        public async Task<ActionResult<int>> Post([FromBody] DialogoCreateDto dto)
         {
-            await _service.CrearAsync(dto);
-            return Ok(); // O cambia a CreatedAtAction si lo necesitas
+            
+            var dialogo = new Dialogo
+            {
+                EntrevistaId = dto.EntrevistaId,
+                Turno = dto.Turno,
+                Sender = dto.Sender,
+                Texto = dto.Texto,
+                TextoProcesado = dto.TextoProcesado,
+                AudioUrl = dto.AudioUrl
+            };
+
+            var id = await _service.CrearAsync(dialogo);
+            return CreatedAtAction(nameof(GetById), new { id }, id);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] DialogoCreateDto dto)
+        public async Task<IActionResult> Put(int id, [FromBody] DialogoUpdateDto dto)
         {
-            await _service.ActualizarAsync(id, dto);
-            return Ok();
+             var dialogo = new Dialogo
+            {
+                Turno = dto.Turno ?? 0, 
+                Sender = dto.Sender,
+                Texto = dto.Texto,
+                TextoProcesado = dto.TextoProcesado,
+                AudioUrl = dto.AudioUrl
+            };
+
+            await _service.ActualizarAsync(id, dialogo);
+            return NoContent();
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _service.EliminarAsync(id);
+            await _service.EliminarAsync(id); 
             return NoContent();
         }
+        
 
-        [HttpGet("entrevista/{entrevistaId:int}")]
-        public async Task<IActionResult> GetByEntrevistaId(int entrevistaId)
-        {
-            var dialogos = await _service.GetByEntrevistaIdAsync(entrevistaId);
-            return Ok(dialogos);
-        }
         private async Task<string> GuardarArchivo(IFormFile file)
         {
             var mediaPath = Path.Combine(_env.ContentRootPath, "media");
@@ -156,6 +189,20 @@ namespace NeuroPuentesAPI.Controllers
             
             await System.IO.File.WriteAllBytesAsync(filePath, bytes);
             return $"/media/{fileName}";
+        }
+        private DialogoDto MapToDto(Dialogo d)
+        {
+            return new DialogoDto
+            {
+                Id = d.Id,
+                EntrevistaId = d.EntrevistaId,
+                Turno = d.Turno,
+                Sender = d.Sender, /
+                Texto = d.Texto,
+                TextoProcesado = d.TextoProcesado,
+                Timestamp = d.Timestamp,
+                AudioUrl = d.AudioUrl
+            };
         }
     }
 }

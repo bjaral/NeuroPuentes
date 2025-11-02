@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using NeuroPuentesAPI.DTOs;
 using NeuroPuentesAPI.services;
+using NeuroPuentesAPI.models;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -9,12 +10,13 @@ using System;
 using System.IO;
 using Microsoft.AspNetCore.Hosting; 
 
-namespace NeuroPuentesAPI.Controllers
+namespace NeuroPuentesAPI.Controllers 
 {
     [ApiController]
     [Route("api/[controller]")]
     public class EntrevistasController : ControllerBase
     {
+
         private readonly IEntrevistaService _service;
         private readonly IDialogoService _dialogoService; 
         private readonly IaApiService _iaService;
@@ -35,65 +37,59 @@ namespace NeuroPuentesAPI.Controllers
             _env = env;
         }
 
+        // --- ENDPOINT DE IA  ---
         [HttpPost("iniciar-con-ia")]
         [ProducesResponseType(typeof(IAResponse), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [ProducesResponseType(typeof(string), 500)]
         public async Task<IActionResult> IniciarEntrevistaConIA(
-            [FromForm] EntrevistaIaCreateDto dto
+            [FromForm] EntrevistaIaCreateDto dto 
         )
         {
             if (dto.Audio == null || dto.Audio.Length == 0)
             {
                 return BadRequest("No se proporcionó archivo de audio.");
             }
-
             _logger.LogInformation("Iniciando nueva entrevista con IA para Usuario {UsuarioId}", dto.UsuarioId);
 
             try
             {
-                // 1. Llamar al servicio de IA
                 IAResponse resultadoIA = await _iaService.ProcessAudioAsync(dto.Audio, dto.ContextTraits, null);
-
                 if (!resultadoIA.Success)
                 {
                     _logger.LogWarning("La llamada al servicio de IA falló: {Error}", resultadoIA.Error);
                     return StatusCode(502, resultadoIA.Error); 
                 }
 
-                // 2. Crear la Entrevista en la BD
-                var entrevistaDto = new EntrevistaCreateDto
+
+                var entrevista = new Entrevista
                 {
                     UsuarioId = dto.UsuarioId,
                     ContextoId = dto.ContextoId,
                     Titulo = dto.Titulo,
-                    Descripcion = "Entrevista iniciada con IA",
+                    Descripcion = "Entrevista iniciada con IA", 
                     NumeroTurnos = 2, 
-                    ContextoSnapshot = dto.ContextTraits 
+                    ContextoSnapshot = dto.ContextTraits,
+                    DuracionMin = dto.DuracionMin
                 };
-                
-                var nuevaEntrevista = await _service.CrearAsync(entrevistaDto); 
-                _logger.LogInformation("Entrevista {EntrevistaId} creada.", nuevaEntrevista.Id);
+               
+                int nuevaEntrevistaId = await _service.CrearAsync(entrevista); 
+                _logger.LogInformation("Entrevista {EntrevistaId} creada.", nuevaEntrevistaId);
 
-                // 3. Guardar los dos primeros turnos de diálogo
-                
-                // 3a. Guardar el audio del estudiante
                 string audioEstudianteUrl = await GuardarArchivo(dto.Audio);
-                var dialogoEstudiante = new DialogoCreateDto
+                var dialogoEstudiante = new Dialogo
                 {
-                    EntrevistaId = nuevaEntrevista.Id,
+                    EntrevistaId = nuevaEntrevistaId,
                     Turno = 1,
-                    Sender = "Estudiante",
+                    Sender = "Estudiante", 
                     Texto = resultadoIA.Transcription, 
                     AudioUrl = audioEstudianteUrl
                 };
                 await _dialogoService.CrearAsync(dialogoEstudiante);
 
-                // 3b. Guardar el audio de la IA
                 string audioIaUrl = await GuardarAudioBase64(resultadoIA.AudioBase64);
-                var dialogoIA = new DialogoCreateDto
+                var dialogoIA = new Dialogo
                 {
-                    EntrevistaId = nuevaEntrevista.Id,
+                    EntrevistaId = nuevaEntrevistaId,
                     Turno = 2,
                     Sender = "IA",
                     Texto = resultadoIA.ResponseText, 
@@ -101,9 +97,9 @@ namespace NeuroPuentesAPI.Controllers
                 };
                 await _dialogoService.CrearAsync(dialogoIA);
                 
-                _logger.LogInformation("Diálogos iniciales guardados para Entrevista {EntrevistaId}", nuevaEntrevista.Id);
-
-                // 4. Devolver la respuesta al frontend
+                _logger.LogInformation("Diálogos iniciales guardados para Entrevista {EntrevistaId}", nuevaEntrevistaId);
+                
+                resultadoIA.SessionId = nuevaEntrevistaId.ToString(); 
                 return Ok(resultadoIA);
             }
             catch (Exception ex)
@@ -113,45 +109,112 @@ namespace NeuroPuentesAPI.Controllers
             }
         }
 
+      
+        
         [HttpGet]
-        public async Task<IActionResult> Get() => Ok(await _service.GetAllAsync());
+        public async Task<ActionResult<IEnumerable<EntrevistaReadDto>>> GetAll()
+        {
+            var entrevistas = await _service.GetAllAsync();
+            var result = entrevistas.Select(e => new EntrevistaReadDto
+            {
+                Id = e.Id,
+                UsuarioId = e.UsuarioId,
+                ContextoId = e.ContextoId,
+                Titulo = e.Titulo,
+                Descripcion = e.Descripcion,
+                DuracionMin = e.DuracionMin,
+                NumeroTurnos = e.NumeroTurnos,
+                FechaCreacion = e.FechaCreacion,
+                FechaCierre = e.FechaCierre,
+                ContextoSnapshot = e.ContextoSnapshot
+            });
+            return Ok(result);
+        }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("usuario/{usuarioId}")]
+        public async Task<ActionResult<IEnumerable<EntrevistaReadDto>>> GetByUsuarioId(int usuarioId)
+        {
+            var entrevistas = await _service.GetByUsuarioIdAsync(usuarioId);
+            var result = entrevistas.Select(e => new EntrevistaReadDto
+            {
+                Id = e.Id,
+                UsuarioId = e.UsuarioId,
+                ContextoId = e.ContextoId,
+                Titulo = e.Titulo,
+                Descripcion = e.Descripcion,
+                DuracionMin = e.DuracionMin,
+                NumeroTurnos = e.NumeroTurnos,
+                FechaCreacion = e.FechaCreacion,
+                FechaCierre = e.FechaCierre,
+                ContextoSnapshot = e.ContextoSnapshot
+            });
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<EntrevistaReadDto>> GetById(int id)
         {
             var entrevista = await _service.GetByIdAsync(id);
-            if (entrevista == null) return NotFound();
-            return Ok(entrevista);
+            if (entrevista is null) return NotFound(); // Arreglo CS0019
+
+            return Ok(new EntrevistaReadDto
+            {
+                Id = entrevista.Id,
+                UsuarioId = entrevista.UsuarioId,
+                ContextoId = entrevista.ContextoId,
+                Titulo = entrevista.Titulo,
+                Descripcion = entrevista.Descripcion,
+                DuracionMin = entrevista.DuracionMin,
+                NumeroTurnos = entrevista.NumeroTurnos,
+                FechaCreacion = entrevista.FechaCreacion,
+                FechaCierre = entrevista.FechaCierre,
+                ContextoSnapshot = entrevista.ContextoSnapshot
+            });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] EntrevistaCreateDto dto)
+        public async Task<ActionResult<int>> Crear([FromBody] EntrevistaCreateDto dto)
         {
-            var nuevaEntrevista = await _service.CrearAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = nuevaEntrevista.Id }, nuevaEntrevista);
+            var entrevista = new Entrevista
+            {
+                UsuarioId = dto.UsuarioId,
+                ContextoId = dto.ContextoId,
+                Titulo = dto.Titulo,
+                Descripcion = dto.Descripcion,
+                DuracionMin = dto.DuracionMin,
+                NumeroTurnos = dto.NumeroTurnos,
+                ContextoSnapshot = dto.ContextoSnapshot
+            };
+
+            var id = await _service.CrearAsync(entrevista);
+            return CreatedAtAction(nameof(GetById), new { id }, id);
         }
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] EntrevistaCreateDto dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Actualizar(int id, [FromBody] EntrevistaUpdateDto dto)
         {
-            await _service.ActualizarAsync(id, dto);
-            return Ok();
-        }
+            var entrevista = new Entrevista
+            {
+                Titulo = dto.Titulo,
+                Descripcion = dto.Descripcion,
+                DuracionMin = dto.DuracionMin ?? 0, 
+                NumeroTurnos = dto.NumeroTurnos ?? 0,
+                FechaCierre = dto.FechaCierre,
+                ContextoSnapshot = dto.ContextoSnapshot
+            };
 
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _service.EliminarAsync(id);
+            await _service.ActualizarAsync(id, entrevista);
             return NoContent();
         }
 
-        [HttpGet("estudiante/{estudianteId:int}")]
-        public async Task<IActionResult> GetByEstudianteId(int estudianteId)
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Eliminar(int id)
         {
-            var entrevistas = await _service.GetByEstudianteIdAsync(estudianteId);
-            return Ok(entrevistas);
+            await _service.EliminarAsync(id); 
+            return NoContent();
         }
+        
         private async Task<string> GuardarArchivo(IFormFile file)
         {
             var mediaPath = Path.Combine(_env.ContentRootPath, "media");

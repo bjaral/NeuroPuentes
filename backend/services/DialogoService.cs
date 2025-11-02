@@ -1,6 +1,7 @@
-using NeuroPuentesAPI.DTOs;
 using NeuroPuentesAPI.models;
 using NeuroPuentesAPI.repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NeuroPuentesAPI.services
 {
@@ -13,86 +14,35 @@ namespace NeuroPuentesAPI.services
             _repo = repo;
         }
 
-        public async Task<IEnumerable<DialogoDto>> GetAllAsync()
+        public async Task<IEnumerable<Dialogo>> GetAllAsync() => await _repo.GetAllAsync();
+
+        public async Task<IEnumerable<Dialogo>> GetByEntrevistaIdAsync(int entrevistaId) =>
+            await _repo.GetByEntrevistaIdAsync(entrevistaId);
+
+        public async Task<Dialogo?> GetByIdAsync(int id) => await _repo.GetByIdAsync(id);
+
+        public async Task<int> CrearAsync(Dialogo dialogo)
         {
-            var lista = await _repo.GetAllAsync();
-            return lista.Select(d => new DialogoDto
-            {
-                Id = d.Id,
-                EntrevistaId = d.EntrevistaId,
-                Turno = d.Turno,
-                Sender = d.Sender,
-                Texto = d.Texto,
-                TextoProcesado = d.TextoProcesado,
-                Timestamp = d.Timestamp,
-                AudioUrl = d.AudioUrl
-            });
+            if (dialogo.Timestamp == default)
+                dialogo.Timestamp = DateTime.UtcNow;
+            return await _repo.CrearAsync(dialogo);
         }
 
-        public async Task<DialogoDto?> GetByIdAsync(int id)
+        public async Task ActualizarAsync(int id, Dialogo dialogo)
         {
-            var d = await _repo.GetByIdAsync(id);
-            if (d == null) return null;
-            return new DialogoDto
-            {
-                Id = d.Id,
-                EntrevistaId = d.EntrevistaId,
-                Turno = d.Turno,
-                Sender = d.Sender,
-                Texto = d.Texto,
-                TextoProcesado = d.TextoProcesado,
-                Timestamp = d.Timestamp,
-                AudioUrl = d.AudioUrl
-            };
+            var existente = await _repo.GetByIdAsync(id);
+            if (existente == null)
+                throw new KeyNotFoundException($"Diálogo con id {id} no encontrado.");
+
+            existente.Turno = dialogo.Turno != 0 ? dialogo.Turno : existente.Turno;
+            existente.Sender = dialogo.Sender;
+            existente.Texto = string.IsNullOrWhiteSpace(dialogo.Texto) ? existente.Texto : dialogo.Texto;
+            existente.TextoProcesado = string.IsNullOrWhiteSpace(dialogo.TextoProcesado) ? existente.TextoProcesado : dialogo.TextoProcesado;
+            existente.AudioUrl = dialogo.AudioUrl ?? existente.AudioUrl;
+
+            await _repo.ActualizarAsync(existente);
         }
 
-        public async Task CrearAsync(DialogoCreateDto dto)
-        {
-            var d = new Dialogo
-            {
-                EntrevistaId = dto.EntrevistaId,
-                Turno = dto.Turno,
-                Sender = dto.Sender,
-                Texto = dto.Texto,
-                TextoProcesado = dto.TextoProcesado,
-                AudioUrl = dto.AudioUrl,
-                Timestamp = DateTime.UtcNow
-            };
-            await _repo.CrearAsync(d);
-        }
-
-        public async Task ActualizarAsync(int id, DialogoCreateDto dto)
-        {
-            var d = await _repo.GetByIdAsync(id);
-            if (d == null) throw new KeyNotFoundException("Dialogo no encontrado");
-
-            d.Turno = dto.Turno;
-            d.Sender = dto.Sender;
-            d.Texto = dto.Texto;
-            d.TextoProcesado = dto.TextoProcesado;
-            d.AudioUrl = dto.AudioUrl;
-
-            await _repo.ActualizarAsync(d);
-        }
-
-        public async Task EliminarAsync(int id)
-        {
-            await _repo.EliminarAsync(id);
-        }
-        public async Task<IEnumerable<DialogoDto>> GetByEntrevistaIdAsync(int entrevistaId)
-        {
-            var dialogos = await _repo.GetByEntrevistaIdAsync(entrevistaId);
-            return dialogos.Select(d => new DialogoDto
-            {
-                Id = d.Id,
-                EntrevistaId = d.EntrevistaId,
-                Turno = d.Turno,
-                Sender = d.Sender,
-                Texto = d.Texto,
-                TextoProcesado = d.TextoProcesado,
-                Timestamp = d.Timestamp,
-                AudioUrl = d.AudioUrl
-            });
-        }
+        public async Task EliminarAsync(int id) => await _repo.EliminarAsync(id);
     }
 }

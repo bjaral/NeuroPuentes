@@ -118,17 +118,17 @@ namespace NeuroPuentesAPI.repositories
             const string query = @"
                 SELECT 
                     _id AS Id,
-                    _usuario_id AS UsuarioId,
-                    _entrevista_id AS EntrevistaId,
-                    _titulo AS Titulo,
-                    _contenido AS Contenido,
-                    _categoria AS Categoria,
-                    _fecha AS Fecha,
-                    _usado AS Usado,
-                    _vigencia AS Vigencia
-                FROM tips
-                WHERE _usuario_id = @UsuarioId
-                ORDER BY _fecha DESC
+                    usuario_id AS UsuarioId,
+                    entrevista_id AS EntrevistaId,
+                    titulo AS Titulo,
+                    contenido AS Contenido,
+                    categoria AS Categoria,
+                    fecha AS Fecha,
+                    usado AS Usado,
+                    vigencia AS Vigencia
+                FROM ""tips""
+                WHERE usuario_id = @UsuarioId
+                ORDER BY fecha DESC
                 LIMIT 3";
 
             using var connection = new NpgsqlConnection(_connectionString);
@@ -141,17 +141,17 @@ namespace NeuroPuentesAPI.repositories
             const string query = @"
                 SELECT 
                     _id AS Id,
-                    _usuario_id AS UsuarioId,
-                    _entrevista_id AS EntrevistaId,
-                    _titulo AS Titulo,
-                    _contenido AS Contenido,
-                    _categoria AS Categoria,
-                    _fecha AS Fecha,
-                    _usado AS Usado,
-                    _vigencia AS Vigencia
-                FROM tips
-                WHERE _entrevista_id = @EntrevistaId
-                ORDER BY _fecha DESC
+                    usuario_id AS UsuarioId,
+                    entrevista_id AS EntrevistaId,
+                    titulo AS Titulo,
+                    contenido AS Contenido,
+                    categoria AS Categoria,
+                    fecha AS Fecha,
+                    usado AS Usado,
+                    vigencia AS Vigencia
+                FROM ""tips""
+                WHERE entrevista_id = @EntrevistaId
+                ORDER BY fecha DESC
                 LIMIT 3";
 
             using var connection = new NpgsqlConnection(_connectionString);

@@ -1,16 +1,18 @@
-using NeuroPuentesAPI.DTOs;
+using NeuroPuentesAPI.models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NeuroPuentesAPI.services
 {
-    public interface IEval_EntrevistaService
+    public interface IEvalEntrevistaService
     {
-        Task<IEnumerable<Eval_EntrevistaDto>> GetAllAsync();
-        Task<Eval_EntrevistaDto?> GetByIdAsync(int id);
-        Task CrearAsync(Eval_EntrevistaCreateDto dto);
-        Task ActualizarAsync(int id, Eval_EntrevistaCreateDto dto);
+        Task<IEnumerable<Eval_Entrevista>> GetAllAsync();
+        Task<Eval_Entrevista?> GetByIdAsync(int id);
+        Task<int> CrearAsync(Eval_Entrevista eval);
+        Task ActualizarAsync(int id, Eval_Entrevista eval);
         Task EliminarAsync(int id);
-        Task<Eval_EntrevistaDto?> GetByEntrevistaIdAsync(int entrevistaId);
+
+        //busqueda por entrevista ID
+        Task<Eval_Entrevista?> GetByEntrevistaIdAsync(int entrevistaId);
     }
 }

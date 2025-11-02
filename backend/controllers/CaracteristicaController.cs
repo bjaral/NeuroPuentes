@@ -101,5 +101,20 @@ namespace NeuroPuentesAPI.controllers
             await _service.EliminarAsync(id);
             return NoContent();
         }
+
+        [HttpGet("contexto/{contextoId}")]
+        public async Task<ActionResult<IEnumerable<CaracteristicaReadDto>>> GetByContextoId(int contextoId)
+        {
+            var caracteristicas = await _service.GetByContextoIdAsync(contextoId);
+            return Ok(caracteristicas.Select(c => new CaracteristicaReadDto
+            {
+                Id = c.Id,
+                Nombre = c.Nombre,
+                Descripcion = c.Descripcion,
+                Grupo = c.Grupo,
+                Vigencia = c.Vigencia
+            }));
+        }
+
     }
 }
