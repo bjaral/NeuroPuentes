@@ -13,5 +13,7 @@ namespace NeuroPuentesAPI.services
         Task ActualizarAsync(int id, Contexto contexto);
         Task EliminarAsync(int id);
 
+        // obtener contexto por entrevistaId
+        Task<Contexto?> GetByEntrevistaIdAsync(int entrevistaId);
     }
 }

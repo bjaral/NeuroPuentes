@@ -131,5 +131,20 @@ namespace NeuroPuentesAPI.repositories
                 @"DELETE FROM ""contextos"" WHERE _id = @Id", 
                 new { Id = id });
         }
+
+
+        // Obtener Contexto por entrevistaId
+        public async Task<Contexto?> GetByEntrevistaIdAsync(int entrevistaId)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QueryFirstOrDefaultAsync<Contexto>(
+                @"SELECT c._id AS Id, c.nombre AS Nombre, c.descripcion AS Descripcion, c.scope AS Scope,
+                         c.creado_por AS CreadoPor, c.origen AS Origen, c.prompt_seed AS PromptSeed,
+                         c.vigencia AS Vigencia, c.fecha_creacion AS FechaCreacion
+                  FROM ""contextos"" c
+                  INNER JOIN ""entrevistas"" e ON e.contexto_id = c._id
+                  WHERE e._id = @EntrevistaId",
+                new { EntrevistaId = entrevistaId });
+        }
     }
 }

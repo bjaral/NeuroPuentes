@@ -10,12 +10,12 @@ namespace NeuroPuentesAPI.controllers
     public class ContextosController : ControllerBase
     {
         private readonly IContextoService _service;
-        private readonly ICaracteristicaService _caracteristicaService;
+        // private readonly ICaracteristicaService _caracteristicaService;
 
-        public ContextosController(IContextoService service, ICaracteristicaService caracteristicaService)
+        public ContextosController(IContextoService service)
         {
             _service = service;
-            _caracteristicaService = caracteristicaService;
+            // _caracteristicaService = caracteristicaService;
         }
 
         [HttpGet]
@@ -123,11 +123,26 @@ namespace NeuroPuentesAPI.controllers
             await _service.EliminarAsync(id);
             return NoContent();
         }
-        [HttpGet("{contextoId:int}/caracteristicas")]
-        public async Task<IActionResult> GetCaracteristicas(int contextoId)
+        
+        // Obtener contexto dada entrevista Id
+        [HttpGet("entrevista/{entrevistaId}")]
+        public async Task<ActionResult<ContextoReadDto>> GetByEntrevistaId(int entrevistaId)
         {
-            var caracteristicas = await _caracteristicaService.GetByContextoIdAsync(contextoId);
-            return Ok(caracteristicas);
+            var contexto = await _service.GetByEntrevistaIdAsync(entrevistaId);
+            if (contexto == null) return NotFound();
+
+            return Ok(new ContextoReadDto
+            {
+                Id = contexto.Id,
+                Nombre = contexto.Nombre,
+                Descripcion = contexto.Descripcion,
+                Scope = contexto.Scope,
+                CreadoPor = contexto.CreadoPor,
+                Origen = contexto.Origen,
+                PromptSeed = contexto.PromptSeed,
+                Vigencia = contexto.Vigencia,
+                FechaCreacion = contexto.FechaCreacion
+            });
         }
     }
 }

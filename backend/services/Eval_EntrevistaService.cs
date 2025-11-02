@@ -1,77 +1,46 @@
-using NeuroPuentesAPI.DTOs;
 using NeuroPuentesAPI.models;
 using NeuroPuentesAPI.repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NeuroPuentesAPI.services
 {
-    public class Eval_EntrevistaService : IEval_EntrevistaService
+    public class EvalEntrevistaService : IEvalEntrevistaService
     {
-        private readonly IEval_EntrevistaRepository _repo;
+        private readonly IEvalEntrevistaRepository _repo;
 
-        public Eval_EntrevistaService(IEval_EntrevistaRepository repo)
+        public EvalEntrevistaService(IEvalEntrevistaRepository repo)
         {
             _repo = repo;
         }
 
-        public async Task<IEnumerable<Eval_EntrevistaDto>> GetAllAsync()
+        public async Task<IEnumerable<Eval_Entrevista>> GetAllAsync() =>
+            await _repo.GetAllAsync();
+
+        public async Task<Eval_Entrevista?> GetByIdAsync(int id) =>
+            await _repo.GetByIdAsync(id);
+
+        public async Task<int> CrearAsync(Eval_Entrevista eval) =>
+            await _repo.CrearAsync(eval);
+
+        public async Task ActualizarAsync(int id, Eval_Entrevista eval)
         {
-            var lista = await _repo.GetAllAsync();
-            return lista.Select(e => new Eval_EntrevistaDto
-            {
-                Id = e.Id,
-                EntrevistaId = e.EntrevistaId,
-                ScoreFinal = e.ScoreFinal
-            });
+            var existente = await _repo.GetByIdAsync(id);
+            if (existente == null)
+                throw new KeyNotFoundException($"Evaluación con id {id} no encontrada.");
+
+            existente.EntrevistaId = eval.EntrevistaId;
+            existente.ScoreFinal = eval.ScoreFinal;
+
+            await _repo.ActualizarAsync(existente);
         }
 
-        public async Task<Eval_EntrevistaDto?> GetByIdAsync(int id)
-        {
-            var e = await _repo.GetByIdAsync(id);
-            if (e == null) return null;
-            return new Eval_EntrevistaDto
-            {
-                Id = e.Id,
-                EntrevistaId = e.EntrevistaId,
-                ScoreFinal = e.ScoreFinal
-            };
-        }
-
-        public async Task CrearAsync(Eval_EntrevistaCreateDto dto)
-        {
-            var e = new Eval_Entrevista
-            {
-                EntrevistaId = dto.EntrevistaId,
-                ScoreFinal = dto.ScoreFinal
-            };
-            await _repo.CrearAsync(e);
-        }
-
-        public async Task ActualizarAsync(int id, Eval_EntrevistaCreateDto dto)
-        {
-            var e = await _repo.GetByIdAsync(id);
-            if (e == null) throw new KeyNotFoundException("Eval_Entrevista no encontrado");
-
-            e.ScoreFinal = dto.ScoreFinal;
-            e.EntrevistaId = dto.EntrevistaId;
-
-            await _repo.ActualizarAsync(e);
-        }
-
-        public async Task EliminarAsync(int id)
-        {
+        public async Task EliminarAsync(int id) =>
             await _repo.EliminarAsync(id);
-        }
-        public async Task<Eval_EntrevistaDto?> GetByEntrevistaIdAsync(int entrevistaId)
-        {
-            var eval = await _repo.GetByEntrevistaIdAsync(entrevistaId);
-            if (eval == null) return null;
 
-            return new Eval_EntrevistaDto
-            {
-                Id = eval.Id,
-                EntrevistaId = eval.EntrevistaId,
-                ScoreFinal = eval.ScoreFinal
-            };
-        }
+
+        // busqueda por entrevistaId
+        public async Task<Eval_Entrevista?> GetByEntrevistaIdAsync(int entrevistaId) =>
+            await _repo.GetByEntrevistaIdAsync(entrevistaId);
     }
 }

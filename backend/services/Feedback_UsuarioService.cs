@@ -1,5 +1,7 @@
 using NeuroPuentesAPI.models;
 using NeuroPuentesAPI.repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NeuroPuentesAPI.services
 {
@@ -14,6 +16,9 @@ namespace NeuroPuentesAPI.services
 
         public async Task<IEnumerable<Feedback_Usuario>> GetAllAsync() =>
             await _repo.GetAllAsync();
+
+        public async Task<IEnumerable<Feedback_Usuario>> GetByUsuarioIdAsync(int usuarioId) =>
+            await _repo.GetByUsuarioIdAsync(usuarioId);
 
         public async Task<Feedback_Usuario?> GetByIdAsync(int id) =>
             await _repo.GetByIdAsync(id);
@@ -30,12 +35,12 @@ namespace NeuroPuentesAPI.services
         {
             var existente = await _repo.GetByIdAsync(id);
             if (existente == null)
-                throw new KeyNotFoundException($"Feedback con id {id} no encontrado.");
+                throw new KeyNotFoundException($"FeedbackUsuario con id {id} no encontrado.");
 
-            existente.Tipo = feedback.Tipo;
-            existente.Mensaje = string.IsNullOrWhiteSpace(feedback.Mensaje) ? existente.Mensaje : feedback.Mensaje;
-            existente.Categoria = string.IsNullOrWhiteSpace(feedback.Categoria) ? existente.Categoria : feedback.Categoria;
-            existente.UsuarioId = feedback.UsuarioId;
+            existente.Tipo = feedback.Tipo ?? existente.Tipo;
+            existente.Mensaje = feedback.Mensaje ?? existente.Mensaje;
+            existente.Categoria = feedback.Categoria ?? existente.Categoria;
+            existente.Fecha = feedback.Fecha;
 
             await _repo.ActualizarAsync(existente);
         }

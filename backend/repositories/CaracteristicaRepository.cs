@@ -99,23 +99,19 @@ namespace NeuroPuentesAPI.repositories
                 @"DELETE FROM ""caracteristicas"" WHERE _id = @Id", 
                 new { Id = id });
         }
+
+
+
+        // Búsqueda por ContextoId
         public async Task<IEnumerable<Caracteristica>> GetByContextoIdAsync(int contextoId)
         {
-            const string query = @"
-                SELECT 
-                    c._id AS Id,
-                    c._nombre AS Nombre,
-                    c._descripcion AS Descripcion,
-                    c._grupo AS Grupo,
-                    c._vigencia AS Vigencia
-                FROM caracteristicas c
-                INNER JOIN contexto_caracteristicas cc ON c._id = cc._caracteristica_id
-                WHERE cc._contexto_id = @ContextoId
-                AND c._vigencia = true";
-
-            using var connection = CreateConnection();
-            var caracteristicas = await connection.QueryAsync<Caracteristica>(query, new { ContextoId = contextoId });
-            return caracteristicas;
-        }        
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QueryAsync<Caracteristica>(
+                @"SELECT c._id AS Id, c.nombre AS Nombre, c.descripcion AS Descripcion, c.grupo AS Grupo, c.vigencia AS Vigencia
+                  FROM ""caracteristicas"" c
+                  INNER JOIN ""caracts_rel"" cr ON cr.caracteristica_id = c._id
+                  WHERE cr.contexto_id = @ContextoId",
+                new { ContextoId = contextoId });
+        }    
     }
 }

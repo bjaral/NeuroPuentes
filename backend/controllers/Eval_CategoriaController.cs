@@ -1,55 +1,105 @@
 using Microsoft.AspNetCore.Mvc;
-using NeuroPuentesAPI.DTOs;
+using NeuroPuentesAPI.models;
 using NeuroPuentesAPI.services;
+using NeuroPuentesAPI.DTOs;
 
-namespace NeuroPuentesAPI.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class Eval_CategoriaController : ControllerBase
+namespace NeuroPuentesAPI.controllers
 {
-    private readonly IEval_CategoriaService _service;
-
-    public Eval_CategoriaController(IEval_CategoriaService service)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class EvalCategoriaController : ControllerBase
     {
-        _service = service;
-    }
+        private readonly IEvalCategoriaService _service;
 
-    [HttpGet]
-    public async Task<IActionResult> Get() => Ok(await _service.GetAllAsync());
+        public EvalCategoriaController(IEvalCategoriaService service)
+        {
+            _service = service;
+        }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var eval = await _service.GetByIdAsync(id);
-        if (eval == null) return NotFound();
-        return Ok(eval);
-    }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<EvalCategoriaReadDto>>> GetAll()
+        {
+            var evals = await _service.GetAllAsync();
+            var result = evals.Select(e => new EvalCategoriaReadDto
+            {
+                Id = e.Id,
+                EvalEntrevistaId = e.EvalEntrevistaId,
+                Categoria = e.Categoria,
+                Score = e.Score
+            });
+            return Ok(result);
+        }
 
-    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] Eval_CategoriaCreateDto dto)
-    {
-        await _service.CrearAsync(dto);
-        return Ok();
-    }
+        
+        [HttpGet("{id}")]
+        public async Task<ActionResult<EvalCategoriaReadDto>> GetById(int id)
+        {
+            var eval = await _service.GetByIdAsync(id);
+            if (eval == null) return NotFound();
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Put(int id, [FromBody] Eval_CategoriaCreateDto dto)
-    {
-        await _service.ActualizarAsync(id, dto);
-        return Ok();
-    }
+            return Ok(new EvalCategoriaReadDto
+            {
+                Id = eval.Id,
+                EvalEntrevistaId = eval.EvalEntrevistaId,
+                Categoria = eval.Categoria,
+                Score = eval.Score
+            });
+        }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        await _service.EliminarAsync(id);
-        return NoContent();
-    }
-    [HttpGet("entrevista/{entrevistaId:int}")]
-    public async Task<ActionResult<IEnumerable<Eval_CategoriaDto>>> GetByEntrevistaId(int entrevistaId)
-    {
-        var categorias = await _service.GetByEntrevistaIdAsync(entrevistaId);
-        return Ok(categorias);
+        [HttpPost]
+        public async Task<ActionResult<int>> Crear([FromBody] EvalCategoriaCreateDto dto)
+        {
+            var eval = new Eval_Categoria
+            {
+                EvalEntrevistaId = dto.EvalEntrevistaId,
+                Categoria = dto.Categoria,
+                Score = dto.Score
+            };
+
+            var id = await _service.CrearAsync(eval);
+            return CreatedAtAction(nameof(GetById), new { id }, id);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Actualizar(int id, [FromBody] EvalCategoriaUpdateDto dto)
+        {
+            var existente = await _service.GetByIdAsync(id);
+            if (existente == null) return NotFound();
+
+            if (dto.EvalEntrevistaId.HasValue) existente.EvalEntrevistaId = dto.EvalEntrevistaId.Value;
+            if (!string.IsNullOrWhiteSpace(dto.Categoria)) existente.Categoria = dto.Categoria;
+            if (dto.Score.HasValue) existente.Score = dto.Score.Value;
+
+            await _service.ActualizarAsync(id, existente);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var eval = await _service.GetByIdAsync(id);
+            if (eval == null) return NotFound();
+
+            await _service.EliminarAsync(id);
+            return NoContent();
+        }
+
+
+
+        // busqueda por entrevistaId
+        [HttpGet("porEntrevista/{entrevistaId}")]
+        public async Task<ActionResult<IEnumerable<EvalCategoriaReadDto>>> GetByEntrevistaId(int entrevistaId)
+        {
+            var evals = await _service.GetByEntrevistaIdAsync(entrevistaId);
+            var result = evals.Select(e => new EvalCategoriaReadDto
+            {
+                Id = e.Id,
+                EvalEntrevistaId = e.EvalEntrevistaId,
+                Categoria = e.Categoria,
+                Score = e.Score
+            });
+            return Ok(result);
+        }
+
     }
 }
