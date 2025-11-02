@@ -9,5 +9,8 @@ namespace NeuroPuentesAPI.services
         Task<int> CrearAsync(Feedback_Usuario feedback);
         Task ActualizarAsync(int id, Feedback_Usuario feedback);
         Task EliminarAsync(int id);
+
+        // obtener por usuario ID
+        Task<IEnumerable<Feedback_Usuario>> GetByUsuarioIdAsync(int usuarioId);
     }
 }

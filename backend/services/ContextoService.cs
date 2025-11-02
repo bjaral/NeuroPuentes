@@ -52,5 +52,11 @@ namespace NeuroPuentesAPI.services
         }
         public async Task EliminarAsync(int id) =>
             await _repo.EliminarAsync(id);
+
+
+
+        //  Obtener Contexto por entrevistaId
+        public async Task<Contexto?> GetByEntrevistaIdAsync(int entrevistaId) =>
+            await _repo.GetByEntrevistaIdAsync(entrevistaId);
     }
 }
