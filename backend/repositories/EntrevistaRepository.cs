@@ -1,8 +1,9 @@
 using Dapper;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
+using Microsoft.Extensions.Configuration;
 using NeuroPuentesAPI.models;
-using System.Data;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NeuroPuentesAPI.repositories
 {
@@ -10,106 +11,100 @@ namespace NeuroPuentesAPI.repositories
     {
         private readonly string _connectionString;
 
-        public EntrevistaRepository(IConfiguration configuration)
+        public EntrevistaRepository(IConfiguration config)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection")!;
+            _connectionString = config.GetConnectionString("DefaultConnection") ?? string.Empty;
         }
-
-        private IDbConnection CreateConnection()
-            => new NpgsqlConnection(_connectionString);
 
         public async Task<IEnumerable<Entrevista>> GetAllAsync()
         {
-            const string query = "SELECT * FROM \"entrevistas\" ORDER BY \"fecha_creacion\" DESC";
-            using var connection = CreateConnection();
-            var result = await connection.QueryAsync<Entrevista>(query);
-            return result.ToList();
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QueryAsync<Entrevista>(
+                @"SELECT 
+                    _id AS Id,
+                    usuario_id AS UsuarioId,
+                    contexto_id AS ContextoId,
+                    titulo AS Titulo,
+                    descripcion AS Descripcion,
+                    duracion_min AS DuracionMin,
+                    numero_turnos AS NumeroTurnos,
+                    fecha_creacion AS FechaCreacion,
+                    fecha_cierre AS FechaCierre,
+                    contexto_snapshot AS ContextoSnapshot
+                FROM ""entrevistas""");
+        }
+
+        public async Task<IEnumerable<Entrevista>> GetByUsuarioIdAsync(int usuarioId)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QueryAsync<Entrevista>(
+                @"SELECT 
+                    _id AS Id,
+                    usuario_id AS UsuarioId,
+                    contexto_id AS ContextoId,
+                    titulo AS Titulo,
+                    descripcion AS Descripcion,
+                    duracion_min AS DuracionMin,
+                    numero_turnos AS NumeroTurnos,
+                    fecha_creacion AS FechaCreacion,
+                    fecha_cierre AS FechaCierre,
+                    contexto_snapshot AS ContextoSnapshot
+                FROM ""entrevistas"" 
+                WHERE usuario_id = @UsuarioId",
+                new { UsuarioId = usuarioId });
         }
 
         public async Task<Entrevista?> GetByIdAsync(int id)
         {
-            const string query = "SELECT * FROM \"entrevistas\" WHERE _id = @Id";
-            using var connection = CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<Entrevista>(query, new { Id = id });
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.QueryFirstOrDefaultAsync<Entrevista>(
+                @"SELECT 
+                    _id AS Id,
+                    usuario_id AS UsuarioId,
+                    contexto_id AS ContextoId,
+                    titulo AS Titulo,
+                    descripcion AS Descripcion,
+                    duracion_min AS DuracionMin,
+                    numero_turnos AS NumeroTurnos,
+                    fecha_creacion AS FechaCreacion,
+                    fecha_cierre AS FechaCierre,
+                    contexto_snapshot AS ContextoSnapshot
+                FROM ""entrevistas"" 
+                WHERE _id = @Id",
+                new { Id = id });
         }
 
-        public async Task CrearAsync(Entrevista entrevista)
+        public async Task<int> CrearAsync(Entrevista entrevista)
         {
-            const string query = @"
-                INSERT INTO ""entrevistas"" 
-                (usuario_id, contexto_id, titulo, descripcion, duracion_min, numero_turnos, contexto_snapshot, fecha_creacion)
-                VALUES 
-                (@UsuarioId, @ContextoId, @Titulo, @Descripcion, @DuracionMin, @NumeroTurnos, @ContextoSnapshot, @FechaCreacion)";
-            
-            using var connection = CreateConnection();
-            await connection.ExecuteAsync(query, entrevista);
+            using var connection = new NpgsqlConnection(_connectionString);
+            return await connection.ExecuteScalarAsync<int>(
+                @"INSERT INTO ""entrevistas"" 
+                    (usuario_id, contexto_id, titulo, descripcion, duracion_min, numero_turnos, fecha_creacion, contexto_snapshot)
+                  VALUES (@UsuarioId, @ContextoId, @Titulo, @Descripcion, @DuracionMin, @NumeroTurnos, @FechaCreacion, @ContextoSnapshot)
+                  RETURNING _id",
+                entrevista);
         }
 
         public async Task ActualizarAsync(Entrevista entrevista)
         {
-            const string query = @"
-                UPDATE ""entrevistas"" SET
-                usuario_id = @UsuarioId,
-                contexto_id = @ContextoId,
-                titulo = @Titulo,
-                descripcion = @Descripcion,
-                duracion_min = @DuracionMin,
-                numero_turnos = @NumeroTurnos,
-                contexto_snapshot = @ContextoSnapshot,
-                fecha_cierre = @FechaCierre
-                WHERE _id = @Id";
-
-            using var connection = CreateConnection();
-            await connection.ExecuteAsync(query, entrevista);
+            using var connection = new NpgsqlConnection(_connectionString);
+            await connection.ExecuteAsync(
+                @"UPDATE ""entrevistas"" SET 
+                        titulo = @Titulo,
+                        descripcion = @Descripcion,
+                        duracion_min = @DuracionMin,
+                        numero_turnos = @NumeroTurnos,
+                        fecha_cierre = @FechaCierre,
+                        contexto_snapshot = @ContextoSnapshot
+                    WHERE _id = @Id",
+                entrevista);
         }
 
         public async Task EliminarAsync(int id)
         {
-            const string query = "DELETE FROM \"entrevistas\" WHERE _id = @Id";
-            using var connection = CreateConnection();
-            await connection.ExecuteAsync(query, new { Id = id });
-        }
-       public async Task<IEnumerable<Entrevista>> GetByUsuarioIdAsync(int usuarioId)
-        {
-            const string query = @"
-                SELECT 
-                    _id AS Id,
-                    _usuario_id AS UsuarioId,
-                    _contexto_id AS ContextoId,
-                    _titulo AS Titulo,
-                    _descripcion AS Descripcion,
-                    _duracion_min AS DuracionMin,
-                    _numero_turnos AS NumeroTurnos,
-                    _fecha_creacion AS FechaCreacion,
-                    _fecha_cierre AS FechaCierre,
-                    _contexto_snapshot AS ContextoSnapshot
-                FROM entrevistas
-                WHERE _usuario_id = @UsuarioId
-                ORDER BY _fecha_creacion DESC";
-
-            using var connection = CreateConnection();
-            var entrevistas = await connection.QueryAsync<Entrevista>(query, new { UsuarioId = usuarioId });
-            return entrevistas;
-        }
-    public async Task<IEnumerable<Dialogo>> GetByEntrevistaIdAsync(int entrevistaId)
-        {
-            const string query = @"
-                SELECT 
-                    _id AS Id,
-                    _entrevista_id AS EntrevistaId,
-                    _turno AS Turno,
-                    _sender AS Sender,
-                    _texto AS Texto,
-                    _texto_procesado AS TextoProcesado,
-                    _timestamp AS Timestamp,
-                    _audio_url AS AudioUrl
-                FROM dialogos
-                WHERE _entrevista_id = @EntrevistaId
-                ORDER BY _turno ASC";
-
-            using var connection = CreateConnection();
-            var dialogos = await connection.QueryAsync<Dialogo>(query, new { EntrevistaId = entrevistaId });
-            return dialogos;
+            using var connection = new NpgsqlConnection(_connectionString);
+            await connection.ExecuteAsync(
+                @"DELETE FROM ""entrevistas"" WHERE _id = @Id", new { Id = id });
         }
     }
 }
