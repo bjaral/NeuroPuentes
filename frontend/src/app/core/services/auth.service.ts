@@ -26,7 +26,7 @@ interface LoginCredentials {
  * Interface para datos de registro
  */
 interface RegisterData {
-  nombre_usuario: string;
+  nombreUsuario: string;
   nombre: string;
   email: string;
   password: string;

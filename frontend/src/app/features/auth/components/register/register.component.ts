@@ -91,7 +91,7 @@ export class RegisterComponent {
     this.cargando.set(true);
 
     const userData = {
-      nombre_usuario: this.registerForm.value.nombre_usuario,
+      nombreUsuario: this.registerForm.value.nombre_usuario,
       nombre: this.registerForm.value.nombre,
       email: this.registerForm.value.email,
       password: this.registerForm.value.password,
