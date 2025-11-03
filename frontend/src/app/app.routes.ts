@@ -15,7 +15,7 @@ export const routes: Routes = [
     { 'path': '', component: LayoutComponent, 'children': [
         { path: 'dashboard', component: DashboardComponent },
         { path: 'history', component: HistoryComponent },
-        { path: 'history-detail', component: HistoryDetailComponent },
+        { path: 'history-detail/:id', component: HistoryDetailComponent },
         { path: 'scenarios', component: ScenarioConfigComponent },
         { path: 'feedback', component: FeedbackComponent },
     ]},

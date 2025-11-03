@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class TokenService {
 
-  constructor() {}
+  constructor() { }
 
   private tokenKey = 'tokenNeuroPuentes';
 
@@ -15,7 +15,8 @@ export class TokenService {
     nameIdentifier: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier',
     role: 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role',
     email: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
-    name: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
+    name: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+    givenName: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'
   };
 
   getToken(): string | null {
@@ -49,6 +50,20 @@ export class TokenService {
     if (!decoded) return null;
 
     return decoded[this.claimTypes.role] || null;
+  }
+
+  getUsername(): string | null {
+    const decoded = this.decodeToken();
+    if (!decoded) return null;
+
+    return decoded[this.claimTypes.name] || null;
+  }
+
+  getName(): string | null {
+    const decoded = this.decodeToken();
+    if (!decoded) return null;
+
+    return decoded[this.claimTypes.givenName] || null;
   }
 
   isTokenExpired(): boolean {

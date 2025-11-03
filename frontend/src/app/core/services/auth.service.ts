@@ -17,7 +17,7 @@ interface LoginResponse {
  * Interface para credenciales de login
  */
 interface LoginCredentials {
-  nombre_usuario?: string;
+  nombreUsuario?: string;
   email?: string;
   password: string;
 }
