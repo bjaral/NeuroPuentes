@@ -198,7 +198,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
     // Aquí también deberías llamar a un endpoint para
     // actualizar el 'fecha_cierre' y 'duracion_min' de la Entrevista
     
-    this.router.navigate(['/feedback']); // O '/history'
+    this.router.navigate(['/history-detail/', this.entrevistaId()]);
   }
 
   getStatusIcon(): string {
