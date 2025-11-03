@@ -16,6 +16,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
 
 export const MATERIAL_IMPORTS = [
   MatButtonModule,
@@ -35,5 +36,6 @@ export const MATERIAL_IMPORTS = [
   MatChipsModule,
   MatTooltipModule,
   MatButtonToggleModule,
-  MatRippleModule
+  MatRippleModule,
+  MatMenuModule
 ]

@@ -45,9 +45,11 @@ namespace NeuroPuentesAPI.controllers
             return Ok(new
             {
                 token,
-                usuario = new {
+                usuario = new
+                {
                     user.Id,
                     user.NombreUsuario,
+                    user.Nombre,
                     user.Email,
                     user.Rol
                 }
@@ -68,6 +70,7 @@ namespace NeuroPuentesAPI.controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.NombreUsuario),
+                new Claim(ClaimTypes.GivenName, user.Nombre),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Rol.ToString())
             };

@@ -69,7 +69,7 @@ export class LoginComponent {
     if (isEmail) {
       credentials.email = inputValue;
     } else {
-      credentials.nombre_usuario = inputValue;
+      credentials.nombreUsuario = inputValue;
     }
 
     this.authService.login(credentials).subscribe({

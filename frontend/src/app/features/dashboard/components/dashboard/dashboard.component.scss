@@ -160,27 +160,41 @@ $accent-dark: #FFA000;
 
     }
 
-    .interview-score {
-      color: rgba(0, 0, 0, 0.6);
-      font-weight: 500;
-    }
-
-    .interview-status {
+    .interview-title {
       font-weight: 600;
-      text-transform: capitalize;
+      color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
 
-      &.completada {
-        color: $success-color;
+      mat-icon {
+        font-size: 1.2rem;
+        color: $primary-dark;
       }
 
-      &.pendiente {
-        color: $warn-color;
-      }
-
-      &.en\ progreso {
-        color: $accent-color;
-      }
     }
+
+    // .interview-score {
+    //   color: rgba(0, 0, 0, 0.6);
+    //   font-weight: 500;
+    // }
+
+    // .interview-status {
+    //   font-weight: 600;
+    //   text-transform: capitalize;
+
+    //   &.completada {
+    //     color: $success-color;
+    //   }
+
+    //   &.pendiente {
+    //     color: $warn-color;
+    //   }
+
+    //   &.en\ progreso {
+    //     color: $accent-color;
+    //   }
+    // }
   }
 }
 
