@@ -1,109 +1,64 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Contexto } from '../../../shared/models/contexto.model';
-
-export interface Scenario {
-  id: number;
-  title: string;
-  edad: number;
-  contexto: string;
-  vistaPrevia: string;
-  icono?: string;
-  tags?: string[];
-}
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { Contexto, scopeToString } from '../../../shared/models/contexto.model';
+import { Caracteristica, CaractsRel } from '../../../shared/models/caracteristica.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ 
   providedIn: 'root' 
 })
 export class ScenariosService {
 
-  private apiUrl = `http://localhost:5299/api/Contextos`;
-private contextosEjemplo: Contexto[] = [
-    {
-      _id: 1,
-      nombre: 'Niño de 4 años - Primeras señales',
-      descripcion: 'Padres preocupados por desarrollo social y comunicación del niño',
-      scope: 'evaluacion_inicial',
-      origen: 'sistema',
-      prompt_seed: 'Padre: "Mi hijo no nos mira a los ojos cuando le hablamos". No responde cuando lo llaman por su nombre. Prefiere jugar solo con sus carritos.',
-      vigencia: true,
-      fecha_creacion: '2024-01-15'
-    },
-    {
-      _id: 2,
-      nombre: 'Niña de 6 años - Diagnóstico reciente',
-      descripcion: 'Familia adaptándose al diagnóstico de TEA y buscando apoyo',
-      scope: 'seguimiento',
-      origen: 'sistema',
-      prompt_seed: 'Madre: "Nos acaban de confirmar que tiene autismo". Dificultades en el colegio con ruidos fuertes. Muy inteligente pero evita juegos grupales.',
-      vigencia: true,
-      fecha_creacion: '2024-01-20'
-    },
-    {
-      _id: 3,
-      nombre: 'Adolescente de 14 años - Transición',
-      descripcion: 'Desafíos de la adolescencia con autismo',
-      scope: 'intervencion',
-      origen: 'sistema',
-      prompt_seed: 'Padre: "Desde que empezó la secundaria está muy ansioso". Cambios físicos de la pubertad lo angustian. Dificultades para hacer amigos.',
-      vigencia: true,
-      fecha_creacion: '2024-02-01'
-    },
-    {
-      _id: 4,
-      nombre: 'Niño de 8 años - Comportamientos desafiantes',
-      descripcion: 'Crisis conductuales que afectan la dinámica familiar',
-      scope: 'crisis',
-      origen: 'sistema',
-      prompt_seed: 'Madre: "Últimamente tiene rabietas muy intensas". Se golpea la cabeza cuando está frustrado. Hermanos menores tienen miedo de sus crisis.',
-      vigencia: true,
-      fecha_creacion: '2024-02-10'
-    },
-    {
-      _id: 5,
-      nombre: 'Niña de 10 años - Perfil femenino',
-      descripcion: 'Diagnóstico tardío en niña con enmascaramiento social',
-      scope: 'evaluacion_tardia',
-      origen: 'sistema',
-      prompt_seed: 'Madre: "Siempre pensé que era solo muy tímida". Imita comportamientos de sus compañeras. Llega agotada del colegio, colapsa en casa.',
-      vigencia: true,
-      fecha_creacion: '2024-02-15'
-    }
-  ];
+  private apiUrl = environment.apiUrl || 'http://localhost:5299';
+  private contextosUrl = `${this.apiUrl}/api/Contextos`;
+  private caracteristicasUrl = `${this.apiUrl}/api/Caracteristicas`;
+  private caractsRelUrl = `${this.apiUrl}/api/CaractsRel`;
 
   constructor(private http: HttpClient) { }
 
+  // ============================================
+  // MÉTODOS PARA CONTEXTOS
+  // ============================================
+
   /**
-   * Obtiene todos los contextos vigentes
+   * Obtiene todos los contextos vigentes desde el backend
    */
   getContextos(): Observable<Contexto[]> {
-    // En producción, usar la API real:
-    // return this.http.get<Contexto[]>(`${this.apiUrl}?vigencia=true`);
-    
-    // Desarrollo: devolver datos mock
-    return new Observable(observer => {
-      setTimeout(() => {
-        observer.next(this.contextosEjemplo.filter(c => c.vigencia));
-        observer.complete();
-      }, 400);
-    });
+    return this.http.get<any[]>(`${this.contextosUrl}/Vigentes`).pipe(
+      map(data => this.mapContextosFromBackend(data)),
+      catchError(error => {
+        console.error('Error al obtener contextos:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Obtiene todos los contextos (incluyendo no vigentes)
+   */
+  getAllContextos(): Observable<Contexto[]> {
+    return this.http.get<any[]>(this.contextosUrl).pipe(
+      map(data => this.mapContextosFromBackend(data)),
+      catchError(error => {
+        console.error('Error al obtener todos los contextos:', error);
+        return of([]);
+      })
+    );
   }
 
   /**
    * Obtiene un contexto por ID
    */
-  getContextoById(id: number): Observable<Contexto | undefined> {
-    // En producción:
-    // return this.http.get<Contexto>(`${this.apiUrl}/${id}`);
-    
-    // Desarrollo:
-    return new Observable(observer => {
-      const contexto = this.contextosEjemplo.find(c => c._id === id);
-      observer.next(contexto);
-      observer.complete();
-    });
+  getContextoById(id: number): Observable<Contexto | null> {
+    return this.http.get<any>(`${this.contextosUrl}/${id}`).pipe(
+      map(data => this.mapContextoFromBackend(data)),
+      catchError(error => {
+        console.error(`Error al obtener contexto ${id}:`, error);
+        return of(null);
+      })
+    );
   }
 
   /**
@@ -112,6 +67,9 @@ private contextosEjemplo: Contexto[] = [
   getContextoAleatorio(): Observable<Contexto> {
     return this.getContextos().pipe(
       map(contextos => {
+        if (contextos.length === 0) {
+          throw new Error('No hay contextos disponibles');
+        }
         const randomIndex = Math.floor(Math.random() * contextos.length);
         return contextos[randomIndex];
       })
@@ -141,46 +99,288 @@ private contextosEjemplo: Contexto[] = [
    */
   getContextosPorScope(scope: string): Observable<Contexto[]> {
     return this.getContextos().pipe(
-      map(contextos => contextos.filter(c => c.scope === scope))
+      map(contextos => contextos.filter(c => 
+        scopeToString(c.scope).toLowerCase() === scope.toLowerCase()
+      ))
     );
   }
 
   /**
-   * Crea un nuevo contexto (solo para usuarios autorizados)
+   * Obtiene el contexto asociado a una entrevista
    */
-  crearContexto(contexto: Contexto): Observable<Contexto> {
-    return this.http.post<Contexto>(this.apiUrl, contexto);
+  getContextoPorEntrevistaId(entrevistaId: number): Observable<Contexto | null> {
+    return this.http.get<any>(`${this.contextosUrl}/entrevista/${entrevistaId}`).pipe(
+      map(data => this.mapContextoFromBackend(data)),
+      catchError(error => {
+        console.error(`Error al obtener contexto de entrevista ${entrevistaId}:`, error);
+        return of(null);
+      })
+    );
+  }
+
+  /**
+   * Crea un nuevo contexto
+   */
+  crearContexto(contexto: Contexto): Observable<number> {
+    const dto = this.mapContextoToBackend(contexto);
+    return this.http.post<number>(this.contextosUrl, dto).pipe(
+      catchError(error => {
+        console.error('Error al crear contexto:', error);
+        throw error;
+      })
+    );
   }
 
   /**
    * Actualiza un contexto existente
    */
-  actualizarContexto(id: number, contexto: Partial<Contexto>): Observable<Contexto> {
-    return this.http.put<Contexto>(`${this.apiUrl}/${id}`, contexto);
+  actualizarContexto(id: number, contexto: Contexto): Observable<void> {
+    const dto = this.mapContextoToBackend(contexto);
+    return this.http.put<void>(`${this.contextosUrl}/${id}`, dto).pipe(
+      catchError(error => {
+        console.error(`Error al actualizar contexto ${id}:`, error);
+        throw error;
+      })
+    );
   }
 
   /**
-   * Desactiva un contexto (soft delete)
+   * Elimina un contexto
    */
-  desactivarContexto(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/${id}`, { vigencia: false });
+  eliminarContexto(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.contextosUrl}/${id}`).pipe(
+      catchError(error => {
+        console.error(`Error al eliminar contexto ${id}:`, error);
+        throw error;
+      })
+    );
   }
 
   /**
    * Obtiene estadísticas de los contextos
    */
-  getEstadisticas(): { total: number; porScope: { [key: string]: number } } {
-    const contextos = this.contextosEjemplo.filter(c => c.vigencia);
-    const porScope: { [key: string]: number } = {};
-    
-    contextos.forEach(c => {
-      const scope = c.scope || 'sin_categoria';
-      porScope[scope] = (porScope[scope] || 0) + 1;
-    });
+  getEstadisticas(): Observable<{ total: number; porScope: { [key: string]: number } }> {
+    return this.getContextos().pipe(
+      map(contextos => {
+        const porScope: { [key: string]: number } = {};
+        
+        contextos.forEach(c => {
+          const scope = scopeToString(c.scope) || 'sin_categoria';
+          porScope[scope] = (porScope[scope] || 0) + 1;
+        });
 
+        return {
+          total: contextos.length,
+          porScope
+        };
+      })
+    );
+  }
+
+  // ============================================
+  // MÉTODOS PARA CARACTERÍSTICAS
+  // ============================================
+
+  /**
+   * Obtiene todas las características vigentes
+   */
+  getCaracteristicas(): Observable<Caracteristica[]> {
+    return this.http.get<any[]>(`${this.caracteristicasUrl}/Vigentes`).pipe(
+      map(data => this.mapCaracteristicasFromBackend(data)),
+      catchError(error => {
+        console.error('Error al obtener características:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Obtiene todas las características (incluyendo no vigentes)
+   */
+  getAllCaracteristicas(): Observable<Caracteristica[]> {
+    return this.http.get<any[]>(this.caracteristicasUrl).pipe(
+      map(data => this.mapCaracteristicasFromBackend(data)),
+      catchError(error => {
+        console.error('Error al obtener todas las características:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Obtiene una característica por ID
+   */
+  getCaracteristicaById(id: number): Observable<Caracteristica | null> {
+    return this.http.get<any>(`${this.caracteristicasUrl}/${id}`).pipe(
+      map(data => this.mapCaracteristicaFromBackend(data)),
+      catchError(error => {
+        console.error(`Error al obtener característica ${id}:`, error);
+        return of(null);
+      })
+    );
+  }
+
+  /**
+   * Obtiene características asociadas a un contexto
+   */
+  getCaracteristicasPorContexto(contextoId: number): Observable<Caracteristica[]> {
+    return this.http.get<any[]>(`${this.caracteristicasUrl}/contexto/${contextoId}`).pipe(
+      map(data => this.mapCaracteristicasFromBackend(data)),
+      catchError(error => {
+        console.error(`Error al obtener características del contexto ${contextoId}:`, error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Crea una nueva característica
+   */
+  crearCaracteristica(caracteristica: Caracteristica): Observable<number> {
+    const dto = this.mapCaracteristicaToBackend(caracteristica);
+    return this.http.post<number>(this.caracteristicasUrl, dto).pipe(
+      catchError(error => {
+        console.error('Error al crear característica:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Actualiza una característica
+   */
+  actualizarCaracteristica(id: number, caracteristica: Caracteristica): Observable<void> {
+    const dto = this.mapCaracteristicaToBackend(caracteristica);
+    return this.http.put<void>(`${this.caracteristicasUrl}/${id}`, dto).pipe(
+      catchError(error => {
+        console.error(`Error al actualizar característica ${id}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Elimina una característica
+   */
+  eliminarCaracteristica(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.caracteristicasUrl}/${id}`).pipe(
+      catchError(error => {
+        console.error(`Error al eliminar característica ${id}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  // ============================================
+  // MÉTODOS PARA RELACIONES CARACTERÍSTICAS-CONTEXTO
+  // ============================================
+
+  /**
+   * Obtiene todas las relaciones
+   */
+  getCaractsRel(): Observable<CaractsRel[]> {
+    return this.http.get<any[]>(this.caractsRelUrl).pipe(
+      map(data => this.mapCaractsRelFromBackend(data)),
+      catchError(error => {
+        console.error('Error al obtener relaciones características-contexto:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Crea una relación característica-contexto
+   */
+  crearCaractsRel(relacion: CaractsRel): Observable<void> {
+    const dto = this.mapCaractsRelToBackend(relacion);
+    return this.http.post<void>(this.caractsRelUrl, dto).pipe(
+      catchError(error => {
+        console.error('Error al crear relación:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Elimina una relación característica-contexto
+   */
+  eliminarCaractsRel(caracteristicaId: number, contextoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.caractsRelUrl}/${caracteristicaId}/${contextoId}`).pipe(
+      catchError(error => {
+        console.error('Error al eliminar relación:', error);
+        throw error;
+      })
+    );
+  }
+
+  // ============================================
+  // MÉTODOS DE MAPEO (Backend camelCase <-> Frontend camelCase)
+  // ============================================
+
+  private mapContextoFromBackend(data: any): Contexto {
     return {
-      total: contextos.length,
-      porScope
+      id: data.id,
+      nombre: data.nombre,
+      descripcion: data.descripcion,
+      scope: data.scope,
+      creadoPor: data.creadoPor,
+      origen: data.origen,
+      promptSeed: data.promptSeed,
+      vigencia: data.vigencia,
+      fechaCreacion: data.fechaCreacion
+    };
+  }
+
+  private mapContextosFromBackend(data: any[]): Contexto[] {
+    return data.map(item => this.mapContextoFromBackend(item));
+  }
+
+  private mapContextoToBackend(contexto: Contexto): any {
+    return {
+      nombre: contexto.nombre,
+      descripcion: contexto.descripcion,
+      scope: contexto.scope,
+      creadoPor: contexto.creadoPor,
+      origen: contexto.origen,
+      promptSeed: contexto.promptSeed,
+      vigencia: contexto.vigencia
+    };
+  }
+
+  private mapCaracteristicaFromBackend(data: any): Caracteristica {
+    return {
+      id: data.id,
+      nombre: data.nombre,
+      descripcion: data.descripcion,
+      grupo: data.grupo,
+      vigencia: data.vigencia
+    };
+  }
+
+  private mapCaracteristicasFromBackend(data: any[]): Caracteristica[] {
+    return data.map(item => this.mapCaracteristicaFromBackend(item));
+  }
+
+  private mapCaracteristicaToBackend(caracteristica: Caracteristica): any {
+    return {
+      nombre: caracteristica.nombre,
+      descripcion: caracteristica.descripcion,
+      grupo: caracteristica.grupo,
+      vigencia: caracteristica.vigencia
+    };
+  }
+
+  private mapCaractsRelFromBackend(data: any[]): CaractsRel[] {
+    return data.map(item => ({
+      caracteristicaId: item.caracteristicaId,
+      contextoId: item.contextoId
+    }));
+  }
+
+  private mapCaractsRelToBackend(relacion: CaractsRel): any {
+    return {
+      caracteristicaId: relacion.caracteristicaId,
+      contextoId: relacion.contextoId
     };
   }
 }

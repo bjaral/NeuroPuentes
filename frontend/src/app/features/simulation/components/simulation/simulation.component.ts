@@ -1,174 +1,254 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit, inject, OnDestroy, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MATERIAL_IMPORTS } from '../../../../shared/material/material';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { SimulationService, IAResponse } from '../../services/simulation.service';
+import { TokenService } from '../../../../core/services/token.service';
+import { Contexto, getEdadFromPromptSeed } from '../../../../shared/models/contexto.model';
 
+// Modelo local para mensajes en pantalla
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'ai';
 }
 
-type InterviewStatus = 'stopped' | 'recording' | 'paused' | 'finished';
+// Estado más detallado
+type InterviewStatus = 'stopped' | 'recording' | 'waiting_for_ai' | 'finished';
 
 @Component({
   selector: 'app-simulation',
+  standalone: true, // Asumiendo standalone por los imports
   imports: [...MATERIAL_IMPORTS, CommonModule, RouterModule],
   templateUrl: './simulation.component.html',
   styleUrl: './simulation.component.scss'
 })
-export class SimulationComponent {
+export class SimulationComponent implements OnInit, OnDestroy {
+  // Inyección de servicios
+  private router = inject(Router);
+  private simulationService = inject(SimulationService);
+  private tokenService = inject(TokenService);
+  private cdr = inject(ChangeDetectorRef); // Para forzar detección de cambios
+
+  // Elemento para scroll
+  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
+
+  // Estado de la Simulación
   interviewStatus = signal<InterviewStatus>('stopped');
   messages = signal<Message[]>([]);
-  aiSpeaking = signal(false);
-  
+  aiSpeaking = signal(false); // Para el indicador de "escribiendo"
+
+  // Datos de la entrevista
+  contexto = signal<Contexto | null>(null);
+  entrevistaId = signal<number | null>(null);
+
+  // --- Lógica de Grabación ---
+  private mediaRecorder: MediaRecorder | null = null;
+  private audioChunks: Blob[] = [];
+  private audioPlayer = new Audio();
   private messageCounter = 0;
-  private simulationTimer?: number;
+
+  ngOnInit(): void {
+    const contextoString = sessionStorage.getItem('selectedContexto');
+    if (!contextoString) {
+      // Si no hay contexto, no podemos estar aquí
+      this.router.navigate(['/scenarios']);
+      return;
+    }
+    
+    this.contexto.set(JSON.parse(contextoString));
+
+    // Configurar el audio player para cuando termine de hablar
+    this.audioPlayer.onended = () => {
+      this.aiSpeaking.set(false);
+      // Habilitar el botón de grabar de nuevo
+      this.interviewStatus.set('stopped');
+      this.cdr.detectChanges(); // Forzar actualización
+    };
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar el contexto al salir
+    sessionStorage.removeItem('selectedContexto');
+    // Detener cualquier grabación o audio
+    this.mediaRecorder?.stop();
+    this.audioPlayer.pause();
+  }
+
+  // --- Control de Grabación (Solución Manual) ---
+
+  async startRecording(): Promise<void> {
+    if (this.interviewStatus() !== 'stopped') return;
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaRecorder = new MediaRecorder(stream);
+      
+      this.mediaRecorder.ondataavailable = (event) => {
+        this.audioChunks.push(event.data);
+      };
+
+      this.mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+        this.audioChunks = []; // Limpiar para la próxima grabación
+        
+        // Enviar el audio al backend
+        this.processAudio(audioBlob);
+        
+        // Detener el stream de medios
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      this.mediaRecorder.start();
+      this.interviewStatus.set('recording');
+
+    } catch (err) {
+      console.error('Error al acceder al micrófono:', err);
+      // Aquí deberías mostrar un error al usuario (ej. un Snackbar)
+    }
+  }
+
+  stopRecording(): void {
+    if (this.interviewStatus() !== 'recording') return;
+    this.mediaRecorder?.stop();
+    // onstop() se encargará del resto
+  }
+
+  // --- Lógica de API ---
+
+  private processAudio(audioBlob: Blob): void {
+    this.interviewStatus.set('waiting_for_ai');
+    const contexto = this.contexto()!;
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.wav');
+    
+    // Los context_traits son el promptSeed
+    formData.append('contextTraits', contexto.promptSeed || '');
+
+    const currentEntrevistaId = this.entrevistaId();
+
+    if (currentEntrevistaId === null) {
+      // --- TURNO 1: Iniciar Entrevista ---
+      const usuarioId = this.tokenService.getNameIdentifier();
+      if (!usuarioId) {
+        console.error('Error fatal: Usuario no logueado.');
+        this.interviewStatus.set('stopped');
+        return;
+      }
+      
+      formData.append('usuarioId', usuarioId.toString());
+      formData.append('contextoId', contexto.id!.toString());
+      formData.append('titulo', contexto.nombre || 'Entrevista de simulación');
+      formData.append('duracionMin', '0'); // El backend lo actualizará al final
+
+      this.simulationService.iniciarEntrevista(formData).subscribe(response => {
+        this.handleAIResponse(response);
+      });
+
+    } else {
+      // --- TURNOS > 1: Continuar Diálogo ---
+      formData.append('entrevistaId', currentEntrevistaId.toString());
+      formData.append('turno', (this.messages().length + 1).toString());
+      formData.append('sender', 'User'); // El backend asume que el audio es del 'User'
+
+      this.simulationService.continuarDialogo(formData).subscribe(response => {
+        this.handleAIResponse(response);
+      });
+    }
+  }
+
+  private handleAIResponse(response: IAResponse | null): void {
+    if (!response || !response.success) {
+      console.error('Error en la respuesta de la IA:', response?.error);
+      this.interviewStatus.set('stopped');
+      // Mostrar error al usuario
+      return;
+    }
+
+    // 1. Guardar el ID si es la primera llamada
+    if (this.entrevistaId() === null) {
+      this.entrevistaId.set(Number(response.session_id));
+    }
+
+    // 2. Añadir mensaje del usuario (transcripción)
+    this.addUserMessage(response.transcription);
+
+    // 3. Añadir mensaje de la IA (respuesta)
+    this.addAIMessage(response.response_text);
+    
+    // 4. Reproducir el audio de la IA
+    this.playAudio(response.audio_base64);
+  }
+
+  private playAudio(base64: string): void {
+    const audioSrc = `data:audio/wav;base64,${base64}`;
+    this.audioPlayer.src = audioSrc;
+    this.audioPlayer.play();
+    this.aiSpeaking.set(true);
+  }
+
+  // --- Métodos de la Vista (Helpers) ---
+
+  stopInterview(): void {
+    this.interviewStatus.set('finished');
+    // Detener todo
+    this.mediaRecorder?.stop();
+    this.audioPlayer.pause();
+    
+    // Aquí también deberías llamar a un endpoint para
+    // actualizar el 'fecha_cierre' y 'duracion_min' de la Entrevista
+    
+    this.router.navigate(['/feedback']); // O '/history'
+  }
 
   getStatusIcon(): string {
     switch (this.interviewStatus()) {
       case 'recording': return 'fiber_manual_record';
-      case 'paused': return 'pause';
+      case 'waiting_for_ai': return 'hourglass_empty';
       case 'finished': return 'check_circle';
-      default: return 'stop';
+      default: return 'mic_none'; // 'stopped'
     }
   }
 
   getStatusText(): string {
     switch (this.interviewStatus()) {
-      case 'recording': return 'Grabando';
-      case 'paused': return 'Pausado';
+      case 'recording': return 'Grabando...';
+      case 'waiting_for_ai': return 'Procesando...';
       case 'finished': return 'Finalizado';
-      default: return 'Detenido';
+      default: return 'Presiona Iniciar para grabar';
     }
   }
 
-  startInterview(): void {
-    this.interviewStatus.set('recording');
-    this.simulateConversation();
+  getAINombre(): string {
+    return this.contexto()?.nombre || 'IA';
   }
 
-  pauseInterview(): void {
-    this.interviewStatus.set('paused');
-    if (this.simulationTimer) {
-      clearTimeout(this.simulationTimer);
-    }
-  }
-
-  stopInterview(): void {
-    this.interviewStatus.set('finished');
-    if (this.simulationTimer) {
-      clearTimeout(this.simulationTimer);
-    }
-    this.aiSpeaking.set(false);
-  }
-
-  private simulateConversation(): void {
-    if (this.interviewStatus() !== 'recording') return;
-
-    // Mensaje inicial de la madre buscando ayuda
-    if (this.messages().length === 0) {
-      this.addAIMessage('Buenos días, doctor. Muchas gracias por recibirme. Vengo porque estoy muy preocupada por mi hijo Diego, tiene 6 años y... bueno, no sé si es normal su comportamiento. Mi familia dice que solo es berrinchudo, pero yo siento que algo más está pasando.');
-    }
-
-    // Simular diálogo clínico después de un tiempo
-    this.simulationTimer = window.setTimeout(() => {
-      if (this.interviewStatus() === 'recording') {
-        this.simulateClinicalDialogue();
-      }
-    }, 7000);
-  }
-
-  private simulateClinicalDialogue(): void {
-    const clinicalDialogue = [
-      {
-        interviewer: '¿Podría contarme más específicamente qué comportamientos le preocupan de Diego?',
-        mother: 'Bueno, él no me mira a los ojos cuando le hablo, y cuando trato de abrazarlo se pone muy rígido. También hace movimientos raros con las manos, como si estuviera aplaudiendo, especialmente cuando ve luces brillantes o escucha música.'
-      },
-      {
-        interviewer: '¿Desde cuándo ha notado estos comportamientos? ¿Han cambiado con el tiempo?',
-        mother: 'Empecé a notarlo más o menos a los 2 años. Al principio pensé que era tímido, pero ahora a los 6 años es más evidente. Antes decía algunas palabras como "mamá" y "agua", pero ahora casi no habla. Solo repite frases de sus caricaturas favoritas.'
-      },
-      {
-        interviewer: '¿Cómo es un día típico con Diego? ¿Hay rutinas específicas que prefiera?',
-        mother: 'Ah sí, eso es algo muy marcado. Tiene que desayunar en el mismo plato azul, sentarse en la misma silla, y si cambio algo se pone muy alterado. Llora y se tira al suelo. También le gusta ordenar sus juguetes por colores, una y otra vez.'
-      },
-      {
-        interviewer: '¿Ha consultado con algún otro profesional antes? ¿Qué le han dicho?',
-        mother: 'El pediatra dice que cada niño se desarrolla a su ritmo, que no me preocupe. Pero la maestra del jardín me comentó que Diego no juega con otros niños y que cuando hay ruidos fuertes se tapa los oídos y llora. Por eso decidí venir aquí.'
-      },
-      {
-        interviewer: '¿Cómo está la situación familiar? ¿Vive con el papá de Diego?',
-        mother: 'No, estoy sola con Diego. Su papá nos dejó el año pasado, decía que no podía con los "berrinches" de Diego. Trabajo medio tiempo en una tienda para poder cuidarlo. Mi mamá a veces me ayuda, pero ella también piensa que solo necesita más disciplina.'
-      },
-      {
-        interviewer: '¿Ha notado si Diego tiene alguna fortaleza o habilidad especial?',
-        mother: 'Sí, tiene una memoria increíble. Se sabe todas las canciones de sus programas favoritos y puede armar rompecabezas muy rápido. También reconoce letras y números, aunque no habla mucho. Es como si entendiera todo pero no pudiera expresarlo.'
-      },
-      {
-        interviewer: 'Basándome en lo que me cuenta, creo que sería importante hacer una evaluación más detallada. ¿Estaría dispuesta a que Diego sea visto por un equipo especializado?',
-        mother: '¿Usted cree que realmente hay algo? Tengo miedo de que me digan que es mi culpa, que no sé criarlo. Pero también quiero ayudarlo. Si necesita algún tipo de terapia o tratamiento, ¿cómo podría pagarlo? Mi seguro es muy básico.'
-      }
-    ];
-
-    const currentDialogue = Math.floor(this.messageCounter / 2);
-    
-    if (currentDialogue < clinicalDialogue.length) {
-      const dialogue = clinicalDialogue[currentDialogue];
-      
-      // Pregunta del entrevistador/estudiante
-      this.addUserMessage(dialogue.interviewer);
-
-      // Simular que la madre está pensando
-      setTimeout(() => {
-        this.aiSpeaking.set(true);
-      }, 2000);
-
-      // Respuesta de la madre después de un delay
-      setTimeout(() => {
-        this.addAIMessage(dialogue.mother);
-        this.aiSpeaking.set(false);
-        
-        // Continuar el diálogo
-        if (currentDialogue < clinicalDialogue.length - 1) {
-          this.simulateConversation();
-        } else {
-          // Mensaje final de cierre de la entrevista
-          setTimeout(() => {
-            this.addAIMessage('Doctor, muchas gracias por escucharme y no juzgarme. Me siento más tranquila sabiendo que hay pasos que podemos seguir para ayudar a Diego. ¿Cuándo podríamos empezar con la evaluación?');
-          }, 3000);
-        }
-      }, 5000);
-    }
+  getAIDescripcion(): string {
+    const ctx = this.contexto();
+    if (!ctx) return 'Cargando...';
+    const edad = getEdadFromPromptSeed(ctx);
+    const desc = ctx.descripcion || 'Iniciando simulación...';
+    return edad !== 'N/A' ? `${desc} (Paciente: ${edad})` : desc;
   }
 
   private addUserMessage(text: string): void {
-    const message: Message = {
-      id: `msg-${++this.messageCounter}`,
-      text,
-      sender: 'user'
-    };
+    const message: Message = { id: `msg-${++this.messageCounter}`, text, sender: 'user' };
     this.messages.update(msgs => [...msgs, message]);
     this.scrollToBottom();
   }
 
   private addAIMessage(text: string): void {
-    const message: Message = {
-      id: `msg-${++this.messageCounter}`,
-      text,
-      sender: 'ai'
-    };
+    const message: Message = { id: `msg-${++this.messageCounter}`, text, sender: 'ai' };
     this.messages.update(msgs => [...msgs, message]);
     this.scrollToBottom();
   }
 
   private scrollToBottom(): void {
-    setTimeout(() => {
-      const container = document.querySelector('.messages-container');
-      if (container) {
-        container.scrollTop = container.scrollHeight;
-      }
-    }, 100);
+    try {
+      setTimeout(() => {
+        this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
+      }, 100);
+    } catch (err) {}
   }
 
   trackByMessageId(index: number, message: Message): string {

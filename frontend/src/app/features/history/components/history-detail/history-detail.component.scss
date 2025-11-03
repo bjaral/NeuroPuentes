@@ -59,7 +59,7 @@ $accent-dark: #FFA000;
   }
 }
 
-// Heurística 4: Consistencia - Stats grid igual al dashboard
+// Heurística 4: Consistencia - Stats grid (ahora solo 2 columnas)
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -101,7 +101,7 @@ $accent-dark: #FFA000;
       margin: 0;
     }
 
-    // Heurística 2: Colores significativos
+    /* COMENTADO: Colores para puntajes - No se usan actualmente
     &.success h2 {
       color: $success-color;
     }
@@ -113,10 +113,11 @@ $accent-dark: #FFA000;
     &.warn h2 {
       color: $warn-color;
     }
+    */
   }
 }
 
-// Contexto
+// Contexto con edad y tags dinámicos
 .context-card {
   background-color: white;
   padding: 1.5rem;
@@ -137,15 +138,69 @@ $accent-dark: #FFA000;
     line-height: 1.6;
   }
 
-  .tags-container {
+  .age-section {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
-    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: rgba($success-color, 0.1);
+    border-radius: 12px;
+    width: fit-content;
 
-    mat-chip {
-      background-color: rgba($primary-color, 0.1);
-      color: $primary-color;
-      font-weight: 500;
+    mat-icon {
+      color: $success-color;
+      font-size: 1.2rem;
+    }
+
+    span {
+      font-weight: 600;
+      color: darken($success-color, 10%);
+      font-size: 0.95rem;
+    }
+  }
+
+  .metadata-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 1px solid rgba($primary-color, 0.1);
+
+    .meta-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: $primary-dark;
+      font-size: 0.9rem;
+
+      mat-icon {
+        font-size: 1.1rem;
+        color: $primary-color;
+      }
+    }
+
+    .tags-container {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+
+      .tag {
+        background: rgba($primary-color, 0.1);
+        color: $primary-color;
+        padding: 0.35rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: 1px solid rgba($primary-color, 0.2);
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba($primary-color, 0.15);
+        }
+      }
     }
   }
 }
@@ -232,8 +287,35 @@ $accent-dark: #FFA000;
         }
       }
     }
+
+    .no-messages {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      color: $text-secondary;
+
+      mat-icon {
+        font-size: 3rem;
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      p {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 500;
+      }
+    }
   }
 }
+
+/* ============================================
+ * ESTILOS COMENTADOS - No se usan actualmente
+ * ============================================
 
 // Evaluación
 .evaluation-card {
@@ -299,7 +381,6 @@ $accent-dark: #FFA000;
       display: block;
     }
 
-    // Heurística 2: Colores significativos
     &.success {
       border-color: $success-color;
 
@@ -383,7 +464,6 @@ $accent-dark: #FFA000;
     }
   }
 
-  // Heurística 8: Diseño minimalista
   .feedback-section {
     flex: 1 1 48%;
     background: white;
@@ -453,7 +533,7 @@ $accent-dark: #FFA000;
   }
 }
 
-// Heurística 10: Tips consistentes con dashboard
+// Tips
 .tips-card {
   background: lighten($accent-color, 42%);
   border-left: 5px solid $accent-color;
@@ -487,6 +567,8 @@ $accent-dark: #FFA000;
     }
   }
 }
+
+============================================ */
 
 // Heurística 7: Acciones consistentes con dashboard
 .actions {
@@ -552,9 +634,11 @@ $accent-dark: #FFA000;
     grid-template-columns: 1fr;
   }
 
+  /* COMENTADO: Responsive para secciones de evaluación
   .fila {
     flex-direction: column !important;
   }
+  */
 
   .actions button {
     width: 100%;
