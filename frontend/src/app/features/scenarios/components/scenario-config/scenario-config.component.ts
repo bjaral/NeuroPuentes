@@ -2,7 +2,14 @@ import { Component, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ScenariosService } from '../../services/scenarios.service';
-import { Contexto } from '../../../../shared/models/contexto.model';
+import { TokenService } from '../../../../core/services/token.service';
+import { Entrevista } from '../../../../shared/models/entrevista.model';
+import {
+  Contexto,
+  scopeToTags,
+  getEdadFromPromptSeed,
+  getTagsFromPromptSeed
+} from '../../../../shared/models/contexto.model';
 import { MATERIAL_IMPORTS } from '../../../../shared/material/material';
 
 /**
@@ -36,8 +43,15 @@ export class ScenarioConfigComponent implements OnInit {
   terminoBusqueda = signal('');
   contextosFiltrados = signal<Contexto[]>([]);
 
+  // Estado de estadísticas
+  estadisticas = signal<{ total: number; porScope: { [key: string]: number } }>({
+    total: 0,
+    porScope: {}
+  });
+
   ngOnInit(): void {
     this.loadContextos();
+    this.loadEstadisticas();
   }
 
   /**
@@ -66,6 +80,20 @@ export class ScenarioConfigComponent implements OnInit {
   }
 
   /**
+   * Carga las estadísticas de contextos
+   */
+  private loadEstadisticas(): void {
+    this.contextosService.getEstadisticas().subscribe({
+      next: (stats) => {
+        this.estadisticas.set(stats);
+      },
+      error: (err) => {
+        console.error('Error al cargar estadísticas:', err);
+      }
+    });
+  }
+
+  /**
    * Selecciona un contexto específico
    * Heurística 3: Control del usuario
    */
@@ -73,7 +101,7 @@ export class ScenarioConfigComponent implements OnInit {
     if (this.isRandomizing()) return;
 
     this.selectedContexto.set(contexto);
-    this.addSelectionEffect(contexto._id!);
+    this.addSelectionEffect(contexto.id!);
   }
 
   /**
@@ -93,7 +121,7 @@ export class ScenarioConfigComponent implements OnInit {
         const interval = setInterval(() => {
           const randomIndex = Math.floor(Math.random() * this.contextosFiltrados().length);
           const randomContexto = this.contextosFiltrados()[randomIndex];
-          this.addSelectionEffect(randomContexto._id!);
+          this.addSelectionEffect(randomContexto.id!);
           iterations++;
 
           if (iterations >= maxIterations) {
@@ -116,14 +144,14 @@ export class ScenarioConfigComponent implements OnInit {
    */
   onBusquedaChange(termino: string): void {
     this.terminoBusqueda.set(termino);
-    
+
     this.contextosService.buscarContextos(termino).subscribe({
       next: (resultados) => {
         this.contextosFiltrados.set(resultados);
 
         // Si hay selección previa y ya no está en los filtrados, limpiar
         const currentSelection = this.selectedContexto();
-        if (currentSelection && !resultados.find(c => c._id === currentSelection._id)) {
+        if (currentSelection && !resultados.find(c => c.id === currentSelection.id)) {
           this.selectedContexto.set(null);
         }
       }
@@ -147,10 +175,11 @@ export class ScenarioConfigComponent implements OnInit {
     const contexto = this.selectedContexto();
     if (!contexto) return;
 
-    // Guardar el contexto seleccionado para usarlo en la simulación
+    // 1. Guardar el contexto seleccionado para usarlo en la simulación
+    // Se usa sessionStorage
     sessionStorage.setItem('selectedContexto', JSON.stringify(contexto));
 
-    // Navegar a la simulación
+    // 2. Navegar a la simulación
     this.router.navigate(['/simulation']);
   }
 
@@ -179,7 +208,7 @@ export class ScenarioConfigComponent implements OnInit {
    * Heurística 10: Información de ayuda
    */
   getStats(): string {
-    const stats = this.contextosService.getEstadisticas();
+    const stats = this.estadisticas();
     return `${stats.total} casos disponibles`;
   }
 
@@ -203,28 +232,32 @@ export class ScenarioConfigComponent implements OnInit {
   }
 
   /**
-   * Extrae la edad del prompt_seed o nombre si está disponible
+   * Extrae la edad del promptSeed o nombre usando el helper
    */
   getEdadFromContexto(contexto: Contexto): string {
-    const nombre = contexto.nombre || '';
-    const match = nombre.match(/(\d+)\s*año/i);
-    return match ? `${match[1]} años` : 'N/A';
+    return getEdadFromPromptSeed(contexto);
   }
 
   /**
-   * Obtiene tags del scope
+   * Obtiene tags del scope usando el helper
    */
   getTagsFromScope(scope: string | undefined): string[] {
-    if (!scope) return [];
-    
-    const scopeTags: { [key: string]: string[] } = {
-      'evaluacion_inicial': ['Evaluación', 'Primera consulta'],
-      'seguimiento': ['Seguimiento', 'Apoyo continuo'],
-      'intervencion': ['Intervención', 'Apoyo intensivo'],
-      'crisis': ['Crisis', 'Urgente'],
-      'evaluacion_tardia': ['Diagnóstico tardío', 'Evaluación']
-    };
+    return scopeToTags(scope);
+  }
 
-    return scopeTags[scope] || [scope];
+  /**
+   * Obtiene tags dinámicos del promptSeed (todos excepto edad)
+   */
+  getTagsFromPromptSeed(contexto: Contexto): string[] {
+    return getTagsFromPromptSeed(contexto);
+  }
+
+  /**
+   * Obtiene todos los tags combinados (scope + promptSeed)
+   */
+  getAllTags(contexto: Contexto): string[] {
+    const scopeTags = this.getTagsFromScope(contexto.scope);
+    const promptTags = this.getTagsFromPromptSeed(contexto);
+    return [...scopeTags, ...promptTags];
   }
 }

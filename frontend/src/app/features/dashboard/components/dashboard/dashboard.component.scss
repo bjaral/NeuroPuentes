@@ -111,6 +111,38 @@ $accent-dark: #FFA000;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
 
+  mat-card-content {
+    
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      text-align: center;
+      background-color: $background-light;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+
+      mat-icon {
+        font-size: 4rem;
+        width: 4rem;
+        height: 4rem;
+        line-height: 4rem;
+        color: rgba(0, 0, 0, 0.3);
+        margin-bottom: 1rem;
+      }
+
+      p {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.7);
+        margin-bottom: 1.5rem;
+        max-width: 400px;
+      }
+    }
+    }
+
   mat-card-title {
     font-size: 1.25rem;
     font-weight: 600;

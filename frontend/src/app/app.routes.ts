@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './core/guards/auth.guard';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { RegisterComponent } from './features/auth/components/register/register.component';
 import { SimulationComponent } from './features/simulation/components/simulation/simulation.component';
@@ -12,7 +13,8 @@ import { LayoutComponent } from './layout/layout/layout.component';
 
 export const routes: Routes = [
     // Vistas con header
-    { 'path': '', component: LayoutComponent, 'children': [
+    { 'path': '', component: LayoutComponent, canActivateChild: [AuthGuard], 'children': [
+        { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
         { path: 'dashboard', component: DashboardComponent },
         { path: 'history', component: HistoryComponent },
         { path: 'history-detail/:id', component: HistoryDetailComponent },
@@ -23,7 +25,7 @@ export const routes: Routes = [
     // Vistas sin header
     { path: 'login', component: LoginComponent },
     { path: 'registro', component: RegisterComponent },
-    { path: 'simulation', component: SimulationComponent },
+    { path: 'simulation', component: SimulationComponent, canActivate: [AuthGuard] },
 
     { path: '**', redirectTo: 'dashboard' },
 ];
