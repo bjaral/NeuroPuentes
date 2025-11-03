@@ -14,10 +14,17 @@
 
   <span class="spacer"></span>
 
-  <div class="desktop-buttons">
+  <div class="desktop-buttons" *ngIf="isLoggedIn">
     <!-- <button mat-button class="signin-btn" routerLink="/registro">Únete</button>
     <button mat-flat-button class="login-btn" routerLink="/login">Iniciar sesión</button> -->
-    <button mat-button class="">{{ nombreUsuario }}</button>
+    <button mat-button class="" [matMenuTriggerFor]="userMenu">{{ nombreUsuario }}</button>
+
+    <mat-menu #userMenu="matMenu" class="user-menu">
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </mat-menu>
   </div>
 </mat-toolbar>
 

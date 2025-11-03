@@ -35,6 +35,10 @@ export class TokenService {
     }
   }
 
+  isLoggedIn(): boolean {
+    return !!this.getToken() && !this.isTokenExpired();
+  }
+
   getNameIdentifier(): number | null {
     const decoded = this.decodeToken();
     if (!decoded) return null;

@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MATERIAL_IMPORTS } from '../../shared/material/material';
 import { TokenService } from '../../core/services/token.service';
 import { AuthService } from '../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -19,7 +20,7 @@ export class HeaderComponent {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
-  constructor(private tokenService: TokenService, private authService: AuthService){}
+  constructor(private tokenService: TokenService, private authService: AuthService, private router: Router){}
   
     ngOnInit() {
       const nombre = this.tokenService.getUsername();
@@ -28,4 +29,13 @@ export class HeaderComponent {
       }
       console.log('Nombre Usuario: ', this.nombreUsuario);
     }
+
+    get isLoggedIn(): boolean {
+    return this.tokenService.isLoggedIn();
+  }
+  
+  logout(): void {
+    this.tokenService.clearToken();
+    this.router.navigate(['/login']);
+  }
 }
