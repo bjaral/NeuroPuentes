@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
-namespace NeuroPuentesAPI.DTOs
+
+namespace NeuroPuentesAPI.DTOs 
 {
     public class IAResponse
     {

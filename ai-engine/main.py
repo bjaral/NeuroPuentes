@@ -4,25 +4,70 @@ from pydantic import BaseModel
 import base64
 import os
 import uuid
-from typing import Optional
+from typing import Optional, List # <--- Importar List
 import logging
-# 'json' ya no es necesario aquí
-# import json 
+import json
+from contextlib import asynccontextmanager # <--- Importar lifespan
 
-from whisper_module import transcribe_audio
-from llama_module import generate_response, initialize_llama
+from whisper_module import transcribe_audio, load_whisper_model 
+from llama_module import generate_response, initialize_llama, PROMPT_TRAITS # <--- Importar PROMPT_TRAITS
 from tts_module import text_to_speech, initialize_tts
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="IA Backend - Simulación Conversacional")
+# --- Modelos Globales ---
+models = {}
 
-# CORS (sin cambios)
+# Almacén de contexto conversacional (memoria simple)
+conversation_contexts = {}
+
+
+# --- NUEVO: Lifespan para cargar modelos ---
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Inicializa los modelos al arrancar el servidor"""
+    logger.info("Inicializando modelos...")
+    
+    try:
+        # Cargar Whisper
+        logger.info("Cargando Whisper (small) en cuda...")
+        import whisper
+        # --- MEJORA: Modelo 'small' por defecto ---
+        models["whisper_model"] = whisper.load_model("small", device="cuda")
+        logger.info("Modelo Whisper 'small' cargado exitosamente")
+        
+        # Cargar LLaMA/Gemma
+        logger.info("Cargando LLaMA/Gemma (Gemma-2B) en cuda...")
+        models["llama_model"], models["llama_tokenizer"] = initialize_llama()
+        logger.info("Modelo LLM cargado exitosamente")
+        
+        # Cargar TTS
+        logger.info("Cargando Coqui TTS en cuda...")
+        models["tts_model"] = initialize_tts(gpu=True) # Forzar GPU
+        
+        logger.info("Todos los modelos cargados exitosamente")
+    except Exception as e:
+        logger.error(f"Error fatal al cargar modelos: {str(e)}")
+        raise
+    
+    yield
+    
+    logger.info("Limpiando y liberando modelos...")
+    models.clear()
+    conversation_contexts.clear()
+
+
+app = FastAPI(
+    title="IA Backend - Simulación Conversacional",
+    lifespan=lifespan # <-- Registrar el nuevo lifespan
+)
+
+# CORS para permitir comunicación con .NET
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,16 +75,6 @@ app.add_middleware(
 
 TEMP_DIR = "temp_audio"
 os.makedirs(TEMP_DIR, exist_ok=True)
-
-# Modelos globales (sin cambios)
-whisper_model = None
-llama_model = None
-llama_tokenizer = None
-tts_model = None
-
-# --- ARREGLO 1 (Error de 'NameError') ---
-# Esta variable es global
-conversation_contexts = {}
 
 class IAResponse(BaseModel):
     transcription: str
@@ -49,81 +84,75 @@ class IAResponse(BaseModel):
     success: bool
     error: Optional[str] = None
 
-@app.on_event("startup")
-async def startup_event():
-    """Inicializa los modelos al arrancar el servidor"""
-    global whisper_model, llama_model, llama_tokenizer, tts_model
-    logger.info("Inicializando modelos...")
-    try:
-        logger.info("Cargando Whisper (small)...")
-        import whisper
-        whisper_model = whisper.load_model("small")
-        
-        logger.info("Cargando LLaMA (1B)...")
-        llama_model, llama_tokenizer = initialize_llama()
-        
-        logger.info("Cargando Coqui TTS...")
-        tts_model = initialize_tts()
-        
-        logger.info("Todos los modelos cargados exitosamente")
-    except Exception as e:
-        logger.error(f"Error al cargar modelos: {str(e)}")
-        raise
 
 @app.get("/")
 async def root():
-    return {"service": "IA Backend - Simulación Conversacional TEA", "status": "running"}
+    return {
+        "service": "IA Backend - Simulación Conversacional TEA",
+        "status": "running",
+        "endpoints": ["/process_audio", "/health", "/context-traits"]
+    }
 
 @app.get("/health")
 async def health_check():
+    """Verificar el estado del servicio y modelos"""
     return {
         "status": "healthy",
-        "whisper_loaded": whisper_model is not None,
-        "llama_loaded": llama_model is not None,
-        "tts_loaded": tts_model is not None
+        "whisper_loaded": "whisper_model" in models,
+        "llama_loaded": "llama_model" in models,
+        "tts_loaded": "tts_model" in models
     }
 
-# --- ENDPOINT MODIFICADO ---
+# --- NUEVO ENDPOINT ---
+@app.get("/context-traits")
+async def get_context_traits():
+    """
+    Endpoint para que el frontend (.NET) pueda saber qué 
+    rasgos (traits) están disponibles en la biblioteca de la IA.
+    """
+    return {"available_traits": list(PROMPT_TRAITS.keys())}
+
+
 @app.post("/process_audio", response_model=IAResponse)
 async def process_audio(
     audio: UploadFile = File(...),
     
-    # Opción 1: ID estático
-    context_id: Optional[str] = Form("padre_hijo_8_anios"), 
+    # 1. ID estático (de un Ctx pre-hecho)
+    context_id: Optional[str] = Form(None), 
     
-    # --- ARREGLO 2 (JSON vs Comas) ---
-    # Ahora acepta un string simple separado por comas
-    context_traits: Optional[str] = Form(None), 
+    # 2. Lista de rasgos (para modo dinámico)
+    #    (Este es el que usa tu .NET)
+    context_traits: Optional[str] = Form(None), # Recibe un string separado por comas
     
     session_id: Optional[str] = Form(None) 
 ):
     """
     Endpoint principal: procesa audio y genera respuesta.
     Acepta un 'context_id' (estático) O 
-    un 'context_traits' (string separado por comas para modo dinámico).
+    un 'context_traits' (lista de rasgos dinámica separada por comas).
     """
-    
-    # --- ARREGLO 1 (continuación) ---
-    # Le decimos a esta función que use la variable global
     global conversation_contexts
 
     if not session_id:
         session_id = str(uuid.uuid4())
+        logger.info(f"Nueva sesión de IA iniciada: {session_id}")
     
     temp_input_path = None
     temp_output_path = None
     
     try:
-        # --- ARREGLO 2 (continuación) ---
-        traits_list = None
+        # --- Lógica de Contexto ---
+        traits_list: Optional[List[str]] = None
         if context_traits:
-            # Ahora procesamos el string separado por comas
-            # ej: "rol_padre, hijo_8_anios, emocion_cansado"
+            # El backend .NET envía un string separado por comas
             traits_list = [trait.strip() for trait in context_traits.split(',')]
             logger.info(f"Usando contexto dinámico (Traits): {traits_list}")
-        else:
+        elif context_id:
             logger.info(f"Usando contexto estático (ID): {context_id}")
-        
+        else:
+            logger.warning("No se proporcionó context_id ni context_traits. Usando default.")
+            context_id = "padre_hijo_8_anios"
+
         # Guardar audio
         if not audio.content_type or not audio.content_type.startswith("audio"):
             raise HTTPException(status_code=400, detail="El archivo debe ser de tipo audio")
@@ -134,9 +163,9 @@ async def process_audio(
             f.write(await audio.read())
         
         # PASO 1: Transcribir
-        logger.info("Transcribiendo audio...")
-        transcription = transcribe_audio(whisper_model, temp_input_path)
-        logger.info(f"Transcripción: {transcription}")
+        logger.info(f"[{session_id}] Transcribiendo audio...")
+        transcription = transcribe_audio(models["whisper_model"], temp_input_path)
+        logger.info(f"[{session_id}] Transcripción: {transcription}")
         
         if not transcription or transcription.strip() == "":
             raise HTTPException(status_code=400, detail="No se pudo transcribir el audio.")
@@ -147,32 +176,32 @@ async def process_audio(
         conversation_contexts[session_id].append({"role": "student", "content": transcription})
         
         # PASO 3: Generar respuesta
-        logger.info("Generando respuesta con LLaMA...")
+        logger.info(f"[{session_id}] Generando respuesta con LLaMA...")
         response_text = generate_response(
-            llama_model,
-            llama_tokenizer,
+            models["llama_model"],
+            models["llama_tokenizer"],
             transcription,
             conversation_contexts[session_id],
             context_id=context_id,
             context_traits=traits_list 
         )
-        logger.info(f"Respuesta generada: {response_text}")
+        logger.info(f"[{session_id}] Respuesta generada: {response_text}")
         
         conversation_contexts[session_id].append({"role": "parent", "content": response_text})
         if len(conversation_contexts[session_id]) > 20:
             conversation_contexts[session_id] = conversation_contexts[session_id][-20:]
         
         # PASO 4: TTS
-        logger.info("Generando audio de respuesta...")
+        logger.info(f"[{session_id}] Generando audio de respuesta...")
         temp_output_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}_response.wav")
-        text_to_speech(tts_model, response_text, temp_output_path)
+        text_to_speech(models["tts_model"], response_text, temp_output_path)
         
         # PASO 5: Base64
         with open(temp_output_path, "rb") as audio_file:
             audio_bytes = audio_file.read()
             audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
         
-        logger.info("Procesamiento completado exitosamente")
+        logger.info(f"[{session_id}] Procesamiento completado exitosamente")
         
         return IAResponse(
             transcription=transcription,
@@ -200,7 +229,7 @@ async def process_audio(
 
 @app.post("/reset_session/{session_id}")
 async def reset_session(session_id: str):
-    # --- ARREGLO 1 (continuación) ---
+    """Reinicia el contexto conversacional de una sesión"""
     global conversation_contexts
     if session_id in conversation_contexts:
         del conversation_contexts[session_id]
@@ -209,9 +238,7 @@ async def reset_session(session_id: str):
 
 @app.get("/session_context/{session_id}")
 async def get_session_context(session_id: str):
-    # --- ARREGLO 1 (continuación) ---
-    # (Técnicamente no es necesario aquí porque solo lee, pero es buena práctica)
-    global conversation_contexts
+    """Obtiene el historial de conversación de una sesión"""
     if session_id in conversation_contexts:
         return {"session_id": session_id, "context": conversation_contexts[session_id]}
     return {"session_id": session_id, "context": []}

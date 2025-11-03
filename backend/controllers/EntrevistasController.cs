@@ -2,13 +2,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using NeuroPuentesAPI.DTOs;
 using NeuroPuentesAPI.services;
-using NeuroPuentesAPI.models;
+using NeuroPuentesAPI.models; // <-- ¡Importante!
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using Microsoft.AspNetCore.Hosting; 
+using System.Collections.Generic; // <-- Añadido por si falta
+using System.Linq; // <-- Añadido por si falta
+
 
 namespace NeuroPuentesAPI.Controllers 
 {
@@ -16,13 +19,14 @@ namespace NeuroPuentesAPI.Controllers
     [Route("api/[controller]")]
     public class EntrevistasController : ControllerBase
     {
-
+        // --- Servicios de ambas ramas ---
         private readonly IEntrevistaService _service;
         private readonly IDialogoService _dialogoService; 
         private readonly IaApiService _iaService;
         private readonly ILogger<EntrevistasController> _logger;
         private readonly IWebHostEnvironment _env;
 
+        // --- Constructor Fusionado ---
         public EntrevistasController(
             IEntrevistaService service,
             IDialogoService dialogoService, 
@@ -37,7 +41,7 @@ namespace NeuroPuentesAPI.Controllers
             _env = env;
         }
 
-        // --- ENDPOINT DE IA  ---
+        // --- ENDPOINT DE IA (de dev-gudmar) ---
         [HttpPost("iniciar-con-ia")]
         [ProducesResponseType(typeof(IAResponse), 200)]
         [ProducesResponseType(typeof(string), 400)]
@@ -60,7 +64,8 @@ namespace NeuroPuentesAPI.Controllers
                     return StatusCode(502, resultadoIA.Error); 
                 }
 
-
+                // --- Lógica ADAPTADA a 'develop' ---
+                // 1. Mapeamos DTO a Modelo
                 var entrevista = new Entrevista
                 {
                     UsuarioId = dto.UsuarioId,
@@ -71,16 +76,18 @@ namespace NeuroPuentesAPI.Controllers
                     ContextoSnapshot = dto.ContextTraits,
                     DuracionMin = dto.DuracionMin
                 };
-               
+                
+                // 2. 'CrearAsync' ahora devuelve int (preferencia de develop)
                 int nuevaEntrevistaId = await _service.CrearAsync(entrevista); 
                 _logger.LogInformation("Entrevista {EntrevistaId} creada.", nuevaEntrevistaId);
 
+                // 3. Guardar Diálogos (mapeando a Modelo)
                 string audioEstudianteUrl = await GuardarArchivo(dto.Audio);
                 var dialogoEstudiante = new Dialogo
                 {
                     EntrevistaId = nuevaEntrevistaId,
                     Turno = 1,
-                    Sender = "Estudiante", 
+                    Sender = ENUM_SENDER_DIALOGO.User, // <-- Arreglo CS0117
                     Texto = resultadoIA.Transcription, 
                     AudioUrl = audioEstudianteUrl
                 };
@@ -91,7 +98,7 @@ namespace NeuroPuentesAPI.Controllers
                 {
                     EntrevistaId = nuevaEntrevistaId,
                     Turno = 2,
-                    Sender = "IA",
+                    Sender = ENUM_SENDER_DIALOGO.Ai,
                     Texto = resultadoIA.ResponseText, 
                     AudioUrl = audioIaUrl
                 };
@@ -109,7 +116,7 @@ namespace NeuroPuentesAPI.Controllers
             }
         }
 
-      
+        // --- ENDPOINTS CRUD (de la rama develop) ---
         
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EntrevistaReadDto>>> GetAll()
@@ -131,7 +138,7 @@ namespace NeuroPuentesAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("usuario/{usuarioId}")]
+        [HttpGet("usuario/{usuarioId}")] // Ruta de 'develop'
         public async Task<ActionResult<IEnumerable<EntrevistaReadDto>>> GetByUsuarioId(int usuarioId)
         {
             var entrevistas = await _service.GetByUsuarioIdAsync(usuarioId);
@@ -193,6 +200,7 @@ namespace NeuroPuentesAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Actualizar(int id, [FromBody] EntrevistaUpdateDto dto)
         {
+            // Mapeamos el DTO de 'develop' a un Modelo
             var entrevista = new Entrevista
             {
                 Titulo = dto.Titulo,
@@ -207,7 +215,7 @@ namespace NeuroPuentesAPI.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")] 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -215,6 +223,7 @@ namespace NeuroPuentesAPI.Controllers
             return NoContent();
         }
         
+        // --- Funciones Helper (de la rama dev-gudmar) ---
         private async Task<string> GuardarArchivo(IFormFile file)
         {
             var mediaPath = Path.Combine(_env.ContentRootPath, "media");
