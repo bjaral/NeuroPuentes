@@ -5,13 +5,16 @@ import { MATERIAL_IMPORTS } from '../../../../shared/material/material';
 import { Entrevista } from '../../../../shared/models/entrevista.model';
 import { EvalEntrevista } from '../../../../shared/models/eval.model';
 import { FormsModule } from '@angular/forms';
+import { HistoryService } from '../../services/history.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { TokenService } from '../../../../core/services/token.service';
 
 /**
  * Interface combinada para mostrar entrevista con su evaluación
  */
 interface EntrevistaConEval {
   entrevista: Entrevista;
-  evaluacion: EvalEntrevista;
+  evaluacion?: EvalEntrevista;
 }
 
 /**
@@ -26,11 +29,11 @@ interface EntrevistaConEval {
 })
 export class HistoryComponent implements OnInit {
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService, private tokenService: TokenService, private historyService: HistoryService) { }
 
   // Heurística 1: Visibilidad del estado
   cargandoDatos = signal(true);
-  
+
   // Heurística 6: Búsqueda para reconocer antes que recordar
   terminoBusqueda = signal('');
 
@@ -48,10 +51,10 @@ export class HistoryComponent implements OnInit {
       const contexto = item.entrevista.contexto_snapshot?.toLowerCase() || '';
       const titulo = item.entrevista.titulo?.toLowerCase() || '';
       const fecha = item.entrevista.fecha_creacion?.toLowerCase() || '';
-      
-      return contexto.includes(termino) || 
-             titulo.includes(termino) || 
-             fecha.includes(termino);
+
+      return contexto.includes(termino) ||
+        titulo.includes(termino) ||
+        fecha.includes(termino);
     });
   });
 
@@ -64,74 +67,51 @@ export class HistoryComponent implements OnInit {
    * Heurística 1: Visibilidad del estado
    */
   private cargarEntrevistas(): void {
-    // Simulación de datos - en producción vendría del servicio
-    setTimeout(() => {
-      const mockData: EntrevistaConEval[] = [
-        {
-          entrevista: {
-            _id: 1,
-            usuario_id: 1,
-            contexto_id: 1,
-            titulo: 'Entrevista con madre de niño de 8 años',
-            descripcion: 'Evaluación inicial',
-            duracion_min: 32,
-            numero_turnos: 12,
-            fecha_creacion: '2024-03-15',
-            fecha_cierre: '2024-03-15',
-            contexto_snapshot: 'Madre preocupada por el comportamiento de su hijo en la escuela. Menciona dificultades de socialización y posible diagnóstico de autismo.'
-          },
-          evaluacion: {
-            _id: 1,
-            entrevista_id: 1,
-            score_final: 86,
-            comentario_general: 'Buen manejo de empatía'
-          }
-        },
-        {
-          entrevista: {
-            _id: 2,
-            usuario_id: 1,
-            contexto_id: 2,
-            titulo: 'Entrevista inicial con padre',
-            descripcion: 'Primera sesión',
-            duracion_min: 28,
-            numero_turnos: 10,
-            fecha_creacion: '2024-03-10',
-            fecha_cierre: '2024-03-10',
-            contexto_snapshot: 'Padre busca estrategias para ayudar a su hija de 6 años con dificultades de atención en clase.'
-          },
-          evaluacion: {
-            _id: 2,
-            entrevista_id: 2,
-            score_final: 78,
-            comentario_general: 'Mejorar preguntas abiertas'
-          }
-        },
-        {
-          entrevista: {
-            _id: 3,
-            usuario_id: 1,
-            contexto_id: 3,
-            titulo: 'Seguimiento caso TEA',
-            descripcion: 'Segunda sesión',
-            duracion_min: 45,
-            numero_turnos: 18,
-            fecha_creacion: '2024-03-05',
-            fecha_cierre: '2024-03-05',
-            contexto_snapshot: 'Seguimiento del caso anterior. La madre reporta mejoras en la comunicación del niño después de implementar las estrategias sugeridas.'
-          },
-          evaluacion: {
-            _id: 3,
-            entrevista_id: 3,
-            score_final: 92,
-            comentario_general: 'Excelente manejo del seguimiento'
-          }
-        }
-      ];
+    this.cargandoDatos.set(true);
 
-      this.entrevistasOriginales.set(mockData);
+    try {
+      const usuarioId = this.tokenService.getNameIdentifier();
+
+      if (!usuarioId) {
+        console.error('ID de usuario no encontrado');
+        this.cargandoDatos.set(false);
+        this.entrevistasOriginales.set([]);
+        return;
+      }
+
+      this.historyService.getEntrevistasUsuario(usuarioId).subscribe({
+        next: (data) => {
+          if (data && Array.isArray(data)) {
+            const entrevistasConEval: EntrevistaConEval[] = data.map(e => ({
+              entrevista: {
+                _id: e.id,
+                usuario_id: e.usuarioId,
+                contexto_id: e.contextoId,
+                titulo: e.titulo || 'Sin título',
+                descripcion: e.descripcion,
+                duracion_min: e.duracionMin,
+                numero_turnos: e.numeroTurnos,
+                fecha_creacion: this.formatearFecha(e.fechaCreacion),
+              }
+            }));
+            this.entrevistasOriginales.set(entrevistasConEval);
+          } else {
+            console.error('Datos de entrevistas inválidos');
+            this.entrevistasOriginales.set([]);
+          }
+          this.cargandoDatos.set(false);
+        },
+        error: (err) => {
+          console.error('Error cargando entrevistas: ', err);
+          this.entrevistasOriginales.set([]);
+          this.cargandoDatos.set(false);
+        }
+      });
+    } catch (error) {
+      console.error('Error cargando entrevistas:', error);
+      this.entrevistasOriginales.set([]);
       this.cargandoDatos.set(false);
-    }, 600);
+    }
   }
 
   /**
@@ -155,31 +135,19 @@ export class HistoryComponent implements OnInit {
    * Heurística 3: Control del usuario
    */
   verDetalle(entrevistaId: number): void {
-    this.router.navigate(['/history', entrevistaId]);
+    this.router.navigate(['/history-detail', entrevistaId]);
   }
 
   /**
    * Formatea la fecha para mostrar
    * Heurística 2: Correspondencia con el mundo real
    */
-  formatearFecha(fecha: string | undefined): string {
+  private formatearFecha(fecha: string): string {
     if (!fecha) return 'Sin fecha';
     const date = new Date(fecha);
-    return date.toLocaleDateString('es-CL', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: '2-digit' 
+    return date.toLocaleDateString('es-CL', {
+      year: 'numeric', month: '2-digit', day: '2-digit'
     });
-  }
-
-  /**
-   * Trunca el texto del contexto para preview
-   * Heurística 8: Diseño minimalista
-   */
-  truncarContexto(contexto: string | undefined, maxLength: number = 120): string {
-    if (!contexto) return 'Sin descripción disponible';
-    if (contexto.length <= maxLength) return contexto;
-    return contexto.substring(0, maxLength) + '...';
   }
 
   /**
@@ -192,4 +160,5 @@ export class HistoryComponent implements OnInit {
     if (score >= 70) return 'score-good';
     return 'score-needs-improvement';
   }
+
 }

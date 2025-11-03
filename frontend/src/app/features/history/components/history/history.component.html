@@ -47,10 +47,8 @@
       <mat-card
         *ngFor="let item of entrevistasFiltradas()"
         class="interview-card"
-        (click)="verDetalle(item.entrevista._id!)"
-        tabindex="0"
-        role="button"
-        [attr.aria-label]="'Ver detalle de entrevista del ' + formatearFecha(item.entrevista.fecha_creacion)">
+        role="listitem"
+        [attr.aria-label]="'Ver detalle de entrevista del ' + item.entrevista.fecha_creacion">
         
         <div class="card-content">
           <!-- Información principal -->
@@ -58,18 +56,18 @@
             <div class="header-info">
               <span class="date">
                 <mat-icon>calendar_today</mat-icon>
-                {{ formatearFecha(item.entrevista.fecha_creacion) }}
+                {{ item.entrevista.fecha_creacion }}
               </span>
-              <span class="score" [ngClass]="getScoreClass(item.evaluacion.score_final)">
+              <!-- <span class="score" [ngClass]="getScoreClass(item.evaluacion.score_final)">
                 <mat-icon>star</mat-icon>
                 {{ item.evaluacion.score_final }}%
-              </span>
+              </span> -->
             </div>
 
             <h3 class="title">{{ item.entrevista.titulo }}</h3>
             
-            <!-- Contexto truncado -->
-            <p class="context">{{ truncarContexto(item.entrevista.contexto_snapshot) }}</p>
+            <!-- Descripción -->
+            <p class="descripcion">{{ item.entrevista.descripcion }}</p>
 
             <!-- Metadatos -->
             <div class="metadata">
@@ -89,8 +87,8 @@
             <button 
               mat-raised-button 
               color="primary"
-              (click)="verDetalle(item.entrevista._id!); $event.stopPropagation()"
-              aria-label="Ver detalle completo">
+              (click)="verDetalle(item.entrevista._id!)"
+              aria-label="Ver detalle completo de la entrevista">
               <mat-icon>visibility</mat-icon>
               Ver Detalle
             </button>
