@@ -141,6 +141,11 @@ builder.Services.AddScoped<ITipService, TipService>();
 builder.Services.AddScoped<ICaractsRelRepository, CaractsRelRepository>();
 builder.Services.AddScoped<ICaractsRelService, CaractsRelService>();
 
+builder.Services.AddScoped<ICalificacionUsuarioRepository, CalificacionUsuarioRepository>();
+builder.Services.AddScoped<ICalificacionUsuarioService, CalificacionUsuarioService>();
+
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
