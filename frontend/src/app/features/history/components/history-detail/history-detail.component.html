@@ -1,1 +1,203 @@
-<p>history-detail works!</p>
+<div class="detail-container">
+
+  <!-- Heurística 1: Visibilidad del estado del sistema -->
+  <div *ngIf="cargandoDatos()" class="loading-state">
+    <mat-spinner></mat-spinner>
+    <p>Cargando detalles de tu entrevista...</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <ng-container *ngIf="!cargandoDatos()">
+    
+    <!-- Heurística 4: Consistencia - Título igual al dashboard -->
+    <div class="header-section">
+      <h1 class="student-title">Detalle de Entrevista</h1>
+      <!-- Heurística 3: Control y libertad - Navegación clara -->
+      <button 
+        mat-stroked-button 
+        class="back-button" 
+        (click)="volverAlHistorial()"
+        aria-label="Volver al historial">
+        <mat-icon>arrow_back</mat-icon>
+        Volver
+      </button>
+    </div>
+
+    <!-- Estadísticas rápidas - Solo fecha y duración -->
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-title matTooltip="Fecha en que realizaste la entrevista">
+          <mat-icon>calendar_today</mat-icon>
+          Fecha
+        </mat-card-title>
+        <mat-card-content>
+          <h2>{{ fechaEntrevista }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-title matTooltip="Tiempo total de la sesión">
+          <mat-icon>schedule</mat-icon>
+          Duración
+        </mat-card-title>
+        <mat-card-content>
+          <h2>{{ duracionEntrevista }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- COMENTADO: Puntaje Final - No se usa actualmente
+      <mat-card class="stat-card" [class]="getScoreColor(evalEntrevista.score_final)">
+        <mat-card-title [matTooltip]="tooltipScore(evalEntrevista.score_final)">
+          <mat-icon>star</mat-icon>
+          Puntaje Final
+        </mat-card-title>
+        <mat-card-content>
+          <h2>{{ evalEntrevista.score_final }}%</h2>
+        </mat-card-content>
+      </mat-card>
+      -->
+    </div>
+
+    <!-- Contexto de la entrevista -->
+    <mat-card class="context-card" *ngIf="contexto">
+      <h2 class="title">{{ contexto.nombre }}</h2>
+      <p class="description">{{ contexto.descripcion }}</p>
+      
+      <!-- Edad del caso -->
+      <div class="age-section" *ngIf="getEdadFromContexto() !== 'N/A'">
+        <mat-icon>cake</mat-icon>
+        <span>{{ getEdadFromContexto() }}</span>
+      </div>
+      
+      <!-- Heurística 2: Correspondencia visual clara - Tags dinámicos -->
+      <div class="metadata-section" *ngIf="getAllTags().length > 0">
+        <span class="meta-label">
+          <mat-icon>label</mat-icon>
+          Características:
+        </span>
+        <div class="tags-container">
+          <span class="tag" *ngFor="let tag of getAllTags()">
+            {{ tag }}
+          </span>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Transcripción -->
+    <mat-card class="transcription-panel">
+      <div class="panel-header">
+        <mat-icon>chat</mat-icon>
+        <h3>Transcripción de Entrevista</h3>
+      </div>
+      <div class="messages-container">
+        <div 
+          *ngFor="let message of transcript" 
+          [ngClass]="'message-' + (message.sender?.toLowerCase())"
+          class="message-bubble">
+          <div class="message-content">
+            <p>{{ message.texto }}</p>
+          </div>
+        </div>
+        
+        <!-- Mensaje cuando no hay transcripción -->
+        <div *ngIf="transcript.length === 0" class="no-messages">
+          <mat-icon>info</mat-icon>
+          <p>No hay transcripción disponible para esta entrevista.</p>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- COMENTADO: Evaluación detallada - No se usa actualmente
+    <mat-card class="evaluation-card">
+      <h2 class="section-title">Evaluación</h2>
+      
+      <section class="fila fila-superior">
+        <div class="final-score" [class]="getScoreColor(evalEntrevista.score_final)">
+          <div class="score-content">
+            <span class="number">{{ evalEntrevista.score_final }}%</span>
+            <span class="label">Promedio General</span>
+          </div>
+        </div>
+
+        <div class="evaluacion-section">
+          <h3 class="section-subtitle"><mat-icon>analytics</mat-icon>Evaluación por Categoría</h3>
+          <div class="bar-chart">
+            <div class="bar" *ngFor="let categoria of evalCategorias">
+              <span class="bar-label">{{ categoria.categoria }}</span>
+              <div class="bar-container">
+                <div class="bar-fill" [style.width.%]="categoria.score"></div>
+              </div>
+              <span class="percentage">{{ categoria.score }}%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="fila fila-media">
+        <div class="feedback-section">
+          <h3 class="section-subtitle">
+            <mat-icon class="icon-success">check_circle</mat-icon>
+            Fortalezas
+          </h3>
+          <ul class="feedback-list">
+            <li class="feedback-item success" *ngFor="let feedback of positiveFeedback">
+              <mat-icon>check_circle</mat-icon>
+              {{ feedback.mensaje }}
+            </li>
+          </ul>
+        </div>
+
+        <div class="feedback-section">
+          <h3 class="section-subtitle">
+            <mat-icon class="icon-warn">lightbulb</mat-icon>
+            Áreas de Mejora
+          </h3>
+          <ul class="feedback-list">
+            <li class="feedback-item warn" *ngFor="let feedback of improvementFeedback">
+              <mat-icon>lightbulb</mat-icon>
+              {{ feedback.mensaje }}
+            </li>
+          </ul>
+        </div>
+      </section>
+    </mat-card>
+    -->
+
+    <!-- COMENTADO: Tips para Mejorar - No se usa actualmente
+    <mat-card class="tips-card">
+      <mat-card-title>
+        <mat-icon>tips_and_updates</mat-icon>
+        Tips para Mejorar
+      </mat-card-title>
+      <mat-card-content>
+        <ul>
+          <li *ngFor="let tip of tips">{{ tip }}</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+    -->
+
+    <!-- Heurística 7: Flexibilidad - Acciones principales -->
+    <div class="actions">
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="repetirEntrevista()"
+        matTooltip="Inicia una nueva entrevista con este escenario">
+        <mat-icon>replay</mat-icon>
+        Repetir Entrevista
+      </button>
+
+      <button 
+        mat-raised-button 
+        color="accent"
+        (click)="descargarReporte()"
+        matTooltip="Descarga un PDF con el reporte completo">
+        <mat-icon>download</mat-icon>
+        Descargar Reporte
+      </button>
+    </div>
+
+  </ng-container>
+  
+</div>

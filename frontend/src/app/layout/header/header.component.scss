@@ -1,0 +1,146 @@
+@use '../../../styles.scss' as *;
+
+mat-toolbar {
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+    padding: 0 16px;
+    background-color: white;
+    color: $primary-dark;
+
+    img {
+        height: 40px;
+        width: auto;
+        max-width: 160px;
+        object-fit: contain;
+        margin-right: 16px;
+    }
+
+    .menu-icon {
+        display: none;
+        margin-right: 16px;
+        color: $text-secondary;
+    }
+
+    .desktop-nav {
+        display: flex;
+    }
+
+    .desktop-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    a {
+        margin-inline: 16px;
+        font-size: medium;
+        font-weight: 500;
+        color: $primary-dark;
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: $primary-color;
+        }
+    }
+
+    .signin-btn {
+        color: $primary-dark;
+        background-color: transparent;
+
+        &:hover {
+            background-color: $background-light;
+        }
+    }
+
+    .login-btn {
+        background-color: $primary-color;
+        color: white;
+        transition-duration: 0.3s ease-in-out;
+
+        &:hover {
+            background-color: $primary-dark;
+        }
+    }
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+.mobile-menu-dropdown {
+    background-color: white;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    a.mat-button,
+    button {
+        text-align: left;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 0;
+        font-size: large;
+        font-weight: 500;
+        color: $text-secondary;
+        text-decoration: none;
+        justify-content: flex-start;
+    }
+
+    .mobile-signin-btn,
+    .mobile-login-btn {
+        width: fit-content;
+        padding: 8px 20px;
+        font-size: 0.9rem;
+        margin: 0 auto 10px auto;
+        display: block;
+
+        &.mobile-signin-btn {
+            color: $primary-dark;
+            border: 2px solid $primary-dark;
+            background-color: transparent;
+
+            &:hover {
+                background-color: $background-light;
+            }
+        }
+
+        &.mobile-login-btn {
+            background-color: $primary-color;
+            color: white;
+            border: none;
+
+            &:hover {
+                background-color: $primary-dark;
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    mat-toolbar {
+        .menu-icon {
+            display: block;
+        }
+
+        .desktop-nav,
+        .desktop-buttons {
+            display: none;
+        }
+
+        img {
+            margin-right: auto;
+            margin-left: 0;
+        }
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-menu-dropdown {
+        display: none;
+    }
+}

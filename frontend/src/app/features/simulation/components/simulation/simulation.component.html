@@ -1,1 +1,69 @@
-<p>simulation works!</p>
+<div class="interview-container">
+  <div class="status-bar">
+    <div class="status-indicator" [ngClass]="'status-' + interviewStatus()">
+      <mat-icon>{{ getStatusIcon() }}</mat-icon> 
+      <span>{{ getStatusText() }}</span>
+    </div>
+  </div>
+
+  <div class="main-content">
+    
+    <div class="call-area">
+      <div class="avatar-container">
+        <div class="avatar" [ngClass]="{ 'speaking': aiSpeaking(), 'recording': interviewStatus() === 'recording' }">
+          <mat-icon class="avatar-icon">account_circle</mat-icon>
+          <div class="pulse-ring" *ngIf="interviewStatus() === 'recording'"></div>
+        </div>
+        <h2 class="ai-name">{{ getAINombre() }}</h2>
+        <p class="ai-description">{{ getAIDescripcion() }}</p>
+      </div>
+
+      <div class="control-buttons">
+        <button mat-fab extended class="control-btn start-btn" 
+          [disabled]="interviewStatus() !== 'stopped'"
+          (click)="startRecording()">
+          <mat-icon>mic</mat-icon>
+          Iniciar
+        </button>
+
+        <button mat-fab extended class="control-btn pause-btn" 
+          [disabled]="interviewStatus() !== 'recording'"
+          (click)="stopRecording()">
+          <mat-icon>stop_circle</mat-icon>
+          Detener
+        </button>
+
+        <button mat-fab extended class="control-btn stop-btn" 
+          [disabled]="interviewStatus() === 'waiting_for_ai' || interviewStatus() === 'recording'"
+          (click)="stopInterview()">
+          <mat-icon>stop</mat-icon>
+          Terminar
+        </button>
+      </div>
+    </div>
+
+    <div class="transcription-panel">
+      <div class="messages-container" #messagesContainer>
+        <div class="message-bubble" *ngFor="let message of messages(); trackBy: trackByMessageId"
+          [ngClass]="'message-' + message.sender">
+          <div class="message-content">
+            <p>{{ message.text }}</p>
+          </div>
+        </div>
+
+        <div class="typing-indicator" *ngIf="aiSpeaking()">
+          <div class="message-bubble message-ai">
+            </div>
+        </div>
+        
+        <div class="typing-indicator" *ngIf="interviewStatus() === 'waiting_for_ai'">
+          <div class="message-bubble message-user">
+             <div class="message-content">
+              <mat-spinner diameter="20"></mat-spinner>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+  </div>
+</div>

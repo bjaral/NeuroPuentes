@@ -1,0 +1,187 @@
+<div class="scenario-container">
+
+  <!-- Heurística 1: Estado de carga -->
+  <div *ngIf="cargandoDatos()" class="loading-state">
+    <mat-spinner></mat-spinner>
+    <p>Cargando casos de práctica...</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <ng-container *ngIf="!cargandoDatos()">
+
+    <mat-card class="scenario-card">
+      <mat-card-header class="card-header">
+        <div class="header-content">
+          <div class="header-text">
+            <mat-card-title class="card-title">
+              <h1>Casos de Práctica</h1>
+            </mat-card-title>
+            <p class="subtitle">Selecciona un contexto para practicar entrevistas</p>
+          </div>
+          <!-- Heurística 3: Control - Botón para volver -->
+          <button mat-icon-button (click)="volverDashboard()" matTooltip="Volver al dashboard" class="back-button">
+            <mat-icon>home</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content class="card-content">
+
+        <!-- Heurística 6: Búsqueda -->
+        <div class="search-section">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar casos</mat-label>
+            <input matInput [value]="terminoBusqueda()" (input)="onBusquedaChange($any($event.target).value)"
+              placeholder="Por nombre, descripción o categoría..." aria-label="Buscar contextos">
+            <mat-icon matPrefix>search</mat-icon>
+            <button *ngIf="terminoBusqueda()" matSuffix mat-icon-button (click)="limpiarBusqueda()"
+              aria-label="Limpiar búsqueda" matTooltip="Limpiar búsqueda">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <div class="stats-info">
+            <mat-icon>info</mat-icon>
+            <span>{{ getStats() }}</span>
+          </div>
+        </div>
+
+        <!-- Heurística 2: Lista de contextos -->
+        <section class="scenario-section" *ngIf="hasResults()">
+          <h2 class="section-title">
+            <mat-icon>list</mat-icon>
+            Casos Disponibles
+          </h2>
+
+          <div class="scenario-list">
+            <div *ngFor="let contexto of contextosFiltrados()" class="scenario-option"
+              [class.selected]="selectedContexto()?.id === contexto.id"
+              [class.pulse-animation]="pulsingContextoId === contexto.id" (click)="selectContexto(contexto)" matRipple
+              [matRippleColor]="'rgba(21, 101, 192, 0.1)'" [attr.aria-label]="'Seleccionar caso: ' + contexto.nombre">
+
+              <div class="scenario-content">
+                <div class="scenario-icon">
+                  <mat-icon>psychology</mat-icon>
+                </div>
+
+                <div class="scenario-details">
+                  <h3 class="scenario-title">{{ contexto.nombre }}</h3>
+                  <p class="scenario-context">{{ contexto.descripcion }}</p>
+
+                  <div class="scenario-meta">
+                    <span class="age-tag">
+                      <mat-icon>cake</mat-icon>
+                      {{ getEdadFromContexto(contexto) }}
+                    </span>
+                    <div class="tags-preview" *ngIf="getTagsFromPromptSeed(contexto).length > 0">
+                      <mat-icon>label</mat-icon>
+                      <span class="tag" *ngFor="let tag of getTagsFromPromptSeed(contexto).slice(0, 2)">
+                        {{ tag }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="select-indicator" [class.visible]="selectedContexto()?.id === contexto.id">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Heurística 9: Estado vacío -->
+        <div *ngIf="!hasResults()" class="empty-state">
+          <mat-icon>search_off</mat-icon>
+          <h3>No se encontraron casos</h3>
+          <p>{{ getEmptyMessage() }}</p>
+          <button mat-raised-button color="primary" (click)="limpiarBusqueda()" *ngIf="terminoBusqueda()">
+            <mat-icon>refresh</mat-icon>
+            Ver todos los casos
+          </button>
+        </div>
+
+        <!-- Heurística 7: Opción rápida - Caso aleatorio -->
+        <mat-divider class="divider" *ngIf="hasResults()"></mat-divider>
+
+        <section class="random-section" *ngIf="hasResults()">
+          <div class="random-content">
+            <div class="random-info">
+              <mat-icon>casino</mat-icon>
+              <div>
+                <h3>¿No sabes cuál elegir?</h3>
+                <p>Deja que el sistema seleccione un caso aleatorio para ti</p>
+              </div>
+            </div>
+            <button mat-raised-button color="accent" class="random-btn" (click)="selectRandom()"
+              [disabled]="isRandomizing()" matTooltip="Selecciona un caso al azar para practicar">
+              <mat-icon>{{ isRandomizing() ? 'autorenew' : 'casino' }}</mat-icon>
+              {{ isRandomizing() ? 'Seleccionando...' : 'Caso Aleatorio' }}
+            </button>
+          </div>
+        </section>
+
+        <!-- Heurística 6: Vista previa del contexto seleccionado -->
+        <ng-container *ngIf="selectedContexto()">
+          <mat-divider class="divider"></mat-divider>
+
+          <section class="preview-section">
+            <h2 class="preview-title">
+              <mat-icon>visibility</mat-icon>
+              Información del Caso Seleccionado
+            </h2>
+
+            <div class="preview-content">
+              <div class="preview-header">
+                <h3>{{ selectedContexto()!.nombre }}</h3>
+                <div class="age-badge">
+                  <mat-icon>cake</mat-icon>
+                  {{ getEdadFromContexto(selectedContexto()!) }}
+                </div>
+              </div>
+
+              <div class="preview-description">
+                <strong>Descripción:</strong>
+                <p>{{ selectedContexto()!.descripcion }}</p>
+              </div>
+
+              <div class="preview-text" *ngIf="selectedContexto()!.promptSeed">
+                <strong>Situación inicial:</strong>
+                <p>{{ selectedContexto()!.promptSeed }}</p>
+              </div>
+
+              <div class="metadata-section" *ngIf="getTagsFromPromptSeed(selectedContexto()!).length > 0">
+                <span class="meta-label">
+                  <mat-icon>label</mat-icon>
+                  Características:
+                </span>
+                <div class="tags-container">
+                  <span class="tag" *ngFor="let tag of getTagsFromPromptSeed(selectedContexto()!)">
+                    {{ tag }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </ng-container>
+
+      </mat-card-content>
+
+      <!-- Heurística 1 y 3: Acción principal clara -->
+      <mat-card-actions class="card-actions">
+        <button mat-stroked-button (click)="volverDashboard()" class="secondary-btn">
+          <mat-icon>arrow_back</mat-icon>
+          Volver
+        </button>
+
+        <button mat-raised-button color="primary" class="simulation-btn" (click)="startSimulation()"
+          [disabled]="!selectedContexto()" matTooltip="Comenzar la práctica de entrevista con este caso">
+          <mat-icon>play_arrow</mat-icon>
+          Iniciar Práctica
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+  </ng-container>
+
+</div>

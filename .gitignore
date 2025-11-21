@@ -13,6 +13,7 @@ out/
 Wip/
 wip/
 Legacy/
+legacy/
 local-scripts/
 local-data/
 
@@ -20,3 +21,8 @@ local-data/
 # dotnet-specific files
 obj/
 bin/
+
+#virtual environments
+venv/
+.venv/
+

@@ -1,0 +1,537 @@
+@use '../../../../../styles.scss' as *;
+
+$accent-dark: #FFA000;
+
+// Container principal
+.resultados-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: $background-light;
+  font-family: $font-family-main;
+
+  .page-title {
+    font-weight: 700;
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+    color: $primary-dark;
+  }
+}
+
+// Heurística 1: Estado de carga
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 4rem 2rem;
+
+  p {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: $primary-dark;
+  }
+}
+
+// Heurística 2: Banner de éxito
+.success-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba($success-color, 0.1) 0%, rgba($primary-light, 0.1) 100%);
+  border-left: 4px solid $success-color;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+
+  mat-icon {
+    font-size: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: $success-color;
+  }
+
+  .banner-content {
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: $primary-dark;
+    }
+
+    p {
+      margin: 0.25rem 0 0;
+      font-size: 1rem;
+      color: $text-secondary;
+    }
+  }
+}
+
+// Layout de filas
+.fila {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+
+  &-superior {
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  &-media {
+    flex-wrap: wrap;
+  }
+
+  &-completa {
+    width: 100%;
+  }
+
+  &-inferior {
+    justify-content: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+}
+
+// Nota final - Consistente con history-detail
+.nota-final {
+  flex: 1 1 280px;
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 6px rgba($primary-color, 0.15);
+  border: 2px solid $primary-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+
+  .score-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .numero {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: $primary-color;
+    display: block;
+    line-height: 1;
+  }
+
+  .label {
+    margin-top: 0.75rem;
+    font-weight: 600;
+    color: $primary-dark;
+    font-size: 1rem;
+    display: block;
+  }
+
+  .description {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+
+  // Colores según puntaje
+  &.success {
+    border-color: $success-color;
+
+    .numero {
+      color: $success-color;
+    }
+  }
+
+  &.accent {
+    border-color: $accent-color;
+
+    .numero {
+      color: $accent-dark;
+    }
+  }
+
+  &.warn {
+    border-color: $warn-color;
+
+    .numero {
+      color: $warn-color;
+    }
+  }
+}
+
+// Evaluación por categorías
+.evaluacion-section {
+  flex: 2 1 500px;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba($primary-color, 0.15);
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: $primary-dark;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    mat-icon {
+      color: $primary-color;
+    }
+  }
+
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .bar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .bar-label {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: $primary-dark;
+      }
+
+      .bar-container {
+        width: 100%;
+        height: 20px;
+        background-color: rgba($primary-color, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+
+        .bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, $primary-dark, $primary-light);
+          border-radius: 10px;
+          transition: width 0.7s ease;
+        }
+      }
+
+      .percentage {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: $primary-color;
+        align-self: flex-end;
+      }
+    }
+  }
+}
+
+// Secciones de feedback
+.feedback-section {
+  flex: 1 1 48%;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba($primary-color, 0.15);
+  border: 2px solid $background-light;
+
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: $primary-dark;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .icon-success {
+      color: $success-color;
+    }
+
+    .icon-warn {
+      color: $accent-dark;
+    }
+  }
+
+  .list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      line-height: 1.5;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      span {
+        flex: 1;
+      }
+
+      &.success {
+        background-color: rgba($success-color, 0.08);
+        color: darken($success-color, 15%);
+
+        mat-icon {
+          color: $success-color;
+        }
+      }
+
+      &.warn {
+        background-color: rgba($accent-color, 0.08);
+        color: darken($accent-dark, 10%);
+
+        mat-icon {
+          color: $accent-dark;
+        }
+      }
+    }
+  }
+
+  .note {
+    margin: 1rem 0 0;
+    padding: 0.75rem;
+    background-color: rgba($primary-color, 0.05);
+    border-left: 3px solid $primary-color;
+    font-size: 0.9rem;
+    color: $text-secondary;
+    font-style: italic;
+    border-radius: 4px;
+  }
+
+  &.positive-feedback {
+    border-color: rgba($success-color, 0.3);
+  }
+
+  &.improvement-feedback {
+    border-color: rgba($accent-color, 0.3);
+  }
+}
+
+// Sección comparativa con progreso
+.comparativa-section {
+  width: 100%;
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba($primary-color, 0.15);
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: $primary-dark;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    mat-icon {
+      color: $primary-color;
+    }
+  }
+
+  .progress-info {
+    margin-bottom: 1.5rem;
+
+    .tendencia-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+
+      mat-icon {
+        font-size: 1.2rem;
+      }
+
+      &.mejorando {
+        background-color: rgba($success-color, 0.1);
+        color: darken($success-color, 10%);
+
+        mat-icon {
+          color: $success-color;
+        }
+      }
+
+      &.estable {
+        background-color: rgba($primary-color, 0.1);
+        color: $primary-dark;
+
+        mat-icon {
+          color: $primary-color;
+        }
+      }
+
+      &.bajando {
+        background-color: rgba($accent-color, 0.15);
+        color: darken($accent-dark, 10%);
+
+        mat-icon {
+          color: $accent-dark;
+        }
+      }
+    }
+  }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      background-color: $background-light;
+      transition: all 0.3s ease;
+
+      &.current {
+        background-color: rgba($primary-light, 0.15);
+        border: 2px solid $primary-light;
+        font-weight: 600;
+      }
+
+      .fecha {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: $primary-dark;
+        min-width: 60px;
+      }
+
+      .score-bar {
+        flex: 1;
+        height: 12px;
+        background-color: rgba($primary-color, 0.1);
+        border-radius: 6px;
+        overflow: hidden;
+
+        .score-fill {
+          height: 100%;
+          background: linear-gradient(90deg, $primary-dark, $primary-light);
+          border-radius: 6px;
+          transition: width 0.7s ease;
+        }
+      }
+
+      .score {
+        font-weight: 700;
+        font-size: 1rem;
+        color: $primary-color;
+        min-width: 50px;
+        text-align: right;
+      }
+
+      .current-icon {
+        color: $primary-color;
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .comparativa-note {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: $text-secondary;
+    font-style: italic;
+
+    mat-icon {
+      font-size: 1rem;
+      color: $primary-color;
+    }
+  }
+}
+
+// Botones de acción
+.fila-inferior {
+  button {
+    min-width: 160px;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    transition: all 0.3s ease;
+
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.4);
+    }
+  }
+
+  button[mat-raised-button][color="primary"] {
+    background-color: $primary-color;
+    color: white;
+    box-shadow: 0 3px 6px rgba($primary-color, 0.4);
+
+    &:hover {
+      background-color: $primary-dark;
+      box-shadow: 0 5px 12px rgba($primary-dark, 0.6);
+      transform: translateY(-2px);
+    }
+  }
+
+  button[mat-raised-button][color="accent"] {
+    background-color: $accent-color;
+    box-shadow: 0 3px 6px rgba($accent-color, 0.4);
+    color: #424242;
+
+    &:hover {
+      background: $accent-dark;
+      box-shadow: 0 5px 12px rgba($accent-dark, 0.6);
+      transform: translateY(-2px);
+    }
+  }
+
+  button[mat-stroked-button] {
+    background-color: white;
+    color: $primary-color;
+    border: 2px solid $primary-color;
+    box-shadow: 0 1px 4px rgba($primary-color, 0.2);
+
+    &:hover {
+      background-color: rgba($primary-color, 0.08);
+      box-shadow: 0 4px 10px rgba($primary-color, 0.3);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .resultados-container {
+    padding: 1rem;
+  }
+
+  .fila {
+    flex-direction: column !important;
+
+    &-inferior {
+      button {
+        width: 100%;
+      }
+    }
+  }
+}

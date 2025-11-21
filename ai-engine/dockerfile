@@ -1,0 +1,28 @@
+# Imagen base: Python 3.10.14 oficial slim (ligera)
+FROM python:3.10.14-slim
+
+# Evita prompts interactivos en la instalación
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Instalar dependencias del sistema necesarias para audio, TTS y compilaciones
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    git \
+    build-essential \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crear directorio de trabajo
+WORKDIR /app
+
+# Copiar requirements primero para aprovechar el cache de Docker
+COPY requirements.txt .
+
+# Instalar dependencias de Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar el resto del código
+COPY . .
+
+# Comando por defecto (ajústalo a tu script principal)
+CMD ["python", "main.py"]

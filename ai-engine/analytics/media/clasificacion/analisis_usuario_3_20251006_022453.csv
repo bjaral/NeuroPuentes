@@ -1,0 +1,19 @@
+_id,entrevista_id,score_final,clasificacion,total_entrevistas_usuario,tiempo_total_min,score_promedio_usuario,estado_general
+401,301,61.0,Aprobado,18,980.0,66.3,Va aprobando
+402,302,55.0,Necesita mejora,18,980.0,66.3,Va aprobando
+403,303,48.5,Necesita mejora,18,980.0,66.3,Va aprobando
+404,304,66.0,Aprobado,18,980.0,66.3,Va aprobando
+405,305,68.0,Aprobado,18,980.0,66.3,Va aprobando
+406,306,52.0,Necesita mejora,18,980.0,66.3,Va aprobando
+407,307,70.0,Aprobado,18,980.0,66.3,Va aprobando
+408,308,58.0,Necesita mejora,18,980.0,66.3,Va aprobando
+409,309,50.5,Necesita mejora,18,980.0,66.3,Va aprobando
+410,310,67.0,Aprobado,18,980.0,66.3,Va aprobando
+411,311,72.0,Aprobado,18,980.0,66.3,Va aprobando
+412,312,54.0,Necesita mejora,18,980.0,66.3,Va aprobando
+413,313,74.0,Aprobado,18,980.0,66.3,Va aprobando
+414,314,60.0,Aprobado,18,980.0,66.3,Va aprobando
+415,315,49.0,Necesita mejora,18,980.0,66.3,Va aprobando
+416,316,69.0,Aprobado,18,980.0,66.3,Va aprobando
+417,317,71.5,Aprobado,18,980.0,66.3,Va aprobando
+418,318,53.0,Necesita mejora,18,980.0,66.3,Va aprobando

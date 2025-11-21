@@ -1,0 +1,249 @@
+@use '../../../../../styles.scss' as *;
+
+.register-container {
+  background-color: $background-light;
+  display: flex;
+  min-height: 100vh;
+  padding: 2rem;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-family-main;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.register-panel {
+  background-color: white;
+  width: 100%;
+  max-width: 500px;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba($primary-color, 0.12);
+  animation: slideInUp 0.4s ease-out;
+
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    h2 {
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 0;
+      color: $primary-dark;
+      text-align: center;
+
+      @media (max-width: 480px) {
+        font-size: 1.75rem;
+      }
+    }
+
+    .subtitle {
+      text-align: center;
+      color: $text-secondary;
+      font-size: 1rem;
+      margin: 0 0 1rem;
+      font-weight: 500;
+    }
+
+    // Heurística 9: Banner de error
+    .error-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background-color: rgba($warn-color, 0.1);
+      border-left: 4px solid $warn-color;
+      border-radius: 6px;
+      animation: slideInDown 0.3s ease-out;
+
+      mat-icon {
+        color: $warn-color;
+        font-size: 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+      span {
+        flex: 1;
+        color: darken($warn-color, 10%);
+        font-weight: 500;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+    }
+
+    // Heurística 1: Banner de éxito
+    .success-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background-color: rgba($success-color, 0.1);
+      border-left: 4px solid $success-color;
+      border-radius: 6px;
+      animation: slideInDown 0.3s ease-out;
+
+      mat-icon {
+        color: $success-color;
+        font-size: 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+      span {
+        flex: 1;
+        color: darken($success-color, 15%);
+        font-weight: 500;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+    }
+
+    mat-form-field {
+      width: 100%;
+
+      // Ícono de prefijo
+      mat-icon[matPrefix] {
+        color: $primary-color;
+        margin-right: 0.5rem;
+      }
+
+      // Toggle de contraseña
+      .toggle-password {
+        cursor: pointer;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+
+    // Heurística 1: Botón con estado de carga
+    .register-button {
+      width: 100%;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.875rem 1.5rem;
+      border-radius: 8px;
+      background-color: $primary-color;
+      color: white;
+      box-shadow: 0 3px 6px rgba($primary-color, 0.4);
+      transition: all 0.3s ease;
+
+      &:hover:not(:disabled) {
+        background-color: $primary-dark;
+        box-shadow: 0 5px 12px rgba($primary-dark, 0.6);
+        transform: translateY(-2px);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      // Estado de carga
+      &.loading {
+        position: relative;
+
+        span {
+          opacity: 0.7;
+        }
+      }
+    }
+
+    // Separador
+    .separator {
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        transparent,
+        rgba($primary-color, 0.2) 20%,
+        rgba($primary-color, 0.2) 80%,
+        transparent
+      );
+      margin: 0.5rem 0;
+    }
+
+    // Sección de login
+    .login-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+
+      .login-text {
+        margin: 0;
+        font-size: 0.95rem;
+        color: $text-secondary;
+        font-weight: 500;
+      }
+
+      .login-button {
+        width: 100%;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 8px;
+        background-color: white;
+        color: $primary-color;
+        border: 2px solid $primary-color;
+        box-shadow: 0 1px 4px rgba($primary-color, 0.2);
+        transition: all 0.3s ease;
+
+        &:hover {
+          background-color: rgba($primary-color, 0.08);
+          box-shadow: 0 4px 10px rgba($primary-color, 0.3);
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+}
+
+// Animaciones
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 480px) {
+  .register-panel {
+    form {
+      gap: 1rem;
+
+      .register-button,
+      .login-button {
+        font-size: 0.95rem;
+        padding: 0.75rem 1.25rem;
+      }
+    }
+  }
+}

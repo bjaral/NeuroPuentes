@@ -1,0 +1,6 @@
+@NeuroPuentes.API_HostAddress = http://localhost:5299
+
+GET {{NeuroPuentes.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
