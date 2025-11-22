@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace NeuroPuentesAPI.services 
 {
-    public class IaApiService
+    public class IaApiService : IIaApiService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<IaApiService> _logger;

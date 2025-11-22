@@ -22,7 +22,7 @@ namespace NeuroPuentesAPI.Controllers
         // --- Servicios de ambas ramas ---
         private readonly IEntrevistaService _service;
         private readonly IDialogoService _dialogoService; 
-        private readonly IaApiService _iaService;
+        private readonly IIaApiService _iaService;
         private readonly ILogger<EntrevistasController> _logger;
         private readonly IWebHostEnvironment _env;
 
@@ -30,7 +30,7 @@ namespace NeuroPuentesAPI.Controllers
         public EntrevistasController(
             IEntrevistaService service,
             IDialogoService dialogoService, 
-            IaApiService iaService, 
+            IIaApiService iaService, 
             ILogger<EntrevistasController> logger,
             IWebHostEnvironment env)
         {
@@ -108,6 +108,8 @@ namespace NeuroPuentesAPI.Controllers
                 
                 resultadoIA.SessionId = nuevaEntrevistaId.ToString(); 
                 return Ok(resultadoIA);
+                //return new OkObjectResult(resultadoIA);
+
             }
             catch (Exception ex)
             {
@@ -203,12 +205,12 @@ namespace NeuroPuentesAPI.Controllers
             // Mapeamos el DTO de 'develop' a un Modelo
             var entrevista = new Entrevista
             {
-                Titulo = dto.Titulo,
-                Descripcion = dto.Descripcion,
+                Titulo = dto.Titulo ?? "",
+                Descripcion = dto.Descripcion ?? "",
                 DuracionMin = dto.DuracionMin ?? 0, 
                 NumeroTurnos = dto.NumeroTurnos ?? 0,
                 FechaCierre = dto.FechaCierre,
-                ContextoSnapshot = dto.ContextoSnapshot
+                ContextoSnapshot = dto.ContextoSnapshot ?? ""
             };
 
             await _service.ActualizarAsync(id, entrevista);

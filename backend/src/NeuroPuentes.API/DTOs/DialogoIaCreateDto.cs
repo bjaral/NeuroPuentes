@@ -7,10 +7,10 @@ namespace NeuroPuentesAPI.DTOs
     public class DialogoIaCreateDto
     {
         [Required]
-        public IFormFile Audio { get; set; }
+        public required IFormFile Audio { get; set; }
 
         [Required]
-        public string ContextTraits { get; set; }
+        public required string ContextTraits { get; set; }
 
         [Required]
         public int EntrevistaId { get; set; }
