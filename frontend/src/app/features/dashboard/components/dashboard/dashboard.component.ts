@@ -11,8 +11,6 @@ import { MATERIAL_IMPORTS } from '../../../../shared/material/material';
 interface Entrevista {
   titulo: string;
   fecha: string;
-  //puntaje: number;
-  //estado: 'Completada' | 'Pendiente' | 'En Progreso';
   id?: number;
 }
 
@@ -27,18 +25,9 @@ interface Entrevista {
 export class DashboardComponent implements OnInit {
   nombre: string = 'Usuario';
   entrevistasRealizadas = 0;
-  //puntajePromedio = "85%";
-  //ultimoFeedback = "Buen Inicio";
   errorCargando = false;
   cargandoDatos = true;
   entrevistas: Entrevista[] = [];
-  //progresoGeneral = 76;
-  //feedbackReciente = '¡Buen progreso en tus últimas entrevistas!';
-  // tips = [
-  //   'Practica respuestas más concisas.',
-  //   'Trabaja en tu lenguaje corporal.',
-  //   'Revisa conceptos técnicos clave.'
-  // ];
 
   constructor(private tokenService: TokenService, private dashboardService: DashboardService, private authService: AuthService, private router: Router) { }
 
@@ -60,19 +49,6 @@ export class DashboardComponent implements OnInit {
     // Mejorado: feedback más específico
     console.log('Iniciando simulación...');
   }
-
-  // tooltipEstado(estado: string): string {
-  //   switch (estado.toLowerCase()) {
-  //     case 'pendiente':
-  //       return 'Entrevista creada pero aún no iniciada';
-  //     case 'completada':
-  //       return 'Entrevista finalizada correctamente';
-  //     case 'en progreso':
-  //       return 'Entrevista en curso';
-  //     default:
-  //       return 'Estado desconocido';
-  //   }
-  // }
 
   // Manejo de errores y estados
   async cargarEntrevistas() {
