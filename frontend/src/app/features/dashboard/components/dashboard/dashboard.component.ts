@@ -7,6 +7,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { Router } from '@angular/router';
 import { MATERIAL_IMPORTS } from '../../../../shared/material/material';
+import { RatingTriggerComponent } from '../../../rating/components/rating-trigger/rating-trigger.component';
 
 interface Entrevista {
   titulo: string;
@@ -18,7 +19,7 @@ interface Entrevista {
   selector: 'app-dashboard',
   imports: [
     CommonModule,
-    RouterModule, ...MATERIAL_IMPORTS],
+    RouterModule, ...MATERIAL_IMPORTS, RatingTriggerComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })

@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 export const MATERIAL_IMPORTS = [
   MatButtonModule,
@@ -37,5 +38,6 @@ export const MATERIAL_IMPORTS = [
   MatTooltipModule,
   MatButtonToggleModule,
   MatRippleModule,
-  MatMenuModule
+  MatMenuModule,
+  MatBottomSheetModule
 ]

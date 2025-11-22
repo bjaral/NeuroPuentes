@@ -1,0 +1,104 @@
+<div class="rating-widget-container">
+  
+  <!-- Estado de éxito -->
+  <div *ngIf="submitSuccess()" class="success-state">
+    <mat-icon class="success-icon">check_circle</mat-icon>
+    <h3>¡Gracias por tu feedback!</h3>
+    <p>Tu opinión nos ayuda a mejorar</p>
+  </div>
+
+  <!-- Formulario de calificación -->
+  <div *ngIf="!submitSuccess()" class="rating-content">
+    
+    <!-- Header -->
+    <div class="rating-header">
+      <div class="header-text">
+        <h2>¿Cómo ha sido tu experiencia?</h2>
+        <p>Tu opinión nos ayuda a mejorar NeuroPuentes</p>
+      </div>
+      <button 
+        mat-icon-button 
+        (click)="close()" 
+        aria-label="Cerrar"
+        class="close-btn">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="ratingForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Estrellas de calificación -->
+      <div class="stars-section">
+        <div 
+          class="stars-container"
+          (mouseleave)="onStarLeave()">
+          <button
+            *ngFor="let star of stars"
+            type="button"
+            class="star-btn"
+            (click)="selectRating(star, $event)"
+            (mousemove)="onStarHover(star, $event)"
+            [attr.aria-label]="'Calificar con ' + star + ' estrellas'">
+            <mat-icon 
+              class="star-icon"
+              [ngClass]="{
+                'star-empty': getStarDisplay(star) === 'empty',
+                'star-half': getStarDisplay(star) === 'half',
+                'star-full': getStarDisplay(star) === 'full'
+              }">
+              {{ getStarDisplay(star) === 'full' ? 'star' : 
+                 getStarDisplay(star) === 'half' ? 'star_half' : 'star_border' }}
+            </mat-icon>
+          </button>
+        </div>
+        
+        <!-- Texto descriptivo -->
+        <div class="rating-description">
+          <span class="rating-number">{{ ratingForm.get('calificacion')?.value }}/10</span>
+          <span class="rating-text">{{ getRatingText() }}</span>
+        </div>
+      </div>
+
+      <!-- Campo de mensaje opcional -->
+      <mat-form-field appearance="outline" class="message-field">
+        <mat-label>Cuéntanos más (opcional)</mat-label>
+        <textarea 
+          matInput 
+          formControlName="mensaje"
+          rows="3"
+          maxlength="500"
+          placeholder="¿Qué podríamos mejorar? ¿Qué te gustó más?"></textarea>
+        <mat-hint align="end">
+          {{ ratingForm.get('mensaje')?.value?.length || 0 }}/500
+        </mat-hint>
+      </mat-form-field>
+
+      <!-- Botones de acción -->
+      <div class="action-buttons">
+        <button 
+          mat-stroked-button 
+          type="button"
+          (click)="close()"
+          [disabled]="isSubmitting()">
+          Cancelar
+        </button>
+        
+        <button 
+          mat-raised-button 
+          color="primary"
+          type="submit"
+          [disabled]="ratingForm.invalid || isSubmitting() || ratingForm.get('calificacion')?.value === 0">
+          <mat-spinner 
+            *ngIf="isSubmitting()" 
+            diameter="20" 
+            class="spinner">
+          </mat-spinner>
+          <span *ngIf="!isSubmitting()">Enviar Calificación</span>
+          <span *ngIf="isSubmitting()">Enviando...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
