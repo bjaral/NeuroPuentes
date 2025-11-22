@@ -21,14 +21,14 @@ namespace NeuroPuentesAPI.Controllers
     {
         // --- Servicios de ambas ramas ---
         private readonly IDialogoService _service;
-        private readonly IaApiService _iaService; 
+        private readonly IIaApiService _iaService; 
         private readonly ILogger<DialogosController> _logger;
         private readonly IWebHostEnvironment _env;
 
         // --- Constructor Fusionado (de dev-gudmar) ---
         public DialogosController(
             IDialogoService service,
-            IaApiService iaService, 
+            IIaApiService iaService, 
             ILogger<DialogosController> logger,
             IWebHostEnvironment env)
         {

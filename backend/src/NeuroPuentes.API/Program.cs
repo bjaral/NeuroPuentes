@@ -102,8 +102,8 @@ builder.Services.AddHttpClient("IaApiClient", client =>
     client.Timeout = TimeSpan.FromMinutes(10); 
 });
 
-builder.Services.AddScoped<IaApiService>();
 
+builder.Services.AddScoped<IIaApiService, IaApiService>();
 
 builder.Services.AddScoped<IEntrevistaRepository, EntrevistaRepository>();
 builder.Services.AddScoped<IEntrevistaService, EntrevistaService>();
