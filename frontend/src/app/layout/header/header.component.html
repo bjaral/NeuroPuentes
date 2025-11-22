@@ -3,21 +3,18 @@
     <mat-icon>{{ isMobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
   </button>
 
-  <!-- <img mat-card-image src="assets/images/logo-png-color.png" routerLink="/" alt="Logo"> -->
-  <p><strong>NeuroPuentes</strong></p>
+  <a routerLink="/dashboard"><strong>NeuroPuentes</strong></a>
 
   <nav class="desktop-nav">
-    <a routerLink="/dashboard">Dashboard</a>
-    <a routerLink="/history">Historial</a>
-    <a routerLink="/scenarios">Escenarios</a>
+    <a routerLink="/dashboard" data-text="Dashboard" class="gradient-hover-link">Dashboard</a>
+    <a routerLink="/history" data-text="Historial" class="gradient-hover-link">Historial</a>
+    <a routerLink="/scenarios" data-text="Escenarios" class="gradient-hover-link">Escenarios</a>
   </nav>
 
   <span class="spacer"></span>
 
   <div class="desktop-buttons" *ngIf="isLoggedIn">
-    <!-- <button mat-button class="signin-btn" routerLink="/registro">Únete</button>
-    <button mat-flat-button class="login-btn" routerLink="/login">Iniciar sesión</button> -->
-    <button mat-button class="" [matMenuTriggerFor]="userMenu">{{ nombreUsuario }}</button>
+    <button mat-button [matMenuTriggerFor]="userMenu">{{ nombreUsuario }}</button>
 
     <mat-menu #userMenu="matMenu" class="user-menu">
       <button mat-menu-item (click)="logout()">
@@ -29,9 +26,16 @@
 </mat-toolbar>
 
 <div class="mobile-menu-dropdown" *ngIf="isMobileMenuOpen">
-  <a mat-button (click)="toggleMobileMenu()" routerLink="#">Dashboard</a>
-  <a mat-button (click)="toggleMobileMenu()" routerLink="#">Historial</a>
-  <a mat-button (click)="toggleMobileMenu()" routerLink="#">Escenarios</a>
+  <a mat-button (click)="toggleMobileMenu()" routerLink="/dashboard" data-text="Dashboard" class="gradient-hover-link">Dashboard</a>
+  <a mat-button (click)="toggleMobileMenu()" routerLink="/history" data-text="Historial" class="gradient-hover-link">Historial</a>
+  <a mat-button (click)="toggleMobileMenu()" routerLink="/scenarios" data-text="Escenarios" class="gradient-hover-link">Escenarios</a>
 
-  <button mat-button class="" routerLink="#" (click)="toggleMobileMenu()">{{ nombreUsuario }}</button>
+  <button mat-button [matMenuTriggerFor]="userMenu">{{ nombreUsuario }}</button>
+
+  <mat-menu #userMenu="matMenu" class="user-menu">
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </mat-menu>
 </div>

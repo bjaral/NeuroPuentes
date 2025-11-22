@@ -27,6 +27,15 @@ package "Feedback" {
     +categoria : varchar(40)
     +fecha : datetime
   }
+
+  entity Calificacion_Usuario {
+    +_id : INT PK
+    +usuario_id : INT FK -> Usuarios._id
+    --
+    +calificacion : int
+    +mensaje : text
+    +fecha : datetime
+  }
 }
 
 ' ========================
@@ -91,7 +100,7 @@ package "Estadisticas" {
     +fecha_corte : datetime
     +total_entrevistas : int
     +tiempo_total_min : float
-    +score_promedio : float       ' 0..100
+    +score_promedio : float        ' 0..100
   }
 
   entity Eval_Entrevista {
@@ -151,7 +160,7 @@ package "Contextos & Características" {
     --
     +nombre : varchar(40)
     +descripcion : varchar(255)
-    +grupo : ENUM('Contexto','Dificultad','Desempeno','Epico','Positivo','Neutral','Negativo')
+    +grupo : varchar(255)
     +vigencia : bool
   }
 
@@ -174,6 +183,7 @@ Eval_Entrevista ||--o{ Eval_Categoria
 
 Entrevistas ||--o{ Feedback_Entrevista
 Usuarios ||--o{ Feedback_Usuario
+Usuarios ||--o{ Calificacion_Usuario
 
 Usuarios ||--o{ Stats_Usuario
 

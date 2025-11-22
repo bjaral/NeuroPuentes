@@ -14,7 +14,7 @@ import {
 
 /**
  * Componente para visualizar el detalle completo de una entrevista.
- * Muestra: fecha, duración, contexto (título, descripción, tags) y transcripción completa.
+ * Muestra: fecha, duración, contexto (título, descripción, tags) y transcripción desplegable.
  * Aplica las heurísticas de Nielsen enfocándose en usabilidad y experiencia agradable.
  */
 @Component({
@@ -33,6 +33,10 @@ export class HistoryDetailComponent implements OnInit {
 
   // Heurística 1: Visibilidad del estado
   cargandoDatos = signal(true);
+  
+  // NUEVO: Control de expansión de transcripción
+  // Heurística 8: Diseño minimalista - La transcripción inicia colapsada
+  transcripcionExpandida = false;
 
   // Datos de la entrevista
   interviewId = '';
@@ -43,64 +47,6 @@ export class HistoryDetailComponent implements OnInit {
 
   // Transcripción
   transcript: Dialogo[] = [];
-
-  /* ============================================
-   * DATOS COMENTADOS - No se usarán actualmente
-   * ============================================
-  
-  // Evaluación
-  evalEntrevista: EvalEntrevista = {
-    _id: 1,
-    entrevista_id: 1,
-    score_final: 86,
-    comentario_general: 'Buen desempeño general con áreas de mejora identificadas'
-  };
-
-  evalCategorias: EvalCategoria[] = [
-    { _id: 1, eval_entrevista_id: 1, categoria: 'Inicio', score: 85 },
-    { _id: 2, eval_entrevista_id: 1, categoria: 'Preguntas', score: 78 },
-    { _id: 3, eval_entrevista_id: 1, categoria: 'Empatía', score: 92 },
-    { _id: 4, eval_entrevista_id: 1, categoria: 'Cierre', score: 88 },
-  ];
-
-  positiveFeedback: FeedbackEntrevista[] = [
-    {
-      _id: 1,
-      entrevista_id: 1,
-      tipo: 'positivo',
-      mensaje: 'Buen manejo de preguntas abiertas',
-      categoria: 'Preguntas',
-      fecha: '2024-08-15'
-    },
-    {
-      _id: 2,
-      entrevista_id: 1,
-      tipo: 'positivo',
-      mensaje: 'Cierre claro y respetuoso',
-      categoria: 'Cierre',
-      fecha: '2024-08-15'
-    }
-  ];
-
-  improvementFeedback: FeedbackEntrevista[] = [
-    {
-      _id: 3,
-      entrevista_id: 1,
-      tipo: 'mejora',
-      mensaje: 'Mejorar la validación emocional del padre',
-      categoria: 'Empatía',
-      fecha: '2024-08-15'
-    }
-  ];
-
-  // Heurística 10: Ayuda y documentación
-  tips: string[] = [
-    'Mantén contacto visual y valida emociones explícitamente.',
-    'Usa preguntas abiertas para explorar más detalles.',
-    'Evita interrupciones largas, permite que el otro se exprese.',
-  ];
-  
-  ============================================ */
 
   ngOnInit(): void {
     this.interviewId = this.route.snapshot.paramMap.get('id') || '';
@@ -143,6 +89,15 @@ export class HistoryDetailComponent implements OnInit {
   }
 
   /**
+   * NUEVO: Expande o colapsa la transcripción
+   * Heurística 3: Control y libertad del usuario
+   * Heurística 8: Diseño minimalista - Reduce saturación visual
+   */
+  toggleTranscripcion(): void {
+    this.transcripcionExpandida = !this.transcripcionExpandida;
+  }
+
+  /**
    * Formatea una fecha ISO a formato legible
    */
   private formatearFecha(fechaISO: string): string {
@@ -179,7 +134,7 @@ export class HistoryDetailComponent implements OnInit {
   }
 
   /**
-   * Descarga el reporte en formato PDF
+   * Descarga el reporte en formato HTML
    * Heurística 7: Flexibilidad y eficiencia
    */
   descargarReporte(): void {
@@ -218,10 +173,16 @@ export class HistoryDetailComponent implements OnInit {
     const tags = this.getAllTags().join(', ');
     const edad = this.getEdadFromContexto();
     
-    let transcripcionTexto = '';
-    this.transcript.forEach((dialogo, index) => {
+    let transcripcionHTML = '';
+    this.transcript.forEach((dialogo) => {
       const emisor = dialogo.sender?.toLowerCase() === 'user' ? 'Estudiante' : 'Paciente (IA)';
-      transcripcionTexto += `\n${emisor}: ${dialogo.texto}\n`;
+      const clase = dialogo.sender?.toLowerCase() === 'user' ? 'user' : 'ai';
+      transcripcionHTML += `
+        <div class="message ${clase}">
+          <strong>${emisor}:</strong>
+          <p>${dialogo.texto}</p>
+        </div>
+      `;
     });
 
     return `
@@ -229,37 +190,195 @@ export class HistoryDetailComponent implements OnInit {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reporte de Entrevista - ${this.entrevista?._id}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f5f5f5;
+    }
+    .header {
+      background: linear-gradient(135deg, #1565C0, #0D47A1);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .meta {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #1565C0;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #1565C0;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .info-item {
+      padding: 0.75rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #1565C0;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+    .info-value {
+      font-size: 1.1rem;
+      margin-top: 0.25rem;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .tag {
+      background: rgba(21, 101, 192, 0.1);
+      color: #1565C0;
+      padding: 0.35rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .messages {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .message {
+      padding: 1rem;
+      border-radius: 12px;
+      max-width: 85%;
+    }
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #1565C0, #0D47A1);
+      color: white;
+      margin-left: auto;
+    }
+    .message.ai {
+      align-self: flex-start;
+      background: #f5f5f5;
+      color: #333;
+    }
+    .message strong {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      opacity: 0.8;
+    }
+    .message p {
+      margin: 0;
+    }
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    @media print {
+      body {
+        background: white;
+      }
+      .section {
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>REPORTE DE ENTREVISTA</h1>
-  <p>ID: ${this.entrevista?._id}</p>
-  <p>Generado: ${new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+  <div class="header">
+    <h1>REPORTE DE ENTREVISTA</h1>
+    <div class="meta">
+      ID: ${this.entrevista?._id} | 
+      Generado: ${new Date().toLocaleDateString('es-ES', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      })}
+    </div>
+  </div>
   
-  <hr>
+  <div class="section">
+    <h2>INFORMACIÓN GENERAL</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Fecha</div>
+        <div class="info-value">${this.fechaEntrevista}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Duración</div>
+        <div class="info-value">${this.duracionEntrevista}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Número de Turnos</div>
+        <div class="info-value">${this.transcript.length}</div>
+      </div>
+    </div>
+  </div>
   
-  <h2>INFORMACIÓN GENERAL</h2>
-  <p><strong>Fecha:</strong> ${this.fechaEntrevista}</p>
-  <p><strong>Duración:</strong> ${this.duracionEntrevista}</p>
-  <p><strong>Número de turnos:</strong> ${this.transcript.length}</p>
+  <div class="section">
+    <h2>CONTEXTO DE LA ENTREVISTA</h2>
+    <h3 style="color: #0D47A1; margin-bottom: 0.5rem;">${this.contexto?.nombre}</h3>
+    <p style="margin-bottom: 1rem;">${this.contexto?.descripcion}</p>
+    ${edad !== 'N/A' ? `<p><strong>Edad del paciente:</strong> ${edad}</p>` : ''}
+    ${tags ? `
+      <div>
+        <strong>Características:</strong>
+        <div class="tags">
+          ${this.getAllTags().map(tag => `<span class="tag">${tag}</span>`).join('')}
+        </div>
+      </div>
+    ` : ''}
+  </div>
   
-  <hr>
+  <div class="section">
+    <h2>TRANSCRIPCIÓN COMPLETA</h2>
+    <div class="messages">
+      ${transcripcionHTML || '<p style="text-align: center; color: #666;">No hay transcripción disponible.</p>'}
+    </div>
+  </div>
   
-  <h2>CONTEXTO DE LA ENTREVISTA</h2>
-  <p><strong>Caso:</strong> ${this.contexto?.nombre}</p>
-  <p><strong>Descripción:</strong> ${this.contexto?.descripcion}</p>
-  ${edad !== 'N/A' ? `<p><strong>Edad:</strong> ${edad}</p>` : ''}
-  ${tags ? `<p><strong>Características:</strong> ${tags}</p>` : ''}
-  
-  <hr>
-  
-  <h2>TRANSCRIPCIÓN COMPLETA</h2>
-  <pre>${transcripcionTexto || 'No hay transcripción disponible.'}</pre>
-  
-  <hr>
-  
-  <p><em>NeuroPuentes - Sistema de Práctica de Entrevistas</em></p>
-  <p><em>Este reporte es confidencial y debe ser tratado según las políticas de privacidad.</em></p>
+  <div class="footer">
+    <p><strong>NeuroPuentes</strong> - Sistema de Práctica de Entrevistas</p>
+    <p style="margin-top: 0.5rem;">Este reporte es confidencial y debe ser tratado según las políticas de privacidad.</p>
+  </div>
 </body>
 </html>
     `;
@@ -282,32 +401,4 @@ export class HistoryDetailComponent implements OnInit {
     const promptTags = getTagsFromPromptSeed(this.contexto);
     return [...scopeTags, ...promptTags];
   }
-
-  /* ============================================
-   * MÉTODOS COMENTADOS - No se usan actualmente
-   * ============================================
-
-  /**
-   * Tooltip dinámico según el score
-   * Heurística 6: Reconocer antes que recordar
-   *
-  tooltipScore(score: number | undefined): string {
-    if (score === undefined) return 'Puntaje no disponible';
-    if (score >= 85) return 'Excelente desempeño';
-    if (score >= 70) return 'Buen desempeño';
-    return 'Hay oportunidades de mejora';
-  }
-
-  /**
-   * Color según el puntaje
-   * Heurística 2: Correspondencia con el mundo real
-   *
-  getScoreColor(score: number | undefined): string {
-    if (score === undefined) return 'warn';
-    if (score >= 85) return 'success';
-    if (score >= 70) return 'accent';
-    return 'warn';
-  }
-  
-  ============================================ */
 }

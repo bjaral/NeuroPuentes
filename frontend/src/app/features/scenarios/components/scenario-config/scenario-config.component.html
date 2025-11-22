@@ -1,8 +1,8 @@
 <div class="scenario-container">
 
-  <!-- Heurística 1: Estado de carga -->
+  <!-- Estado de carga -->
   <div *ngIf="cargandoDatos()" class="loading-state">
-    <mat-spinner></mat-spinner>
+    <mat-spinner diameter="48"></mat-spinner>
     <p>Cargando casos de práctica...</p>
   </div>
 
@@ -16,10 +16,10 @@
             <mat-card-title class="card-title">
               <h1>Casos de Práctica</h1>
             </mat-card-title>
-            <p class="subtitle">Selecciona un contexto para practicar entrevistas</p>
+            <p class="subtitle">Selecciona un contexto para comenzar tu entrenamiento</p>
           </div>
-          <!-- Heurística 3: Control - Botón para volver -->
-          <button mat-icon-button (click)="volverDashboard()" matTooltip="Volver al dashboard" class="back-button">
+          <button mat-icon-button (click)="volverDashboard()" matTooltip="Volver al inicio" class="back-button"
+            aria-label="Volver al dashboard">
             <mat-icon>home</mat-icon>
           </button>
         </div>
@@ -27,12 +27,12 @@
 
       <mat-card-content class="card-content">
 
-        <!-- Heurística 6: Búsqueda -->
+        <!-- Búsqueda -->
         <div class="search-section">
           <mat-form-field appearance="outline" class="search-field">
             <mat-label>Buscar casos</mat-label>
             <input matInput [value]="terminoBusqueda()" (input)="onBusquedaChange($any($event.target).value)"
-              placeholder="Por nombre, descripción o categoría..." aria-label="Buscar contextos">
+              placeholder="Por nombre, descripción o características..." aria-label="Buscar contextos">
             <mat-icon matPrefix>search</mat-icon>
             <button *ngIf="terminoBusqueda()" matSuffix mat-icon-button (click)="limpiarBusqueda()"
               aria-label="Limpiar búsqueda" matTooltip="Limpiar búsqueda">
@@ -46,18 +46,19 @@
           </div>
         </div>
 
-        <!-- Heurística 2: Lista de contextos -->
+        <!-- Lista de contextos -->
         <section class="scenario-section" *ngIf="hasResults()">
           <h2 class="section-title">
-            <mat-icon>list</mat-icon>
+            <mat-icon>library_books</mat-icon>
             Casos Disponibles
           </h2>
 
           <div class="scenario-list">
             <div *ngFor="let contexto of contextosFiltrados()" class="scenario-option"
               [class.selected]="selectedContexto()?.id === contexto.id"
-              [class.pulse-animation]="pulsingContextoId === contexto.id" (click)="selectContexto(contexto)" matRipple
-              [matRippleColor]="'rgba(21, 101, 192, 0.1)'" [attr.aria-label]="'Seleccionar caso: ' + contexto.nombre">
+              [class.pulse-animation]="pulsingContextoId === contexto.id" (click)="selectContexto(contexto)"
+              (keydown.enter)="selectContexto(contexto)" matRipple [matRippleColor]="'rgba(21, 101, 192, 0.1)'"
+              [attr.aria-label]="'Seleccionar caso: ' + contexto.nombre" tabindex="0">
 
               <div class="scenario-content">
                 <div class="scenario-icon">
@@ -75,8 +76,11 @@
                     </span>
                     <div class="tags-preview" *ngIf="getTagsFromPromptSeed(contexto).length > 0">
                       <mat-icon>label</mat-icon>
-                      <span class="tag" *ngFor="let tag of getTagsFromPromptSeed(contexto).slice(0, 2)">
+                      <span class="tag" *ngFor="let tag of getTagsFromPromptSeed(contexto).slice(0, 3)">
                         {{ tag }}
+                      </span>
+                      <span class="tag" *ngIf="getTagsFromPromptSeed(contexto).length > 3">
+                        +{{ getTagsFromPromptSeed(contexto).length - 3 }}
                       </span>
                     </div>
                   </div>
@@ -90,7 +94,7 @@
           </div>
         </section>
 
-        <!-- Heurística 9: Estado vacío -->
+        <!-- Estado vacío -->
         <div *ngIf="!hasResults()" class="empty-state">
           <mat-icon>search_off</mat-icon>
           <h3>No se encontraron casos</h3>
@@ -101,34 +105,37 @@
           </button>
         </div>
 
-        <!-- Heurística 7: Opción rápida - Caso aleatorio -->
+        <!-- Opción rápida - Caso aleatorio -->
         <mat-divider class="divider" *ngIf="hasResults()"></mat-divider>
 
         <section class="random-section" *ngIf="hasResults()">
           <div class="random-content">
             <div class="random-info">
-              <mat-icon>casino</mat-icon>
+              <div class="dice-group">
+                <mat-icon class="dice-1">casino</mat-icon>
+                <mat-icon class="dice-2">casino</mat-icon>
+              </div>
               <div>
                 <h3>¿No sabes cuál elegir?</h3>
                 <p>Deja que el sistema seleccione un caso aleatorio para ti</p>
               </div>
             </div>
             <button mat-raised-button color="accent" class="random-btn" (click)="selectRandom()"
-              [disabled]="isRandomizing()" matTooltip="Selecciona un caso al azar para practicar">
+              [disabled]="isRandomizing()" matTooltip="Selecciona un caso al azar">
               <mat-icon>{{ isRandomizing() ? 'autorenew' : 'casino' }}</mat-icon>
               {{ isRandomizing() ? 'Seleccionando...' : 'Caso Aleatorio' }}
             </button>
           </div>
         </section>
 
-        <!-- Heurística 6: Vista previa del contexto seleccionado -->
+        <!-- Vista previa del contexto seleccionado -->
         <ng-container *ngIf="selectedContexto()">
           <mat-divider class="divider"></mat-divider>
 
           <section class="preview-section">
             <h2 class="preview-title">
               <mat-icon>visibility</mat-icon>
-              Información del Caso Seleccionado
+              Información del Caso
             </h2>
 
             <div class="preview-content">
@@ -141,19 +148,19 @@
               </div>
 
               <div class="preview-description">
-                <strong>Descripción:</strong>
+                <strong>Descripción</strong>
                 <p>{{ selectedContexto()!.descripcion }}</p>
               </div>
 
-              <div class="preview-text" *ngIf="selectedContexto()!.promptSeed">
-                <strong>Situación inicial:</strong>
-                <p>{{ selectedContexto()!.promptSeed }}</p>
+              <div class="preview-text" *ngIf="getPromptSeedFormatted(selectedContexto()!)">
+                <strong>Situación Inicial</strong>
+                <p>{{ getPromptSeedFormatted(selectedContexto()!) }}</p>
               </div>
 
               <div class="metadata-section" *ngIf="getTagsFromPromptSeed(selectedContexto()!).length > 0">
                 <span class="meta-label">
                   <mat-icon>label</mat-icon>
-                  Características:
+                  Características
                 </span>
                 <div class="tags-container">
                   <span class="tag" *ngFor="let tag of getTagsFromPromptSeed(selectedContexto()!)">
@@ -167,15 +174,16 @@
 
       </mat-card-content>
 
-      <!-- Heurística 1 y 3: Acción principal clara -->
+      <!-- Acciones -->
       <mat-card-actions class="card-actions">
-        <button mat-stroked-button (click)="volverDashboard()" class="secondary-btn">
+        <button mat-stroked-button (click)="volverDashboard()" class="secondary-btn" aria-label="Volver al dashboard">
           <mat-icon>arrow_back</mat-icon>
           Volver
         </button>
 
         <button mat-raised-button color="primary" class="simulation-btn" (click)="startSimulation()"
-          [disabled]="!selectedContexto()" matTooltip="Comenzar la práctica de entrevista con este caso">
+          [disabled]="!selectedContexto()" matTooltip="Comenzar la práctica con este caso"
+          aria-label="Iniciar práctica de entrevista">
           <mat-icon>play_arrow</mat-icon>
           Iniciar Práctica
         </button>
