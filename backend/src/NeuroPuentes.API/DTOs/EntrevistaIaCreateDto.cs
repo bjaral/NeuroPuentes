@@ -6,10 +6,10 @@ namespace NeuroPuentesAPI.DTOs
     public class EntrevistaIaCreateDto
     {
         [Required]
-        public IFormFile Audio { get; set; }
+        public required IFormFile Audio { get; set; }
 
         [Required]
-        public string ContextTraits { get; set; }
+        public required string ContextTraits { get; set; }
 
         [Required]
         public int UsuarioId { get; set; }
@@ -18,9 +18,10 @@ namespace NeuroPuentesAPI.DTOs
         public int ContextoId { get; set; }
 
         [Required]
-        public string Titulo { get; set; }
+        public required string Titulo { get; set; }
 
         [Required]
-        public float DuracionMin { get; set; } 
+        public float DuracionMin { get; set; }
     }
+
 }

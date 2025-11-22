@@ -157,8 +157,8 @@ namespace NeuroPuentesAPI.Controllers
             {
                 Turno = dto.Turno ?? 0, 
                 Sender = dto.Sender ?? ENUM_SENDER_DIALOGO.User, // Arreglo CS0019
-                Texto = dto.Texto,
-                TextoProcesado = dto.TextoProcesado,
+                Texto = dto.Texto ?? "",
+                TextoProcesado = dto.TextoProcesado ?? "",
                 AudioUrl = dto.AudioUrl
             };
 

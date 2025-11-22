@@ -205,12 +205,12 @@ namespace NeuroPuentesAPI.Controllers
             // Mapeamos el DTO de 'develop' a un Modelo
             var entrevista = new Entrevista
             {
-                Titulo = dto.Titulo,
-                Descripcion = dto.Descripcion,
+                Titulo = dto.Titulo ?? "",
+                Descripcion = dto.Descripcion ?? "",
                 DuracionMin = dto.DuracionMin ?? 0, 
                 NumeroTurnos = dto.NumeroTurnos ?? 0,
                 FechaCierre = dto.FechaCierre,
-                ContextoSnapshot = dto.ContextoSnapshot
+                ContextoSnapshot = dto.ContextoSnapshot ?? ""
             };
 
             await _service.ActualizarAsync(id, entrevista);
