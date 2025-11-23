@@ -260,4 +260,87 @@ export class ScenarioConfigComponent implements OnInit {
     const promptTags = this.getTagsFromPromptSeed(contexto);
     return [...scopeTags, ...promptTags];
   }
+
+  /**
+   * NUEVO: Formatea el promptSeed para mostrarlo de forma legible
+   * Convierte el JSON en texto amigable
+   * Heurística 2: Correspondencia con el mundo real
+   */
+  getPromptSeedFormatted(contexto: Contexto): string {
+    if (!contexto.promptSeed) return '';
+
+    try {
+      // Intentar parsear como JSON
+      const parsed = JSON.parse(contexto.promptSeed);
+      
+      // Crear una descripción legible desde el JSON
+      const parts: string[] = [];
+
+      // Edad
+      if (parsed.edad) {
+        parts.push(`Paciente de ${parsed.edad} años`);
+      }
+
+      // Severidad
+      if (parsed.severidad) {
+        const severidadMap: { [key: string]: string } = {
+          'leve': 'Caso de complejidad leve',
+          'moderado': 'Caso de complejidad moderada',
+          'moderada': 'Caso de complejidad moderada',
+          'severo': 'Caso de complejidad alta',
+          'severa': 'Caso de complejidad alta'
+        };
+        const severidad = severidadMap[parsed.severidad.toLowerCase()] || `Severidad: ${parsed.severidad}`;
+        parts.push(severidad);
+      }
+
+      // Comorbilidad
+      if (parsed.comorbilidad) {
+        const comorbilidades = Array.isArray(parsed.comorbilidad) 
+          ? parsed.comorbilidad.join(', ') 
+          : parsed.comorbilidad;
+        parts.push(`Con comorbilidad: ${comorbilidades}`);
+      }
+
+      // Foco
+      if (parsed.foco) {
+        const focos = Array.isArray(parsed.foco) 
+          ? parsed.foco.join(', ') 
+          : parsed.foco;
+        parts.push(`Foco evaluativo: ${focos}`);
+      }
+
+      // Tipo
+      if (parsed.tipo) {
+        const tipoMap: { [key: string]: string } = {
+          'inicial': 'Evaluación inicial',
+          'seguimiento': 'Evaluación de seguimiento',
+          'control': 'Control de evolución',
+          'derivacion': 'Evaluación para derivación',
+          'derivación': 'Evaluación para derivación'
+        };
+        const tipo = tipoMap[parsed.tipo.toLowerCase()] || `Tipo: ${parsed.tipo}`;
+        parts.push(tipo);
+      }
+
+      // Contexto
+      if (parsed.contexto) {
+        const contextos = Array.isArray(parsed.contexto) 
+          ? parsed.contexto.join(', ') 
+          : parsed.contexto;
+        parts.push(`Contexto: ${contextos}`);
+      }
+
+      // Si no hay partes formateadas, devolver descripción genérica
+      if (parts.length === 0) {
+        return 'Caso de práctica clínica';
+      }
+
+      return parts.join(' • ');
+
+    } catch (e) {
+      // Si no es JSON válido, devolver el texto tal cual
+      return contexto.promptSeed;
+    }
+  }
 }

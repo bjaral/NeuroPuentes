@@ -1,0 +1,10 @@
+global using Xunit;
+global using Moq;
+global using Microsoft.AspNetCore.Mvc.Testing;
+global using Microsoft.Extensions.DependencyInjection;
+global using System.Net.Http.Json;
+global using NeuroPuentesAPI.DTOs;
+global using NeuroPuentesAPI.services;
+global using NeuroPuentesAPI.Data;
+global using NeuroPuentesAPI.models;
+global using Microsoft.AspNetCore.Http;

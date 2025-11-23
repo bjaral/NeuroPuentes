@@ -1,20 +1,20 @@
 <main class="history-container">
 
-  <!-- Heurística 1: Visibilidad del estado -->
+  <!-- Estado de carga -->
   <div *ngIf="cargandoDatos()" class="loading-state">
-    <mat-spinner></mat-spinner>
+    <mat-spinner diameter="48"></mat-spinner>
     <p>Cargando tu historial...</p>
   </div>
 
   <!-- Contenido principal -->
   <ng-container *ngIf="!cargandoDatos()">
     
-    <!-- Header con título y búsqueda -->
+    <!-- Header con título -->
     <div class="header-section">
       <h1 class="page-title">Historial de Entrevistas</h1>
     </div>
 
-    <!-- Heurística 6: Búsqueda - Reconocer antes que recordar -->
+    <!-- Búsqueda -->
     <div class="search-section">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Buscar entrevistas</mat-label>
@@ -38,17 +38,20 @@
 
       <!-- Contador de resultados -->
       <p class="results-count" *ngIf="terminoBusqueda()">
-        {{ entrevistasFiltradas().length }} resultado(s) encontrado(s)
+        {{ entrevistasFiltradas().length }} resultado{{ entrevistasFiltradas().length !== 1 ? 's' : '' }} encontrado{{ entrevistasFiltradas().length !== 1 ? 's' : '' }}
       </p>
     </div>
 
     <!-- Lista de entrevistas -->
-    <section class="list" *ngIf="entrevistasFiltradas().length > 0">
+    <section class="list" *ngIf="entrevistasFiltradas().length > 0" role="list">
       <mat-card
         *ngFor="let item of entrevistasFiltradas()"
         class="interview-card"
         role="listitem"
-        [attr.aria-label]="'Ver detalle de entrevista del ' + item.entrevista.fecha_creacion">
+        tabindex="0"
+        (click)="verDetalle(item.entrevista._id!)"
+        (keydown.enter)="verDetalle(item.entrevista._id!)"
+        [attr.aria-label]="'Ver detalle de entrevista del ' + item.entrevista.fecha_creacion + ': ' + item.entrevista.titulo">
         
         <div class="card-content">
           <!-- Información principal -->
@@ -58,6 +61,7 @@
                 <mat-icon>calendar_today</mat-icon>
                 {{ item.entrevista.fecha_creacion }}
               </span>
+              <!-- Descomentar cuando esté disponible el score -->
               <!-- <span class="score" [ngClass]="getScoreClass(item.evaluacion.score_final)">
                 <mat-icon>star</mat-icon>
                 {{ item.evaluacion.score_final }}%
@@ -71,13 +75,17 @@
 
             <!-- Metadatos -->
             <div class="metadata">
-              <span class="meta-item" matTooltip="Duración de la entrevista">
+              <span 
+                class="meta-item" 
+                matTooltip="Duración de la entrevista">
                 <mat-icon>schedule</mat-icon>
                 {{ item.entrevista.duracion_min }} min
               </span>
-              <span class="meta-item" matTooltip="Número de intercambios">
+              <span 
+                class="meta-item" 
+                matTooltip="Número de intercambios">
                 <mat-icon>chat</mat-icon>
-                {{ item.entrevista.numero_turnos }} turnos
+                {{ item.entrevista.numero_turnos }} turno{{ item.entrevista.numero_turnos !== 1 ? 's' : '' }}
               </span>
             </div>
           </div>
@@ -87,7 +95,7 @@
             <button 
               mat-raised-button 
               color="primary"
-              (click)="verDetalle(item.entrevista._id!)"
+              (click)="verDetalle(item.entrevista._id!); $event.stopPropagation()"
               aria-label="Ver detalle completo de la entrevista">
               <mat-icon>visibility</mat-icon>
               Ver Detalle
@@ -99,21 +107,29 @@
 
     <!-- Estado vacío -->
     <div *ngIf="entrevistasFiltradas().length === 0" class="empty-state">
-      <mat-icon>search_off</mat-icon>
-      <h3>No se encontraron entrevistas</h3>
+      <mat-icon>{{ terminoBusqueda() ? 'search_off' : 'assignment_outlined' }}</mat-icon>
+      <h3>{{ terminoBusqueda() ? 'No se encontraron entrevistas' : 'Sin entrevistas registradas' }}</h3>
       <p *ngIf="terminoBusqueda()">
-        No hay resultados para "{{ terminoBusqueda() }}". Intenta con otros términos.
+        No hay resultados para "{{ terminoBusqueda() }}". Intenta con otros términos de búsqueda.
       </p>
       <p *ngIf="!terminoBusqueda()">
-        Aún no has realizado ninguna entrevista. ¡Comienza tu primera entrevista!
+        Aún no has realizado ninguna entrevista. ¡Comienza tu primera práctica y construye tu historial!
       </p>
       <button 
         mat-raised-button 
         color="primary" 
         routerLink="/scenarios"
         *ngIf="!terminoBusqueda()">
-        <mat-icon>add</mat-icon>
-        Nueva Entrevista
+        <mat-icon>play_circle_outline</mat-icon>
+        Realizar Primera Entrevista
+      </button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="limpiarBusqueda()"
+        *ngIf="terminoBusqueda()">
+        <mat-icon>refresh</mat-icon>
+        Ver Todas las Entrevistas
       </button>
     </div>
 

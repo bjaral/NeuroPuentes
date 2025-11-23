@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{59AFB5AE-CE57-4007-9B18-863155A32391}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuroPuentes.API", "src\NeuroPuentes.API\NeuroPuentes.API.csproj", "{3812BFDC-0F0A-4D21-B4BD-22A012EF00B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D8A4786D-0F72-44E7-A0EF-DD85C7FD5A7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuroPuentes.Tests", "tests\NeuroPuentes.Tests\NeuroPuentes.Tests.csproj", "{24C25F58-5449-4C4A-9E5D-E6EF1F296012}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3812BFDC-0F0A-4D21-B4BD-22A012EF00B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3812BFDC-0F0A-4D21-B4BD-22A012EF00B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3812BFDC-0F0A-4D21-B4BD-22A012EF00B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3812BFDC-0F0A-4D21-B4BD-22A012EF00B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24C25F58-5449-4C4A-9E5D-E6EF1F296012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24C25F58-5449-4C4A-9E5D-E6EF1F296012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24C25F58-5449-4C4A-9E5D-E6EF1F296012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24C25F58-5449-4C4A-9E5D-E6EF1F296012}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3812BFDC-0F0A-4D21-B4BD-22A012EF00B5} = {59AFB5AE-CE57-4007-9B18-863155A32391}
+		{24C25F58-5449-4C4A-9E5D-E6EF1F296012} = {D8A4786D-0F72-44E7-A0EF-DD85C7FD5A7A}
+	EndGlobalSection
+EndGlobal
