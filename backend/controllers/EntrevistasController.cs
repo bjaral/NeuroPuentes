@@ -41,7 +41,7 @@ namespace NeuroPuentesAPI.Controllers
             _env = env;
         }
 
-        // --- ENDPOINT DE IA (de dev-gudmar) ---
+        // --- ENDPOINT DE IA NO TOCAR---
         [HttpPost("iniciar-con-ia")]
         [ProducesResponseType(typeof(IAResponse), 200)]
         [ProducesResponseType(typeof(string), 400)]
@@ -119,6 +119,7 @@ namespace NeuroPuentesAPI.Controllers
         // --- ENDPOINTS CRUD (de la rama develop) ---
         
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<EntrevistaReadDto>>> GetAll()
         {
             var entrevistas = await _service.GetAllAsync();

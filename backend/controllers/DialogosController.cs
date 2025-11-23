@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Hosting;
 using System.Collections.Generic; // (Añadido)
 using System.Linq; // (Añadido)
 
-// (Usamos el namespace 'Controllers' con 'C' mayúscula, que es la convención)
 namespace NeuroPuentesAPI.Controllers 
 {
     [ApiController]
@@ -38,7 +37,7 @@ namespace NeuroPuentesAPI.Controllers
             _env = env;
         }
 
-        // --- ENDPOINT DE IA (de dev-gudmar, adaptado) ---
+        // --- ENDPOINT DE IA NO TOCAR ---
         [HttpPost("continuar-con-ia")]
         [ProducesResponseType(typeof(IAResponse), 200)]
         [ProducesResponseType(typeof(string), 400)]
@@ -66,9 +65,6 @@ namespace NeuroPuentesAPI.Controllers
                 }
                 
                 resultadoIA.SessionId = sessionId; 
-
-                // --- Lógica ADAPTADA a 'develop' ---
-                // (Tu servicio 'CrearAsync' espera un Modelo, no un DTO)
                 
                 // 2. Guardar el turno del estudiante (Mapeando a Modelo)
                 string audioEstudianteUrl = await GuardarArchivo(dto.Audio);
@@ -76,11 +72,11 @@ namespace NeuroPuentesAPI.Controllers
                 {
                     EntrevistaId = dto.EntrevistaId,
                     Turno = dto.Turno,
-                    Sender = dto.Sender, // (Viene del DTO que usa el ENUM)
+                    Sender = dto.Sender,
                     Texto = resultadoIA.Transcription, 
                     AudioUrl = audioEstudianteUrl
                 };
-                await _service.CrearAsync(dialogoEstudiante); // Llama al servicio con el Modelo
+                await _service.CrearAsync(dialogoEstudiante); 
 
                 // 3. Guardar el turno de la IA (Mapeando a Modelo)
                 string audioIaUrl = await GuardarAudioBase64(resultadoIA.AudioBase64);
@@ -88,11 +84,11 @@ namespace NeuroPuentesAPI.Controllers
                 {
                     EntrevistaId = dto.EntrevistaId,
                     Turno = dto.Turno + 1,
-                    Sender = ENUM_SENDER_DIALOGO.Ai, // (Usando el ENUM)
+                    Sender = ENUM_SENDER_DIALOGO.Ai, 
                     Texto = resultadoIA.ResponseText, 
                     AudioUrl = audioIaUrl
                 };
-                await _service.CrearAsync(dialogoIA); // Llama al servicio con el Modelo
+                await _service.CrearAsync(dialogoIA);
 
                 _logger.LogInformation("Diálogos (Turnos {Turno}, {TurnoIA}) guardados para Entrevista {EntrevistaId}", dto.Turno, dto.Turno + 1, dto.EntrevistaId);
                 
@@ -105,7 +101,7 @@ namespace NeuroPuentesAPI.Controllers
             }
         }
         
-        // --- ENDPOINTS CRUD (de la rama develop) ---
+        // --- ENDPOINTS CRUD --
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DialogoReadDto>>> GetAll()

@@ -1,7 +1,5 @@
 # Procesamiento de audio y STT (Whisper)
 openai-whisper==20250625
-torch==2.8.0
-torchaudio==2.8.0
 numpy
 soundfile==0.13.1
 

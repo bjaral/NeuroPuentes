@@ -1,28 +1,37 @@
-# Imagen base: Python 3.10.14 oficial slim (ligera)
-FROM python:3.10.14-slim
+# 1. Imagen Base (Usamos Python 3.11 y slim para ahorrar espacio)
+FROM python:3.11-slim
 
-# Evita prompts interactivos en la instalación
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Instalar dependencias del sistema necesarias para audio, TTS y compilaciones
+# 2. Instalar Dependencias del Sistema
+# Necesitamos 'ffmpeg' (para Whisper) y 'git' (para algunas dependencias de python)
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     git \
-    build-essential \
-    libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Crear directorio de trabajo
+# 3. Configurar el Entorno
 WORKDIR /app
-
-# Copiar requirements primero para aprovechar el cache de Docker
 COPY requirements.txt .
 
-# Instalar dependencias de Python
-RUN pip install --no-cache-dir -r requirements.txt
+# 4. Instalar PyTorch+CUDA (¡El Paso Crítico!)
+# Esta es la versión para GPU (CUDA 12.1) que ya probamos
+# No te preocupes por el tamaño, el servidor de HF lo maneja.
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
-# Copiar el resto del código
+# 5. Instalar BitsAndBytes (Para Quantización)
+RUN pip install -U bitsandbytes
+
+# 6. Instalar el resto de las librerías de Python
+RUN pip install -r requirements.txt
+
+# 7. Copiar TODO el código de tu app
+# (main.py, llama_module.py, tts_module.py, whisper_module.py)
 COPY . .
 
-# Comando por defecto (ajústalo a tu script principal)
-CMD ["python", "main.py"]
+# 8. Exponer el Puerto
+# (Hugging Face Spaces espera que las apps web usen el puerto 7860)
+EXPOSE 7860
+
+# 9. Comando de Inicio
+# Le decimos a Uvicorn que inicie 'main.py' (el archivo 'app')
+# en el puerto 7860 y que sea visible (0.0.0.0)
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
