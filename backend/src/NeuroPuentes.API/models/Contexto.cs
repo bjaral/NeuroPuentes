@@ -31,6 +31,12 @@ namespace NeuroPuentesAPI.models
 
         public required DateTime FechaCreacion {get;set;}
 
+        
+        // Propiedad de navegación para Entrevistas
+        public virtual ICollection<Entrevista> Entrevistas { get; set; } = new List<Entrevista>();
+
+        // Propiedad de navegación para Usuario (CreadoPor)
+        public virtual Usuario? Creador { get; set; }
     }
 
 }
