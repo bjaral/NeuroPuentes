@@ -5,13 +5,22 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
+
 using System.Text;
 
 // project packages
+using NeuroPuentesAPI.Data;
 using NeuroPuentesAPI.repositories;
 using NeuroPuentesAPI.services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// === CONFIGURACIÓN DE ENTITY FRAMEWORK ===
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 // === AUTENTICACIÓN JWT ===
 var jwtKey = builder.Configuration["Jwt:Key"];
@@ -176,3 +185,5 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.MapControllers();
 app.Run();
+
+public partial class Program { }

@@ -26,3 +26,5 @@ bin/
 venv/
 .venv/
 
+#Backend Generated files
+backend/src/NeuroPuentes.API/media/*.wav

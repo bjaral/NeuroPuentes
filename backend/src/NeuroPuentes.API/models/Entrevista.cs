@@ -33,5 +33,13 @@ namespace NeuroPuentesAPI.models
 
         [Required]
         public string ContextoSnapshot { get; set; } = string.Empty;
+
+        // Colección de diálogos
+        public virtual ICollection<Dialogo> Dialogos { get; set; } = new List<Dialogo>();
+
+        // Propiedad de navegación
+        public virtual Contexto? Contexto { get; set; }
+
+        public virtual Usuario? Usuario { get; set; }
     }
 }

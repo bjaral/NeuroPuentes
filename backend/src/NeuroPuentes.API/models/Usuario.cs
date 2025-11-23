@@ -20,6 +20,10 @@ namespace NeuroPuentesAPI.models
         public required string NombreUsuario { get; set; } = String.Empty;
         public required string Nombre{ get; set; } = String.Empty;
         public required string Email { get; set; } = String.Empty;
+        
+        // Propiedad de navegación para Entrevistas
+        public virtual ICollection<Entrevista> Entrevistas { get; set; } = new List<Entrevista>();
+    
     }
 
 }
